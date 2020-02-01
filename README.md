@@ -11,18 +11,18 @@ TruthTable table = new TruthTable(tree);
 Map<Node, boolean[]> ttable = table.detailFull().getTable();
 ```
 The result would be:
-P|Q|P→Q
--|-|---
-T|T|T
-T|F|F
-F|T|T
-F|F|T
+|P|Q|P→Q|
+|-|-|---|
+|T|T| T |
+|T|F| F |
+|F|T| T |
+|F|F| T |
 
 On the other hand,
 ```java
 parser.parse("(P->Q");
 ```
-The result is
+The result would
 ```
 lojic.parser.SyntaxException: Index 4 - Missing closing parenthesis
 (P->Q
@@ -36,7 +36,7 @@ Negation|NEG|¬|~, !|50|None
 Conjunction|AND|∧|&, ^, ×, •, ⋅|40|right
 Alternative Denial, Sheffer Stroke|NAND|↑|⊼|40|right
 Disjunction|OR|∨|+, ∥|30|right
-Joint Denial, Peirce's arrow|NOR|↓|⊽|30right
+Joint Denial, Peirce's arrow|NOR|↓|⊽|30|right
 Exclusive Disjunction|XOR|⊕|⊻, ↮, ≢|30|right
 Conditional, Material Implication|IF|→|->, ⇒, ⊃|20|right
 Material Nonimplication|NIF|↛|/->, -/>|20|right
@@ -48,7 +48,8 @@ Biconditional, Logical Equality|IFF|↔|<->, ≡, ⇔, =|10|right
 > (), {}, []
 
 ### Format
-Atoms (Denotes propositions, or operands) must be alphabetic or numeric
+Atoms (Denotes propositions, or operands) must be alphabetic or numeric.
+There are no length limits to atoms.
 
 ### Todo List
 - [ ] Debug lexer (location tracking, error handling)
