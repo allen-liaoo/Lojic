@@ -11,12 +11,13 @@ TruthTable table = new TruthTable(tree);
 Map<Node, boolean[]> ttable = table.detailFull().getTable();
 ```
 The result would be:
-|P|Q|P→Q|
-|:---|:---:|:------:|
-|T|T| T |
-|T|F| F |
-|F|T| T |
-|F|F| T |
+
+P|Q|P->Q
+:---:|:---:|:----:
+T|T| T
+T|F| F
+F|T| T
+F|F| T
 
 On the other hand,
 ```java
