@@ -13,7 +13,7 @@ Map<Node, boolean[]> ttable = table.detailFull().getTable();
 
 ### Supported Logical Connectives
 Name|Object Name|Official Symbol|Other Symbols|Precedence|Associativity
-------------------|-----|---------------|---|------
+----|-----------|---------------|-------------|----------|-------------
 Negation|NEG|¬|~, !|50|None
 Conjunction|AND|∧|&, ^, ×, •, ⋅|40|right
 Alternative Denial, Sheffer Stroke|NAND|↑|⊼|40|right
