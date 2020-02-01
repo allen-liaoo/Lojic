@@ -6,9 +6,27 @@ abstract syntax trees and truth tables.
 ### Example
 ```java
 LojicParser parser = new LojicParser();
-FormulaTree tree = parser.parse("P->Q"); // throws SyntaxException if there is a syntax error in the string
+FormulaTree tree = parser.parse("P->Q"); // throws SyntaxException if the syntax is incorrect
 TruthTable table = new TruthTable(tree);
 Map<Node, boolean[]> ttable = table.detailFull().getTable();
+```
+The result would be:
+P|Q|P→Q
+--|--|--
+T|T|T
+T|F|F
+F|T|T
+F|F|T
+
+On the other hand,
+```java
+parser.parse("(P->Q");
+```
+The result is
+```
+lojic.parser.SyntaxException: Index 4 - Missing closing parenthesis
+(P->Q
+    ^
 ```
 
 ### Supported Logical Connectives
@@ -22,7 +40,7 @@ Joint Denial, Peirce's arrow|NOR|↓|⊽|30right
 Exclusive Disjunction|XOR|⊕|⊻, ↮, ≢|30|right
 Conditional, Material Implication|IF|→|->, ⇒, ⊃|20|right
 Material Nonimplication|NIF|↛|/->, -/>|20|right
-Converse Implication|IF_CON|←|<-, ⇐, ⊂|20right
+Converse Implication|IF_CON|←|<-, ⇐, ⊂|20|right
 Converse Nonimplication|NIF_CON|↚|</-, <-/|20|right
 Biconditional, Logical Equality|IFF|↔|<->, ≡, ⇔, =|10|right
 
@@ -30,7 +48,7 @@ Biconditional, Logical Equality|IFF|↔|<->, ≡, ⇔, =|10|right
 > (), {}, []
 
 ### Format
-Atoms (Denotes propositions, or operands) need to be alphabetic or numeric
+Atoms (Denotes propositions, or operands) must be alphabetic or numeric
 
 ### Todo List
 - [ ] Debug lexer (location tracking, error handling)
