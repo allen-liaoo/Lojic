@@ -1,7 +1,6 @@
 package lojic.parser;
 
 import lojic.nodes.ConnectiveFactory;
-import lojic.nodes.truthapts.Formula;
 import lojic.parser.token.Token;
 import lojic.parser.token.TokenList;
 import lojic.tree.FormulaTree;
@@ -27,6 +26,7 @@ public class LojicParser {
         if (formula == null || formula.isEmpty()) throw new IllegalArgumentException("Parser does not accept empty or null string");
 
         cache = LojicUtil.strip(formula);
+        //Formula baseFormula = new Formula(0, formula, null);
         parse(cache, 0);
 
         cache = "";
@@ -44,12 +44,17 @@ public class LojicParser {
 
     // Recursive method used to parse any individual formula to nodes
     private void parse(String formula, int location) {
-        Formula baseFormula = new Formula(0, formula, null);
         LojicLexer tokenizer = new LojicLexer(cache, formula);
         TokenList tokens = tokenizer.lex(location);
         System.out.println(tokens);
-        System.out.println(Arrays.toString(tokens.stream().map(Token::getLocation).toArray()));
         System.out.println(Arrays.toString(tokens.stream().map(Token::getType).toArray()));
+        tokens.forEach(tk -> System.out.println(tk + "\n" + LojicUtil.generateIndicator(cache, tk.getLocation())));
+        for (Token token : tokens) {
+            if (token.isType(Token.Type.FORMULA)) {
+                parse(token.toString(), token.getLocation());
+            }
+        }
+
         //List<Token> token = expr(tokens, 10);
     }
 

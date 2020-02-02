@@ -90,7 +90,10 @@ public class LojicUtil {
         for (int i = 0; i < index; i++) {
             builder.append(" ");
         }
-        return formula + "\n" + builder.toString() + "^";
+        return formula + "\n" + builder.toString() +
+                "\u001b[31m" + // Red word
+                "^" +
+                "\u001b[0m"; // Reset
     }
 
 }

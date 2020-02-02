@@ -72,7 +72,7 @@ public class Token implements CharSequence {
     /**
      * @author AlienIdeology
      *
-     *
+     * The type of strings the LojicLexer would encounter and handle accordingly
      */
     public enum Type {
 
@@ -93,12 +93,17 @@ public class Token implements CharSequence {
         public String[] SYMBOLS;
         // symbols must include the official symbol.
         // If String symbol is defined as symbols[0], there would be an ExceptionInInitializerError
+
+        /**
+         * @param symbol The official symbol
+         * @param symbols All symbols, including the official one
+         */
         Type(String symbol, String... symbols) {
             OFFICIAL_SYMBOL = symbol;
             SYMBOLS = symbols;
         }
 
-        Type() {}
+        Type(){}
 
     }
 

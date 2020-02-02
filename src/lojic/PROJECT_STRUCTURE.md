@@ -1,41 +1,41 @@
 # Node
-String getString()
-Node getParent()
+String getString()  
+Node getParent()  
 int getLevel()
 
 ### TruthApt
-void setTruths(boolean [])
-boolean[] getTruths()
+void setTruths(boolean [])  
+boolean[] getTruths()  
 boolean isSet()
 
 ###  Formula
-extends Node, implements TruthApt
-Connective getConnective()
-BinaryConnective/null getBConnective()
-UnaryConnective/null getUConnective()
-boolean isBinary()
-void setChildren(Node[])
+extends Node, implements TruthApt  
+Connective getConnective()  
+BinaryConnective/null getBConnective()  
+UnaryConnective/null getUConnective()  
+boolean isBinary()  
+void setChildren(Node[])  
 Node[] getChildren()
 ###  LocalAtom
-extends Node
+extends Node  
 Atom getAtom()
 ###  Atom
 implements TruthApt
 
 ### Connective(String, String...)
-String getOfficialSymbol()
+String getOfficialSymbol()  
 String[] getSymbols()
 ### BinaryConnective
-extends Connective
+extends Connective  
 boolean computeTruth(boolean, boolean)
 ### UnaryConnective
-extends Connective
+extends Connective  
 boolean computeTruth(boolean)
 
 ------------------------------------
 
 # Parser
-FormulaTree parse(String)
+FormulaTree parse(String)  
 private void parse(Formula) - called to parse all formulas and set their children nodes.
 
 ## Process
@@ -60,19 +60,19 @@ private void parse(Formula) - called to parse all formulas and set their childre
 ```
 
 ### LojicLexer(String)
-TokenList lex(int) - return a list of tokens from thes tring
-Token handleNext() - handles syntax error and group parenthesized atoms or formulas
+TokenList lex(int) - return a list of tokens from thes tring  
+Token handleNext() - handles syntax error and group parenthesized atoms or formulas  
 Token next() - return an atom token (grouped) or other tokens
 ### Token
-enum Type
-    ATOM
-    CONNECTIVE
-    PARENTHESIS_OPEN
-    PARENTHESIS_CLOSE
-    UNKNOWN
-    FORMULA
-String string
-int location
+enum Type  
+    ATOM  
+    CONNECTIVE  
+    PARENTHESIS_OPEN  
+    PARENTHESIS_CLOSE  
+    UNKNOWN  
+    FORMULA  
+String string  
+int location  
 Type type
 ### SyntaxException
 extends Exception
@@ -123,30 +123,30 @@ IFF "\↔"
 
 ------------------------------------
 # FormulaTree (Node n, int levels)
-Node getRoot()
-int getLevels()
-Atom[] getAtoms()
-Node[] getNodes(int level) - return all nodes at a level
+Node getRoot()  
+int getLevels()  
+Atom[] getAtoms()  
+Node[] getNodes(int level) - return all nodes at a level  
 TruthApt[] getTruthApts() - return all TruthApts in order of precedence
 
 # TruthTable (FormulaTree)
-detailSetting(boolean showSubColumn, Column...)
-//default {false, ATOM, ROOT}
-detailModerate() {false, PREMISE, ROOT}
-detailFull() {true, ATOM FORMULA, ROOT}
-boolean isAlwaysTrue()
-Node[] getPremises()
-void fillTruths()
-Map<Node, boolean[]> getTable()
+detailSetting(boolean showSubColumn, Column...)  
+//default {false, ATOM, ROOT}  
+detailModerate() {false, PREMISE, ROOT}  
+detailFull() {true, ATOM FORMULA, ROOT}  
+boolean isAlwaysTrue()  
+Node[] getPremises()  
+void fillTruths()  
+Map<Node, boolean[]> getTable()  
 FormulaTree getTree()
 
-enum Column
-    ATOMS
-    PREMISES
-    FORMULAS
-    ROOT
-fillTruths() Uses:
-FormulaTree.getAtoms() -> Fill in all atoms with truth values
+enum Column  
+    ATOMS  
+    PREMISES  
+    FORMULAS  
+    ROOT  
+fillTruths() Uses:  
+FormulaTree.getAtoms() -> Fill in all atoms with truth values  
 FormulaTree.getNodes(int level) -> For all nodes at level, check parent formula.  
 if parent formula has no truth value, compute truth value. Get all child nodes from parent formula,  
 and remove them from the list. Repeat the process until there is no nodes in the list.  

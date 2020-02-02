@@ -39,7 +39,6 @@ public class Formula extends Node implements TruthApt {
         return connective instanceof BinaryConnective ? (BinaryConnective) connective : null;
     }
 
-
     public UnaryConnective getUConnective() {
         return connective instanceof UnaryConnective ? (UnaryConnective) connective : null;
     }

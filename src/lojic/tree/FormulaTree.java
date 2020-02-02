@@ -15,5 +15,12 @@ public class FormulaTree {
         this.levels = levels;
     }
 
+    public Node getRoot() {
+        return root;
+    }
+
+    public int getLevels() {
+        return levels;
+    }
 
 }

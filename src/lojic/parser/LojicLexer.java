@@ -48,9 +48,15 @@ public class LojicLexer {
     public TokenList lex(int location) {
         TokenList tokens = new TokenList();
 
+        // create new integer since (int location) is only passed by value
+        // when the location is updated at the bottom of the while(true) loop, we need to store it
+        int loc = location;
+
         while (true) {
             while (hasNext()) {
-                tokens.add(handleNext( location + index + 1)); // reader index starts at -1, so offset it by 1
+                Token tok = handleNext(loc+index+1);
+                tokens.add(tok); // reader index starts at -1, so offset it by 1
+                //System.out.println(tok + "\n" + LojicUtil.generateIndicator(baseString, tok.getLocation()));
             }
 
             /*
@@ -66,14 +72,16 @@ public class LojicLexer {
             // "(((A&B)))" => "A" "&" "B"
             // "((A)->(B)->(C&D))" => "A" "->" "B" -> "C&D"
             // "((A&B)->(B&C))" => "A&B"
-            if (tokens.size()==1){
-                updateString(tokens.get(0).toString());
+            if (tokens.size()==1) {
+                updateString(tokens.get(0).toString()); // This overrides the old string with the new, un-parenthesized-once string
+                loc = loc+1; // Offset by +1 to account for the removal of open parenthesis at the start of the old string
                 // "A" => "A"
                 // "(A)" => "A"
-                if (tokens.get(0).isType(Token.Type.ATOM)) break;
-
-                    // "(((A&B)))" => ""A&B"
-                else {
+                if (tokens.get(0).isType(Token.Type.ATOM)) {
+                    tokens.get(0).setLocation(loc);
+                    break;
+                // "(((A&B)))" => ""A&B"
+                } else {
                     tokens.clear();
                     setIndex(-1);
                 }
@@ -95,34 +103,34 @@ public class LojicLexer {
      * This method group parenthesized strings into formulas or atoms, and un-parenthesize it.
      *
      * @param location The location of the formula in the base formula in which this lexer starts
+     *                 "hello" -> lexer starts at reading "e" -> location = 1
      * @return The next token
      * @throws SyntaxException for various syntax errors
      */
-    // Redundant method, can collapse this into next()
     private Token handleNext(int location) {
         Token next = next();
         Token.Type type = next.getType();
 
-        // loc = location + lexer index
-        // errorNoNext requires -1; throw new Exception requires -1 or -2
-        int loc = location + next.length();
+        // loc: index location in the broader context
+        // errorNext and errorNoNext requires loc+1, since we want the indicator to show at the next char
+        int loc = location + next.length()-1;
 
         switch (type) {
             case PARENTHESIS_OPEN: {
                 int count = 1;
                 StringBuilder cache = new StringBuilder(next.toString());
-                errorNext(loc, Token.Type.BINARY_CONNECTIVE);
+                errorNext(loc+1, Token.Type.BINARY_CONNECTIVE);
 
                 while (count !=0) {
                     // Cases like "(" or "((" or "((P->Q)"
                     if (!hasNext()) {
                         // "(", "(("
                         if(LojicUtil.isOpenParenthesis(cache.substring(cache.length()-1))) {
-                            errorNoNext(loc-1);
-                            // "((P->Q)"
+                            errorNoNext(loc+1);
+                        // "((P->Q)"
                         } else {
-                            throw new SyntaxException(loc-1, "Missing closing parenthesis",
-                                    LojicUtil.generateIndicator(baseString, loc-1));
+                            throw new SyntaxException(loc+1, "Missing closing parenthesis",
+                                    LojicUtil.generateIndicator(baseString, loc+1));
                         }
                     }
 
@@ -141,35 +149,37 @@ public class LojicLexer {
                 // Remove parenthesis in front and at the end
                 result = result.substring(1, result.length()-1);
 
+                loc -= (cache.length() -2);
+
                 // Empty Formula ()
-                if(result.isEmpty()) throw new SyntaxException(loc-2, "Empty formula",
-                        LojicUtil.generateIndicator(baseString, loc-2));
+                if(result.isEmpty()) throw new SyntaxException(loc-1, "Empty formula or atom within parenthesis",
+                        LojicUtil.generateIndicator(baseString, loc-1));
 
                 // Return formula of atom
-                return LojicUtil.isAtomic(result) ? new Token (this, result, Token.Type.ATOM, location) :
-                        new Token(this, result, Token.Type.FORMULA, location);
+                return LojicUtil.isAtomic(result) ? new Token (this, result, Token.Type.ATOM, loc) :
+                        new Token(this, result, Token.Type.FORMULA, loc);
             }
 
-            case PARENTHESIS_CLOSE: throw new SyntaxException(loc-1, next,
-                    LojicUtil.generateIndicator(toString(), loc-1));
+            case PARENTHESIS_CLOSE: throw new SyntaxException(loc, next,
+                    LojicUtil.generateIndicator(toString(), loc));
 
             case ATOM: {
-                errorNext(loc, Token.Type.UNARY_CONNECTIVE, Token.Type.PARENTHESIS_OPEN);
+                errorNext(loc+1, Token.Type.UNARY_CONNECTIVE, Token.Type.PARENTHESIS_OPEN);
                 break;
             }
             case UNARY_CONNECTIVE:
             case BINARY_CONNECTIVE: {
                 // Cases like "A&" or "!"
-                errorNoNext(loc-1);
-                errorNext(loc, Token.Type.BINARY_CONNECTIVE, Token.Type.PARENTHESIS_CLOSE);
+                errorNoNext(loc+1);
+                errorNext(loc+1, Token.Type.BINARY_CONNECTIVE, Token.Type.PARENTHESIS_CLOSE);
                 break;
             }
             case UNKNOWN:
-                throw new SyntaxException(loc, "Unrecognized character " + next,
+                throw new SyntaxException(loc, "Unrecognized character \"" + next + "\"",
                         LojicUtil.generateIndicator(baseString, loc));
         }
 
-        next.setLocation(location);
+        next.setLocation(loc);
         return next;
     }
 
