@@ -14,11 +14,11 @@ import lojic.parser.token.Token;
  */
 public class LocalAtom extends Node {
 
-    private Atom atom;
+    private final Atom atom;
 
-    public LocalAtom(int lvl, String str, Node prt, Atom at) {
-        super(Token.Type.ATOM, lvl, str, prt);
-        atom = new Atom(str);
+    public LocalAtom(int level, String string, Node parent, Atom atom) {
+        super(Token.Type.ATOM, level, string, parent);
+        this.atom = atom;
     }
 
     public Atom getAtom() {

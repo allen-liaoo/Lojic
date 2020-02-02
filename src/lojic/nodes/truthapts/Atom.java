@@ -10,15 +10,15 @@ package lojic.nodes.truthapts;
  * @see LocalAtom for a localized version
  */
 public class Atom implements TruthApt {
-    private String string;
+    private final String string;
     private boolean[] truths = null;
 
-    public Atom(String str) {
-        string = str;
+    public Atom(String string) {
+        this.string = string;
     }
 
-    public void setTruths(boolean[] ths) {
-        truths = ths;
+    public void setTruths(boolean[] truths) {
+        this.truths = truths;
     }
 
     public boolean[] getTruths() {

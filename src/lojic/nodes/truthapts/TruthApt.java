@@ -11,9 +11,9 @@ public interface TruthApt {
      * Set the truth values
      * Used to set the column of booleans for the truth-table
      *
-     * @param ths The truth values
+     * @param truths The truth values
      */
-    void setTruths(boolean[] ths);
+    void setTruths(boolean[] truths);
 
     /**
      * Get the truth values

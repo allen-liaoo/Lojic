@@ -8,12 +8,13 @@ import java.util.List;
  * @author AlienIdeology
  *
  * Logical operators, including Binary and Unary operators
+ * @see lojic.nodes.ConnectiveFactory
  */
 public abstract class Connective {
 
-    private String symbol;
-    private String[] symbols;
-    private int precedence;
+    private final String symbol;
+    private final String[] symbols;
+    private final int precedence;
 
     /**
      * @param official The official symbol which the parser recognizes
@@ -60,4 +61,5 @@ public abstract class Connective {
     public int getPrecedence() {
         return precedence;
     }
+
 }

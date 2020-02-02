@@ -23,7 +23,7 @@ On the other hand,
 ```java
 parser.parse("(P->Q");
 ```
-The result would
+The result would be
 ```
 lojic.parser.SyntaxException: Index 4 - Missing closing parenthesis
 (P->Q
@@ -49,11 +49,12 @@ Biconditional, Logical Equality|IFF|↔|<->, ≡, ⇔, =|10|right
 > (), {}, []
 
 ### Format
-Atoms (Denotes propositions, or operands) must be alphabetic or numeric.
+Atoms (propositions or operands) must be alphabetic or numeric.
 There are no length limits to atoms.
 
 ### Todo List
 - [ ] Debug lexer (location tracking, error handling)
+- [ ] T, F 0, 1,
 - [ ] Javadocs
 - [ ] Finish parser (precedence climbing + recursively descent to build tree)
 - [ ] Formula Tree

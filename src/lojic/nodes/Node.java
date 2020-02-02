@@ -6,20 +6,20 @@ import lojic.parser.token.Token;
  * @author AlienIdeology
  *
  * Localized elements of a logical expression
- * Localization - Objects that are localized contian informations about its whereabouts in the logical expression
+ * Localization - Objects that are localized contian informations about its whereabouts in the formula tree
  */
 public class Node {
 
     protected Token.Type type;
     protected int level;
     protected String string;
-    protected Node parent;
+    protected final Node parent;
 
-    public Node (Token.Type tp, int lvl, String str, Node prt) {
-        type = tp;
-        level = lvl;
-        string = str;
-        parent = prt;
+    public Node (Token.Type type, int level, String string, Node parent) {
+        this.type = type;
+        this.level = level;
+        this.string = string;
+        this.parent = parent;
     }
 
     /**
@@ -34,7 +34,7 @@ public class Node {
 
     /**
      * Get the string representation of the node
-     * These are raw, unprocessed strings of the original logical experession
+     * These are raw, unprocessed strings of the original logical expression
      *
      * @return string
      */

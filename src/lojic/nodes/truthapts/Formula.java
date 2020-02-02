@@ -18,8 +18,8 @@ public class Formula extends Node implements TruthApt {
     private Node[] children;
     private boolean[] truths = null;
 
-    public Formula(int lvl, String str, Node prt) {
-        super(Token.Type.FORMULA, lvl, str, prt);
+    public Formula(int level, String string, Node parent) {
+        super(Token.Type.FORMULA, level, string, parent);
     }
 
     /**
@@ -48,6 +48,10 @@ public class Formula extends Node implements TruthApt {
         return connective instanceof BinaryConnective;
     }
 
+    public boolean isBase() {
+        return super.getParent() == null;
+    }
+
     /**
      * Sets the children nodes of this formula
      *
@@ -61,8 +65,8 @@ public class Formula extends Node implements TruthApt {
         connective = con;
     }
 
-    public void setTruths(boolean[] ths) {
-        truths = ths;
+    public void setTruths(boolean[] truths) {
+        this.truths = truths;
     }
 
     public boolean[] getTruths() {

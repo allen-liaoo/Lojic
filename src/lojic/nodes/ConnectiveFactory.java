@@ -5,8 +5,6 @@ import lojic.nodes.connectives.BinaryConnective;
 import lojic.nodes.connectives.Connective;
 import lojic.nodes.connectives.UnaryConnective;
 
-import java.util.ArrayList;
-
 /**
  * @author AlienIdeology
  *
@@ -91,7 +89,7 @@ public class ConnectiveFactory {
         }
     };
 
-    public static Connective[] CONNECTIVES = new Connective[] {
+    public static final Connective[] CONNECTIVES = new Connective[] {
             // Order of this list is important for replacing unofficial symbols
             NEG,
             AND, NAND,
@@ -102,9 +100,9 @@ public class ConnectiveFactory {
     };
 
     @Nullable
-    public static Connective getConnective(String connnective) {
+    public static Connective getConnective(String connective) {
         for (Connective con : ConnectiveFactory.CONNECTIVES) {
-            if (con.getOfficialSymbol().equals(connnective)) return con;
+            if (con.getOfficialSymbol().equals(connective)) return con;
         }
         return null;
     }

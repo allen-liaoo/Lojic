@@ -2,13 +2,15 @@ package lojic.parser;
 
 /**
  * @author AlienIdeology
+ *
+ * A RuntimeException that is thrown when LojicLexer does not recognize the syntax of a logical expression
  */
 public class SyntaxException extends RuntimeException {
 
     private String indicator;
     private int index;
 
-    public SyntaxException (String message) {
+    public SyntaxException(String message) {
         super(message);
     }
 
@@ -19,7 +21,7 @@ public class SyntaxException extends RuntimeException {
      * @param message The custom message
      * @param indicator The formula with underlying indicator
      */
-    public SyntaxException (int index, String message, String indicator) {
+    public SyntaxException(int index, String message, String indicator) {
         super("Index " + index + " - " + message + "\n" + indicator);
         this.index = index;
         this.indicator = indicator;
@@ -32,7 +34,7 @@ public class SyntaxException extends RuntimeException {
      * @param character The character
      * @param indicator The formula with underlying indicator
      */
-    public SyntaxException (int index, CharSequence character, String indicator) {
+    public SyntaxException(int index, CharSequence character, String indicator) {
         super("Index " + index + " - Unexpected character " + "\"" + character + "\"\n" + indicator);
         this.index = index;
         this.indicator = indicator;

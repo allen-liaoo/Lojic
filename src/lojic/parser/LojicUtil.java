@@ -1,14 +1,15 @@
-package lojic.parser.token;
+package lojic.parser;
 
 import lojic.nodes.ConnectiveFactory;
 import lojic.nodes.connectives.BinaryConnective;
 import lojic.nodes.connectives.Connective;
 import lojic.nodes.connectives.UnaryConnective;
+import lojic.parser.token.Token;
 
 /**
  * @author AlienIdeology
  */
-public class TokenUtil {
+public class LojicUtil {
 
     public static boolean isAtomic(String token) {
         for (char ch : token.toCharArray()) {
@@ -82,4 +83,14 @@ public class TokenUtil {
         }
         return input;
     }
+
+    // For printing detailed error messages which indicates the location the error occurs
+    public static String generateIndicator(String formula, int index) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < index; i++) {
+            builder.append(" ");
+        }
+        return formula + "\n" + builder.toString() + "^";
+    }
+
 }
