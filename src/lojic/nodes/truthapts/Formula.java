@@ -4,7 +4,7 @@ import lojic.nodes.Node;
 import lojic.nodes.connectives.BinaryConnective;
 import lojic.nodes.connectives.Connective;
 import lojic.nodes.connectives.UnaryConnective;
-import lojic.parser.token.Token;
+import lojic.parser.token.TokenType;
 
 /**
  * @author AlienIdeology
@@ -19,7 +19,7 @@ public class Formula extends Node implements TruthApt {
     private boolean[] truths = null;
 
     public Formula(int level, String string, Node parent) {
-        super(Token.Type.FORMULA, level, string, parent);
+        super(TokenType.FORMULA, level, string, parent);
     }
 
     /**

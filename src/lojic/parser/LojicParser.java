@@ -2,7 +2,6 @@ package lojic.parser;
 
 import lojic.nodes.ConnectiveFactory;
 import lojic.parser.token.Token;
-import lojic.parser.token.TokenList;
 import lojic.tree.FormulaTree;
 
 import java.util.Arrays;
@@ -45,21 +44,36 @@ public class LojicParser {
     // Recursive method used to parse any individual formula to nodes
     private void parse(String formula, int location) {
         LojicLexer tokenizer = new LojicLexer(cache, formula);
-        TokenList tokens = tokenizer.lex(location);
+        ParseList<Token> tokens = tokenizer.lex(location);
+        // DEBUG Print formulas
         System.out.println(tokens);
         System.out.println(Arrays.toString(tokens.stream().map(Token::getType).toArray()));
-        tokens.forEach(tk -> System.out.println(tk + "\n" + LojicUtil.generateIndicator(cache, tk.getLocation())));
-        for (Token token : tokens) {
-            if (token.isType(Token.Type.FORMULA)) {
-                parse(token.toString(), token.getLocation());
-            }
-        }
+        System.out.println(Arrays.toString(tokens.stream().map(Token::getLocation).toArray()));
+        System.out.println();
+        // DEBUG tokens.forEach(tk -> System.out.println(tk + "\n" + LojicUtil.generateIndicator(cache, tk.getLocation())));
 
         //List<Token> token = expr(tokens, 10);
     }
 
+    // DEBUG: Parse and print everything
+    /*
+    private void pe(ParseList<Token> tokens) {
+        for (Token token : tokens) {
+            if (token.isType(TokenType.FORMULA) && !token.isUnparsedFormula()) {
+                parse(token.toString(), token.getLocation());
+            } else if (token.isUnparsedFormula()){
+                System.out.println(token.toString());
+                System.out.println(Arrays.toString(((Token.ParsedFormula)token).getTokens().toArray()));
+                System.out.println(Arrays.toString(((Token.ParsedFormula)token).getTokens().stream().map(Token::getType).toArray()));
+                System.out.println(Arrays.toString(((Token.ParsedFormula)token).getTokens().stream().map(Token::getLocation).toArray()));
+                System.out.println();
+                pe(new ParseList<>(((Token.ParsedFormula) token).getTokens()));
+            }
+        }
+    }*/
+
     // Precedence climbing, recursive
-    private List<Token> expr(TokenList list, int prevPrec) {
+    private List<Token> expr(ParseList<Token> list, int prevPrec) {
         String left = list.next().toString();
         while (ConnectiveFactory.getPrecedence(list.peek().toString()) <= prevPrec) {
             // Unfinished

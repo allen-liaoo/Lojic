@@ -1,7 +1,7 @@
 package lojic.parser;
 
 import lojic.parser.token.Token;
-import lojic.parser.token.TokenList;
+import lojic.parser.token.TokenType;
 
 /**
  * @author AlienIdeology
@@ -45,8 +45,8 @@ public class LojicLexer {
      * @param location The location of the formula in the base formula in which this lexer starts
      * @return a list of tokens
      */
-    public TokenList lex(int location) {
-        TokenList tokens = new TokenList();
+    public ParseList<Token> lex(int location) {
+        ParseList<Token> tokens = new ParseList<>();
 
         // create new integer since (int location) is only passed by value
         // when the location is updated at the bottom of the while(true) loop, we need to store it
@@ -54,8 +54,8 @@ public class LojicLexer {
 
         while (true) {
             while (hasNext()) {
-                Token tok = handleNext(loc+index+1);
-                tokens.add(tok); // reader index starts at -1, so offset it by 1
+                Token token = handleNext(loc+index+1);
+                tokens.add(token); // reader index starts at -1, so offset it by 1
                 //System.out.println(tok + "\n" + LojicUtil.generateIndicator(baseString, tok.getLocation()));
             }
 
@@ -72,13 +72,14 @@ public class LojicLexer {
             // "(((A&B)))" => "A" "&" "B"
             // "((A)->(B)->(C&D))" => "A" "->" "B" -> "C&D"
             // "((A&B)->(B&C))" => "A&B"
-            if (tokens.size()==1) {
-                updateString(tokens.get(0).toString()); // This overrides the old string with the new, un-parenthesized-once string
+            Token first = tokens.get(0);
+            if (tokens.size()==1 && !(first instanceof Token.ParsedFormula)) {
+                updateString(first.toString()); // This overrides the old string with the new, un-parenthesized-once string
                 loc = loc+1; // Offset by +1 to account for the removal of open parenthesis at the start of the old string
                 // "A" => "A"
                 // "(A)" => "A"
-                if (tokens.get(0).isType(Token.Type.ATOM)) {
-                    tokens.get(0).setLocation(loc);
+                if (first.isType(TokenType.ATOM)) {
+                    first.setLocation(loc);
                     break;
                 // "(((A&B)))" => ""A&B"
                 } else {
@@ -89,27 +90,82 @@ public class LojicLexer {
             else break;
         }
 
+        handleUnary(tokens);
         return tokens;
     }
 
-    // Grouping parenthesis and handling errors
-
-    /*
-     * Handle all syntax errors
-     * This method group parenthesized strings into formulas or atoms, and un-parenthesize it.
+    /**
+     * This method handles the unary connectives in a {@code ParseList<Token>}
+     * by grouping it with the adequate token(s) on its right into a ParsedFormula
+     *
+     * The tokens that will be absorbed into the ParsedFormula include
+     * 1. The original unary connective (#1)
+     * 2. The unary connective(s) immediately to the right of the original unary connective (#0~n)
+     * 3. The atom or formula to the left of the unary connective(s) (#1)
+     *
+     * Then the method updates the {@code ParseList<Token>} by deleting all the tokens absorbed and
+     * replacing them with a single {@link lojic.parser.token.Token.ParsedFormula} object.
+     *
+     * @param tokens The list of tokens
      */
+    private void handleUnary(ParseList<Token> tokens) {
+        for (int i = 0; i < tokens.size(); i++) {
+            Token token = tokens.get(i);
+            if(token.isType(TokenType.UNARY_CONNECTIVE)) {
+                Token.ParsedFormula formula = new Token.ParsedFormula(token);
+                formula.add(token);
+                StringBuilder tokStr = new StringBuilder(token.toString());
+                Token right = tokens.get(i+1);
+                int removed = 0; // count the times we add to ParsedFormula
+
+                // While the token to a unary connective token's right is also unary, add the token
+                while (right.isType(TokenType.UNARY_CONNECTIVE)) {
+                    formula.add(right);
+                    tokStr.append(right.toString());
+
+                    removed++;
+                    right = tokens.get(i+removed+1);
+                }
+
+                // When the remaining token is an atom or a formula, add the token
+                if (right.isType(TokenType.ATOM)) {
+                    formula.add(right);
+                    tokStr.append(right.toString());
+                    removed++;
+                }  else if (right.isType(TokenType.FORMULA)) {
+                    formula.add(right);
+                    tokStr.append(TokenType.PARENTHESIS_OPEN.OFFICIAL_SYMBOL).append(right.toString()).append(TokenType.PARENTHESIS_CLOSE.OFFICIAL_SYMBOL);
+                    // FEATURE: No symbols stripping - No fix yet??
+                    removed++;
+                }
+
+                // Update the list
+                formula.setString(tokStr.toString());
+                tokens.set(i, formula);
+                for (int j = 0; j < removed; j++) {
+                    tokens.remove(i+1);
+                }
+            }
+        }
+    }
 
     /**
      * This method group parenthesized strings into formulas or atoms, and un-parenthesize it.
+     * This method also handle all syntax errors.
      *
      * @param location The location of the formula in the base formula in which this lexer starts
      *                 "hello" -> lexer starts at reading "e" -> location = 1
-     * @return The next token
+     * @return The next token, could be {@link TokenType}
+     *     ATOM,
+     *     UNARY_CONNECTIVE,
+     *     BINARY_CONNECTIVE,
+     *     FORMULA,
+     *     END
      * @throws SyntaxException for various syntax errors
      */
     private Token handleNext(int location) {
         Token next = next();
-        Token.Type type = next.getType();
+        TokenType type = next.getType();
 
         // loc: index location in the broader context
         // errorNext and errorNoNext requires loc+1, since we want the indicator to show at the next char
@@ -119,11 +175,12 @@ public class LojicLexer {
             case PARENTHESIS_OPEN: {
                 int count = 1;
                 StringBuilder cache = new StringBuilder(next.toString());
-                errorNext(loc+1, Token.Type.BINARY_CONNECTIVE);
+                errorNext(loc+1, TokenType.BINARY_CONNECTIVE);
 
                 while (count !=0) {
+                    String nxt = nextChar();
                     // Cases like "(" or "((" or "((P->Q)"
-                    if (!hasNext()) {
+                    if (nxt == null) { // !hasNext()
                         // "(", "(("
                         if(LojicUtil.isOpenParenthesis(cache.substring(cache.length()-1))) {
                             errorNoNext(loc+1);
@@ -134,15 +191,14 @@ public class LojicLexer {
                         }
                     }
 
-                    next = next();
-                    loc += next.length();
 
-                    if (next.isType(Token.Type.PARENTHESIS_OPEN)) {
+                    if (nxt.equals(TokenType.PARENTHESIS_OPEN.OFFICIAL_SYMBOL)) {
                         count++;
-                    } else if (next.isType(Token.Type.PARENTHESIS_CLOSE)) {
+                    } else if (nxt.equals(TokenType.PARENTHESIS_CLOSE.OFFICIAL_SYMBOL)) {
                         count--;
                     }
-                    cache.append(next.toString());
+                    cache.append(nxt);
+                    loc++;
                 }
 
                 String result = cache.toString();
@@ -156,22 +212,23 @@ public class LojicLexer {
                         LojicUtil.generateIndicator(baseString, loc-1));
 
                 // Return formula of atom
-                return LojicUtil.isAtomic(result) ? new Token (this, result, Token.Type.ATOM, loc) :
-                        new Token(this, result, Token.Type.FORMULA, loc);
+                return LojicUtil.isAtomic(result) ? new Token (this, result, TokenType.ATOM, loc) :
+                        new Token(this, result, TokenType.FORMULA, loc);
             }
 
             case PARENTHESIS_CLOSE: throw new SyntaxException(loc, next,
                     LojicUtil.generateIndicator(toString(), loc));
 
             case ATOM: {
-                errorNext(loc+1, Token.Type.UNARY_CONNECTIVE, Token.Type.PARENTHESIS_OPEN);
+                errorNext(loc+1, TokenType.UNARY_CONNECTIVE, TokenType.PARENTHESIS_OPEN);
+                loc -= next.length()-1; // Reset loc to the start of atom string
                 break;
             }
             case UNARY_CONNECTIVE:
             case BINARY_CONNECTIVE: {
                 // Cases like "A&" or "!"
                 errorNoNext(loc+1);
-                errorNext(loc+1, Token.Type.BINARY_CONNECTIVE, Token.Type.PARENTHESIS_CLOSE);
+                errorNext(loc+1, TokenType.BINARY_CONNECTIVE, TokenType.PARENTHESIS_CLOSE);
                 break;
             }
             case UNKNOWN:
@@ -188,24 +245,30 @@ public class LojicLexer {
      *         2. Char of parenthesis
      *         3. Char of connectives
      *         4. Char of unrecognized characters (Numbers, Unicodes)
+     *         5. Empty token if the index is at the end
      */
     private Token next() {
-        index++;
-        String ch = string.substring(index, index+1);
-        Token.Type type;
+        String ch = nextChar();
+        // FEATURE: implement TokenType.END (may not be necessary)
+        /*
+        if (ch == null) { // !hasNext()
+            return new Token(this, "", TokenType.END);
+        }
+        */
 
-        if (LojicUtil.isBinaryConnective(ch)) type = Token.Type.BINARY_CONNECTIVE;
-        else if (LojicUtil.isUnaryConnective(ch)) type = Token.Type.UNARY_CONNECTIVE;
+        TokenType type;
+        if (LojicUtil.isBinaryConnective(ch)) type = TokenType.BINARY_CONNECTIVE;
+        else if (LojicUtil.isUnaryConnective(ch)) type = TokenType.UNARY_CONNECTIVE;
         else if (LojicUtil.isOpenParenthesis(ch)) {
-            ch = Token.Type.PARENTHESIS_OPEN.OFFICIAL_SYMBOL;
-            type = Token.Type.PARENTHESIS_OPEN;
+            ch = TokenType.PARENTHESIS_OPEN.OFFICIAL_SYMBOL;
+            type = TokenType.PARENTHESIS_OPEN;
         }
         else if (LojicUtil.isCloseParenthesis(ch)) {
-            ch = Token.Type.PARENTHESIS_CLOSE.OFFICIAL_SYMBOL;
-            type = Token.Type.PARENTHESIS_CLOSE;
+            ch = TokenType.PARENTHESIS_CLOSE.OFFICIAL_SYMBOL;
+            type = TokenType.PARENTHESIS_CLOSE;
         }
         else if (LojicUtil.isAtomic(ch)) {
-            type = Token.Type.ATOM;
+            type = TokenType.ATOM;
             StringBuilder cache = new StringBuilder(ch);
             while (hasNext()) {
                 ch = peekChar();
@@ -218,45 +281,47 @@ public class LojicLexer {
             }
             ch = cache.toString();
         }
-        else type = Token.Type.UNKNOWN;
+        else type = TokenType.UNKNOWN;
 
         return new Token(this, ch, type);
     }
 
     /**
-     * @return The next Token, or null if there is no next Token
+     * Read the next char
+     *
+     * @return The char, or null if there are no chars left
      */
-    private Token peek() {
-        Token token = null;
+    private String nextChar() {
+        String next = peekChar();
+        if(next != null) index++; // reset index
+        return next;
+    }
+
+    private String peekChar() {
         if (hasNext()) {
-            int temp = index;
-            token = next();
-            setIndex(temp);
+            return string.substring(index+1, index+2);
+        } else {
+            return null;
         }
-        return token;
     }
 
     // Check if the next token is of certain TokenType. If so, throw SyntaxException
-    private void errorNext(int location, Token.Type... types) {
-        if (hasNext()) {
-            Token token = peek();
-            for (Token.Type tp : types) {
-                if (token.isType(tp)) throw new SyntaxException(location,
-                        (CharSequence) token.toString(),
+    // FEATURE: No symbols stripping - Change for loop
+    private void errorNext(int location, TokenType... types) throws SyntaxException {
+        String next = peekChar();
+        if (next != null) {
+            for (TokenType tp : types) {
+                if (next.equals(tp.OFFICIAL_SYMBOL)) throw new SyntaxException(location, next,
                         LojicUtil.generateIndicator(baseString, location));
             }
         }
     }
 
     // Check if there is a next token. If not, throw SyntaxException
-    private void errorNoNext(int location) {
+    private void errorNoNext(int location) throws SyntaxException {
         if (!hasNext()) throw new SyntaxException(location,
                 "Missing atom or formula at the end of the expression",
                 LojicUtil.generateIndicator(baseString, location));
-    }
-
-    private String peekChar() {
-        return string.substring(index+1, index+2);
     }
 
     private boolean hasNext() {

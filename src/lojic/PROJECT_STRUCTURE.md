@@ -64,16 +64,17 @@ TokenList lex(int) - return a list of tokens from thes tring
 Token handleNext() - handles syntax error and group parenthesized atoms or formulas  
 Token next() - return an atom token (grouped) or other tokens
 ### Token
-enum Type  
+String string  
+int location  
+TokenType type
+
+enum TokenType  
     ATOM  
     CONNECTIVE  
     PARENTHESIS_OPEN  
     PARENTHESIS_CLOSE  
     UNKNOWN  
-    FORMULA  
-String string  
-int location  
-Type type
+    FORMULA
 ### SyntaxException
 extends Exception
 

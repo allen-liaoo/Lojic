@@ -10,6 +10,7 @@ import lojic.nodes.connectives.UnaryConnective;
  *
  * Load all the default, recognized connectives.
  */
+// FEATURE: No symbols stripping - Remove official symbols
 public class ConnectiveFactory {
 
     public final static UnaryConnective NEG = new UnaryConnective("¬", 50, "~", "!") {
@@ -100,6 +101,7 @@ public class ConnectiveFactory {
     };
 
     @Nullable
+    // FEATURE: No symbols stripping - Change if condition
     public static Connective getConnective(String connective) {
         for (Connective con : ConnectiveFactory.CONNECTIVES) {
             if (con.getOfficialSymbol().equals(connective)) return con;

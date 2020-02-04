@@ -1,7 +1,7 @@
 package lojic.nodes.truthapts;
 
 import lojic.nodes.Node;
-import lojic.parser.token.Token;
+import lojic.parser.token.TokenType;
 
 /**
  * @author AlienIdeology
@@ -17,7 +17,7 @@ public class LocalAtom extends Node {
     private final Atom atom;
 
     public LocalAtom(int level, String string, Node parent, Atom atom) {
-        super(Token.Type.ATOM, level, string, parent);
+        super(TokenType.ATOM, level, string, parent);
         this.atom = atom;
     }
 

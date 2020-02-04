@@ -4,7 +4,7 @@ import lojic.nodes.ConnectiveFactory;
 import lojic.nodes.connectives.BinaryConnective;
 import lojic.nodes.connectives.Connective;
 import lojic.nodes.connectives.UnaryConnective;
-import lojic.parser.token.Token;
+import lojic.parser.token.TokenType;
 
 /**
  * @author AlienIdeology
@@ -18,6 +18,7 @@ public class LojicUtil {
         return true;
     }
 
+    // FEATURE: No symbols stripping - Change if condition
     public static boolean isConnective(String token) {
         for (Connective con : ConnectiveFactory.CONNECTIVES) {
             if (token.equals(con.getOfficialSymbol())) return true;
@@ -25,6 +26,7 @@ public class LojicUtil {
         return false;
     }
 
+    // FEATURE: No symbols stripping - Change if condition
     public static boolean isBinaryConnective(String string) {
         for (Connective con : ConnectiveFactory.CONNECTIVES) {
             if (con instanceof BinaryConnective) {
@@ -36,6 +38,7 @@ public class LojicUtil {
         return false;
     }
 
+    // FEATURE: No symbols stripping - Change if condition
     public static boolean isUnaryConnective(String string) {
         for (Connective con : ConnectiveFactory.CONNECTIVES) {
             if (con instanceof UnaryConnective) {
@@ -46,22 +49,23 @@ public class LojicUtil {
     }
 
     public static boolean isOpenParenthesis(String string) {
-        for (String s : Token.Type.PARENTHESIS_OPEN.SYMBOLS) {
+        for (String s : TokenType.PARENTHESIS_OPEN.SYMBOLS) {
             if(string.equals(s)) return true;
         }
         return false;
     }
 
     public static boolean isCloseParenthesis(String string) {
-        for (String s : Token.Type.PARENTHESIS_CLOSE.SYMBOLS) {
+        for (String s : TokenType.PARENTHESIS_CLOSE.SYMBOLS) {
             if(string.equals(s)) return true;
         }
         return false;
     }
 
+    // FEATURE: No symbols stripping
     public static boolean isParenthesized(String string) {
-        return string.startsWith(Token.Type.PARENTHESIS_OPEN.OFFICIAL_SYMBOL) &&
-                string.endsWith(Token.Type.PARENTHESIS_CLOSE.OFFICIAL_SYMBOL);
+        return string.startsWith(TokenType.PARENTHESIS_OPEN.OFFICIAL_SYMBOL) &&
+                string.endsWith(TokenType.PARENTHESIS_CLOSE.OFFICIAL_SYMBOL);
     }
 
     public static boolean isFormula(String token) {
@@ -72,6 +76,7 @@ public class LojicUtil {
     }
 
     // Strip a string of all unofficial connective symbols and white spaces
+    // FEATURE: No symbols stripping - Remove for loops
     public static String strip(String input) {
         input = input.replaceAll("\\s", ""); // Get rid of all white spaces
 

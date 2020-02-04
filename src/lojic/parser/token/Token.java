@@ -2,6 +2,9 @@ package lojic.parser.token;
 
 import lojic.parser.LojicLexer;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author AlienIdeology
  *
@@ -10,27 +13,27 @@ import lojic.parser.LojicLexer;
  */
 public class Token implements CharSequence {
 
-    private LojicLexer tokenizer;
+    private LojicLexer lexer;
     private String string;
-    private Type type;
+    private TokenType type;
     private int location;
 
-    public Token(LojicLexer tokenizer, String string, Type type) {
-        this.tokenizer = tokenizer;
+    public Token(LojicLexer lexer, String string, TokenType type) {
+        this.lexer = lexer;
         this.string = string;
         this.type = type;
         this.location = 0;
     }
 
-    public Token(LojicLexer tokenizer, String string, Type type, int location) {
-        this.tokenizer = tokenizer;
+    public Token(LojicLexer lexer, String string, TokenType type, int location) {
+        this.lexer = lexer;
         this.string = string;
         this.type = type;
         this.location = location;
     }
 
-    public LojicLexer getTokenizer() {
-        return tokenizer;
+    public LojicLexer getLexer() {
+        return lexer;
     }
 
     public int getLocation() {
@@ -46,12 +49,16 @@ public class Token implements CharSequence {
         return string;
     }
 
-    public Type getType() {
+    public TokenType getType() {
         return type;
     }
 
-    public boolean isType(Type type) {
+    public boolean isType(TokenType type) {
         return this.type.equals(type);
+    }
+
+    public boolean isUnparsedFormula() {
+        return this instanceof ParsedFormula;
     }
 
     @Override
@@ -72,38 +79,32 @@ public class Token implements CharSequence {
     /**
      * @author AlienIdeology
      *
-     * The type of strings the LojicLexer would encounter and handle accordingly
+     * This is a wrapper for a formula in which its sub-components were already parsed.
      */
-    public enum Type {
+    public static class ParsedFormula extends Token {
 
-        // Raw type that only next() returns
-        PARENTHESIS_OPEN ("(", "(", "{", "["),
-        PARENTHESIS_CLOSE (")", ")", "}", "]"),
-        UNKNOWN,
+        private List<Token> tokens;
 
-
-        // Processed type which LojicLexer returns
-        // Parser replaces PARENTHESIS with FORMULA
-        ATOM,
-        UNARY_CONNECTIVE,
-        BINARY_CONNECTIVE,
-        FORMULA;
-
-        public String OFFICIAL_SYMBOL;
-        public String[] SYMBOLS;
-        // symbols must include the official symbol.
-        // If String symbol is defined as symbols[0], there would be an ExceptionInInitializerError
-
-        /**
-         * @param symbol The official symbol
-         * @param symbols All symbols, including the official one
-         */
-        Type(String symbol, String... symbols) {
-            OFFICIAL_SYMBOL = symbol;
-            SYMBOLS = symbols;
+        public ParsedFormula(LojicLexer lexer, int location) {
+            super(lexer, "", TokenType.FORMULA, location);
+            this.tokens = new ArrayList<>();
         }
 
-        Type(){}
+        public ParsedFormula(Token token) {
+            this(token.getLexer(), token.getLocation());
+        }
+
+        public List<Token> getTokens() {
+            return tokens;
+        }
+
+        public void add(Token token) {
+            tokens.add(token);
+        }
+
+        public void setString(String string) {
+            super.string = string;
+        }
 
     }
 
