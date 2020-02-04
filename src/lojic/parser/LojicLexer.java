@@ -192,9 +192,9 @@ public class LojicLexer {
                     }
 
 
-                    if (nxt.equals(TokenType.PARENTHESIS_OPEN.OFFICIAL_SYMBOL)) {
+                    if (LojicUtil.isOpenParenthesis(nxt)) {
                         count++;
-                    } else if (nxt.equals(TokenType.PARENTHESIS_CLOSE.OFFICIAL_SYMBOL)) {
+                    } else if (LojicUtil.isCloseParenthesis(nxt)) {
                         count--;
                     }
                     cache.append(nxt);
@@ -260,11 +260,9 @@ public class LojicLexer {
         if (LojicUtil.isBinaryConnective(ch)) type = TokenType.BINARY_CONNECTIVE;
         else if (LojicUtil.isUnaryConnective(ch)) type = TokenType.UNARY_CONNECTIVE;
         else if (LojicUtil.isOpenParenthesis(ch)) {
-            ch = TokenType.PARENTHESIS_OPEN.OFFICIAL_SYMBOL;
             type = TokenType.PARENTHESIS_OPEN;
         }
         else if (LojicUtil.isCloseParenthesis(ch)) {
-            ch = TokenType.PARENTHESIS_CLOSE.OFFICIAL_SYMBOL;
             type = TokenType.PARENTHESIS_CLOSE;
         }
         else if (LojicUtil.isAtomic(ch)) {

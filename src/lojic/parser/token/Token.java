@@ -57,7 +57,7 @@ public class Token implements CharSequence {
         return this.type.equals(type);
     }
 
-    public boolean isUnparsedFormula() {
+    public boolean isParsedFormula() {
         return this instanceof ParsedFormula;
     }
 
