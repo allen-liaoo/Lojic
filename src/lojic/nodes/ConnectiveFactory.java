@@ -1,15 +1,28 @@
 package lojic.nodes;
 
-import com.sun.istack.internal.Nullable;
 import lojic.nodes.connectives.Connective;
 
 /**
  * @author AlienIdeology
  *
- * Load all the default, recognized connectives.
+ * The default, recognized connectives, their precedence, and their associativity.
  */
 // FEATURE: No symbols stripping - Remove official symbols
 public class ConnectiveFactory {
+
+    public final static int PRECEDENCE_DEFAULT = 60;
+
+    public final static int PRECEDENCE_HIGHEST = 70;
+
+    public final static boolean RIGHT_ASSOCIATIVE_P50 = true;
+
+    public final static boolean RIGHT_ASSOCIATIVE_P40 = true;
+
+    public final static boolean RIGHT_ASSOCIATIVE_P30 = true;
+
+    public final static boolean RIGHT_ASSOCIATIVE_P20 = true;
+
+    public final static boolean RIGHT_ASSOCIATIVE_P10 = true;
 
     public final static Connective NEG = new Connective((right) -> !right, 
             "¬", 50, "~", "!");
@@ -27,24 +40,24 @@ public class ConnectiveFactory {
             "↓", 30, "⊽");
 
     public final static Connective XOR = new Connective((left, right) -> (left && !right) || (!left && right),
-            "⊕", 30, "⊻", "↮", "≢");
+            "⊕", 30, "⊻", "<-/->", "<=/=>", "↮", "≢");
 
     public final static Connective IF = new Connective((left, right) -> !left || right,
-            "→", 20, "->", "⇒", "⊃");
+            "→", 20, "->", "=>", "⇒", "⊃");
 
     public final static Connective NIF = new Connective((left, right) -> left && !right,
-            "↛", 20, "/->", "-/>" );
+            "↛", 20, "-/>", "=/>");
 
     public final static Connective IF_CON = new Connective((left, right) -> left || !right,
-            "←", 20, "<-", "⇐", "⊂");
+            "←", 20, "<-", "<=", "⇐", "⊂");
 
     public final static Connective NIF_CON = new Connective((left, right) -> !left && right,
-            "↚", 20, "</-", "<-/");
+            "↚", 20, "</-", "</=", "<-/");
 
     public final static Connective IFF = new Connective((left, right) -> (left || !right) && (!left || right),
-            "↔", 10, "<->", "≡", "⇔", "=");
+            "↔", 10, "<->", "<=>", "≡", "⇔", "=");
 
-    public static final Connective[] CONNECTIVES = new Connective[] {
+    public static final Connective[] DEFAULT_CONNECTIVES = new Connective[] {
             // Order of this list is important for replacing unofficial symbols
             NEG,
             AND, NAND,
@@ -53,14 +66,5 @@ public class ConnectiveFactory {
             NIF, NIF_CON,
             IF, IF_CON,
     };
-
-    @Nullable
-    // FEATURE: No symbols stripping - Change if condition
-    public static Connective getConnective(String connective) {
-        for (Connective con : ConnectiveFactory.CONNECTIVES) {
-            if (con.getOfficialSymbol().equals(connective)) return con;
-        }
-        return null;
-    }
 
 }

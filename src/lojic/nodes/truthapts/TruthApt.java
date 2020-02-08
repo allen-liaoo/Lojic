@@ -8,14 +8,6 @@ package lojic.nodes.truthapts;
 public interface TruthApt {
 
     /**
-     * Set the truth values
-     * Used to set the column of booleans for the truth-table
-     *
-     * @param truths The truth values
-     */
-    void setTruths(boolean[] truths);
-
-    /**
      * Get the truth values
      *
      * @return The truth values
@@ -28,5 +20,13 @@ public interface TruthApt {
      * @return true if set, false if not
      */
     boolean isSet();
+
+    /**
+     * Set the truth values
+     * Used to set the column of booleans for the truth-table
+     *
+     * @param truths The truth values
+     */
+    void setTruths(boolean[] truths);
 
 }

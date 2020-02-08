@@ -16,12 +16,13 @@ public class Connective {
     private final String symbol;
     private final String[] symbols;
     private final int precedence;
+    private boolean isRightAssociative;
 
     /**
      * @param connective The functional interface that returns this connective's truth values
      * @param official The official symbol which the parser recognizes
      * @param precedence The order of precedence. The lower it is, the higher the precedence is.
-     *                   This value ranges from {@code 1~5}.
+ *                   This value ranges from {@code 1~5}.
      * @param others Other symbols for the connective
      */
     public Connective(BinaryConnective connective, String official, int precedence, String... others) {
@@ -35,7 +36,7 @@ public class Connective {
      * @param connective The functional interface that returns this connective's truth values
      * @param official The official symbol which the parser recognizes
      * @param precedence The order of precedence. The lower it is, the higher the precedence is.
-     *                   This value ranges from {@code 1~5}.
+ *                   This value ranges from {@code 1~5}.
      * @param others Other symbols for the connective
      */
     public Connective(UnaryConnective connective, String official, int precedence, String... others) {
@@ -95,6 +96,26 @@ public class Connective {
      */
     public boolean isUnary() {
         return connective instanceof UnaryConnective;
+    }
+
+    /**
+     * Check if the connective is right associative.
+     * In logic, all binary connectives are right associative. Unary connectives are neither right nor left associative.
+     *
+     * @return True if the connective is right associative.
+     */
+    public boolean isRightAssociative() {
+        return isRightAssociative;
+    }
+
+    /**
+     * Set the connective's associativity.
+     *
+     * @param isRightAssociative true if the connective is right associative,
+     *                           false if it is left associative.
+     */
+    public void setAssociativity(boolean isRightAssociative) {
+        this.isRightAssociative = isRightAssociative;
     }
 
     /**

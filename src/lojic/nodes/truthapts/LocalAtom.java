@@ -16,8 +16,8 @@ public class LocalAtom extends Node {
 
     private final Atom atom;
 
-    public LocalAtom(int level, String string, Node parent, Atom atom) {
-        super(TokenType.ATOM, level, string, parent);
+    public LocalAtom(int level, Node parent, Atom atom) {
+        super(TokenType.ATOM, level, atom.toString(), parent);
         this.atom = atom;
     }
 

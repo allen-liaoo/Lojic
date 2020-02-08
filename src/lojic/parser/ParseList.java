@@ -6,6 +6,7 @@ import java.util.Collection;
 /**
  * @author AlienIdeology
  */
+@Deprecated
 public class ParseList<E> extends ArrayList<E> {
 
     private int index = -1;

@@ -34,7 +34,6 @@ public class Node {
 
     /**
      * Get the string representation of the node
-     * These are raw, unprocessed strings of the original logical expression
      *
      * @return string
      */

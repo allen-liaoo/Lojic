@@ -1,7 +1,11 @@
 package lojic.parser;
 
+import lojic.LojicUtil;
 import lojic.parser.token.Token;
 import lojic.parser.token.TokenType;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author AlienIdeology
@@ -12,11 +16,13 @@ import lojic.parser.token.TokenType;
  */
 public class LojicLexer {
 
+    private final LojicParser parser;
     private final String baseString;
     private String string;
     private int index;
 
-    public LojicLexer(String baseString, String string) {
+    public LojicLexer(LojicParser parser, String baseString, String string) {
+        this.parser = parser;
         this.baseString = baseString;
         this.string = string;
         this.index = -1;
@@ -45,8 +51,8 @@ public class LojicLexer {
      * @param location The location of the formula in the base formula in which this lexer starts
      * @return a list of tokens
      */
-    public ParseList<Token> lex(int location) {
-        ParseList<Token> tokens = new ParseList<>();
+    public List<Token> lex(int location) {
+        List<Token> tokens = new ArrayList<>();
 
         // create new integer since (int location) is only passed by value
         // when the location is updated at the bottom of the while(true) loop, we need to store it
@@ -108,7 +114,7 @@ public class LojicLexer {
      *
      * @param tokens The list of tokens
      */
-    private void handleUnary(ParseList<Token> tokens) {
+    private void handleUnary(List<Token> tokens) {
         for (int i = 0; i < tokens.size(); i++) {
             Token token = tokens.get(i);
             if(token.isType(TokenType.UNARY_CONNECTIVE)) {
@@ -256,8 +262,8 @@ public class LojicLexer {
         */
 
         TokenType type;
-        if (LojicUtil.isBinaryConnective(ch)) type = TokenType.BINARY_CONNECTIVE;
-        else if (LojicUtil.isUnaryConnective(ch)) type = TokenType.UNARY_CONNECTIVE;
+        if (parser.isBinaryConnective(ch)) type = TokenType.BINARY_CONNECTIVE;
+        else if (parser.isUnaryConnective(ch)) type = TokenType.UNARY_CONNECTIVE;
         else if (LojicUtil.isOpenParenthesis(ch)) {
             type = TokenType.PARENTHESIS_OPEN;
         }

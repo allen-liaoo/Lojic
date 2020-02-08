@@ -17,8 +17,9 @@ public class Atom implements TruthApt {
         this.string = string;
     }
 
-    public void setTruths(boolean[] truths) {
-        this.truths = truths;
+    @Override
+    public String toString() {
+        return string;
     }
 
     public boolean[] getTruths() {
@@ -29,8 +30,19 @@ public class Atom implements TruthApt {
         return truths != null;
     }
 
-    public String getString() {
-        return string;
+    public void setTruths(boolean[] truths) {
+        this.truths = truths;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        System.out.println("yay");
+        return string.equals(obj.toString());
+    }
+
+    @Override
+    public int hashCode() {
+        return string.hashCode();
     }
 
 }

@@ -33,17 +33,17 @@ lojic.parser.SyntaxException: Index 4 - Missing closing parenthesis
 ### Supported Logical Connectives
 Name|Object Name|Official Symbol|Other Symbols|Precedence|Associativity
 ----|:---------:|:-------------:|-------------|----------|-------------
-Negation|NEG|¬|~, !|50|None
+Negation|NEG|¬|~, !|50|right
 Conjunction|AND|∧|&, ^, ×, •, ⋅|40|right
 Alternative Denial, Sheffer Stroke|NAND|↑|⊼|40|right
 Disjunction|OR|∨|+, ∥|30|right
 Joint Denial, Peirce's arrow|NOR|↓|⊽|30|right
-Exclusive Disjunction|XOR|⊕|⊻, ↮, ≢|30|right
-Conditional, Material Implication|IF|→|->, ⇒, ⊃|20|right
-Material Nonimplication|NIF|↛|/->, -/>|20|right
-Converse Implication|IF_CON|←|<-, ⇐, ⊂|20|right
-Converse Nonimplication|NIF_CON|↚|</-, <-/|20|right
-Biconditional, Logical Equality|IFF|↔|<->, ≡, ⇔, =|10|right
+Exclusive Disjunction|XOR|⊕|⊻, <-/->, <=/=>, ↮, ≢|30|right
+Conditional, Material Implication|IF|→|->, =>, ⇒, ⊃|20|right
+Material Nonimplication|NIF|↛|-/>, =/>|20|right
+Converse Implication|IF_CON|←|<-, <=, ⇐, ⊂|20|right
+Converse Nonimplication|NIF_CON|↚|</-, </=|20|right
+Biconditional, Logical Equality|IFF|↔|<->, <=>, ≡, ⇔, =|10|right
 
 ### Supported Parenthesis
 > (), {}, []

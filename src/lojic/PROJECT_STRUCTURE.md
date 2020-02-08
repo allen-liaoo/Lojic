@@ -26,10 +26,8 @@ implements TruthApt
 String getOfficialSymbol()  
 String[] getSymbols()
 ### BinaryConnective
-extends Connective  
 boolean computeTruth(boolean, boolean)
 ### UnaryConnective
-extends Connective  
 boolean computeTruth(boolean)
 
 ------------------------------------

@@ -1,9 +1,7 @@
 package lojic.nodes.truthapts;
 
 import lojic.nodes.Node;
-import lojic.nodes.connectives.BinaryConnective;
 import lojic.nodes.connectives.Connective;
-import lojic.nodes.connectives.UnaryConnective;
 import lojic.parser.token.TokenType;
 
 /**
@@ -35,19 +33,7 @@ public class Formula extends Node implements TruthApt {
         return connective;
     }
 
-    public BinaryConnective getBinConnective() {
-        return connective instanceof BinaryConnective ? (BinaryConnective) connective : null;
-    }
-
-    public UnaryConnective getUConnective() {
-        return connective instanceof UnaryConnective ? (UnaryConnective) connective : null;
-    }
-
-    public boolean isBinary() {
-        return connective instanceof BinaryConnective;
-    }
-
-    public boolean isBase() {
+    public boolean isRoot() {
         return super.getParent() == null;
     }
 
@@ -64,16 +50,16 @@ public class Formula extends Node implements TruthApt {
         connective = con;
     }
 
-    public void setTruths(boolean[] truths) {
-        this.truths = truths;
-    }
-
     public boolean[] getTruths() {
         return truths;
     }
 
     public boolean isSet() {
         return truths != null;
+    }
+
+    public void setTruths(boolean[] truths) {
+        this.truths = truths;
     }
 
 }
