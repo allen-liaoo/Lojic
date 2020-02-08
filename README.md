@@ -7,8 +7,8 @@ abstract syntax trees and truth tables.
 ```java
 LojicParser parser = new LojicParser();
 FormulaTree tree = parser.parse("P->Q"); // throws SyntaxException if the syntax is incorrect
-TruthTable table = new TruthTable(tree);
-Map<Node, boolean[]> ttable = table.detailFull().getTable();
+TruthTable tb = new TruthTable(tree);
+Map<Node, boolean[]> table = table.detailFull().getTable();
 ```
 The result would be:
 
@@ -48,14 +48,21 @@ Biconditional, Logical Equality|IFF|↔|<->, ≡, ⇔, =|10|right
 ### Supported Parenthesis
 > (), {}, []
 
+The opening parenthesis does not have to be the same type as the closing
+parenthesis. For example, `(A&B]->C` is identical to `(A&B)->C`.
+
 ### Format
-Atoms (propositions or operands) must be alphabetic or numeric.
-There are no length limits to atoms.
+The name of atoms (propositions or operands) must be alphabetic or
+numeric. There cannot be whitespaces or special characters. There are no
+length limits to their names.
+
+The lexer automatically converts all logical connectives to their
+official symbols and all parenthesis to the standard type `()`.
 
 ### Todo List
-- [ ] Debug lexer (location tracking, error handling)
-- [ ] T, F 0, 1,
+- [x] Debug lexer (location tracking, error handling)
+- [ ] - [ ] Finish parser (precedence climbing + recursively descent to build tree)
+- [ ] T, F, 0, 1
 - [ ] Javadocs
-- [ ] Finish parser (precedence climbing + recursively descent to build tree)
 - [ ] Formula Tree
 - [ ] TruthTable

@@ -1,9 +1,7 @@
 package lojic.parser;
 
 import lojic.nodes.ConnectiveFactory;
-import lojic.nodes.connectives.BinaryConnective;
 import lojic.nodes.connectives.Connective;
-import lojic.nodes.connectives.UnaryConnective;
 import lojic.parser.token.TokenType;
 
 /**
@@ -29,7 +27,7 @@ public class LojicUtil {
     // FEATURE: No symbols stripping - Change if condition
     public static boolean isBinaryConnective(String string) {
         for (Connective con : ConnectiveFactory.CONNECTIVES) {
-            if (con instanceof BinaryConnective) {
+            if (con.isBinary()) {
                 if (string.equals(con.getOfficialSymbol())) {
                     return true;
                 }
@@ -41,7 +39,7 @@ public class LojicUtil {
     // FEATURE: No symbols stripping - Change if condition
     public static boolean isUnaryConnective(String string) {
         for (Connective con : ConnectiveFactory.CONNECTIVES) {
-            if (con instanceof UnaryConnective) {
+            if (con.isUnary()) {
                 if (string.equals(con.getOfficialSymbol())) return true;
             }
         }

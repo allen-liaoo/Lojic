@@ -1,9 +1,7 @@
 package lojic.nodes;
 
 import com.sun.istack.internal.Nullable;
-import lojic.nodes.connectives.BinaryConnective;
 import lojic.nodes.connectives.Connective;
-import lojic.nodes.connectives.UnaryConnective;
 
 /**
  * @author AlienIdeology
@@ -13,82 +11,38 @@ import lojic.nodes.connectives.UnaryConnective;
 // FEATURE: No symbols stripping - Remove official symbols
 public class ConnectiveFactory {
 
-    public final static UnaryConnective NEG = new UnaryConnective("¬", 50, "~", "!") {
-        @Override
-        public boolean computeTruth(boolean right) {
-            return !right;
-        }
-    };
+    public final static Connective NEG = new Connective((right) -> !right, 
+            "¬", 50, "~", "!");
 
-    public final static BinaryConnective AND = new BinaryConnective("∧", 40, "&", "^", "×", "•", "⋅") {
-        @Override
-        public boolean computeTruth(boolean left, boolean right) {
-            return left && right;
-        }
-    };
+    public final static Connective AND = new Connective((left, right) -> left && right,
+            "∧", 40, "&", "^", "×", "•", "⋅");
 
-    public final static BinaryConnective NAND = new BinaryConnective("↑", 40, "⊼") {
-        @Override
-        public boolean computeTruth(boolean left, boolean right) {
-            return !left || !right;
-        }
-    };
+    public final static Connective NAND = new Connective((left, right) -> !left || !right,
+            "↑", 40, "⊼");
 
-    public final static BinaryConnective OR = new BinaryConnective("∨", 30, "+", "∥") {
-        @Override
-        public boolean computeTruth(boolean left, boolean right) {
-            return left || right;
-        }
-    };
+    public final static Connective OR = new Connective((left, right) -> left || right,
+            "∨", 30, "+", "∥");
 
-    public final static BinaryConnective NOR = new BinaryConnective("↓", 30, "⊽") {
-        @Override
-        public boolean computeTruth(boolean left, boolean right) {
-            return !left && !right;
-        }
-    };
+    public final static Connective NOR = new Connective((left, right) -> !left && !right,
+            "↓", 30, "⊽");
 
-    public final static BinaryConnective XOR = new BinaryConnective("⊕", 30, "⊻", "↮", "≢") {
-        @Override
-        public boolean computeTruth(boolean left, boolean right) {
-            return (left && !right) || (!left && right);
-        }
-    };
+    public final static Connective XOR = new Connective((left, right) -> (left && !right) || (!left && right),
+            "⊕", 30, "⊻", "↮", "≢");
 
-    public final static BinaryConnective IF = new BinaryConnective("→", 20, "->", "⇒", "⊃") {
-        @Override
-        public boolean computeTruth(boolean left, boolean right) {
-            return !left || right;
-        }
-    };
+    public final static Connective IF = new Connective((left, right) -> !left || right,
+            "→", 20, "->", "⇒", "⊃");
 
-    public final static BinaryConnective NIF = new BinaryConnective("↛", 20, "/->", "-/>" ) {
-        @Override
-        public boolean computeTruth(boolean left, boolean right) {
-            return left && !right;
-        }
-    };
+    public final static Connective NIF = new Connective((left, right) -> left && !right,
+            "↛", 20, "/->", "-/>" );
 
-    public final static BinaryConnective IF_CON = new BinaryConnective("←", 20, "<-", "⇐", "⊂") {
-        @Override
-        public boolean computeTruth(boolean left, boolean right) {
-            return left || !right;
-        }
-    };
+    public final static Connective IF_CON = new Connective((left, right) -> left || !right,
+            "←", 20, "<-", "⇐", "⊂");
 
-    public final static BinaryConnective NIF_CON = new BinaryConnective("↚", 20, "</-", "<-/") {
-        @Override
-        public boolean computeTruth(boolean left, boolean right) {
-            return !left && right;
-        }
-    };
+    public final static Connective NIF_CON = new Connective((left, right) -> !left && right,
+            "↚", 20, "</-", "<-/");
 
-    public final static BinaryConnective IFF = new BinaryConnective("↔", 10, "<->", "≡", "⇔", "=") {
-        @Override
-        public boolean computeTruth(boolean left, boolean right) {
-            return (left || !right) && (!left || right);
-        }
-    };
+    public final static Connective IFF = new Connective((left, right) -> (left || !right) && (!left || right),
+            "↔", 10, "<->", "≡", "⇔", "=");
 
     public static final Connective[] CONNECTIVES = new Connective[] {
             // Order of this list is important for replacing unofficial symbols
@@ -107,10 +61,6 @@ public class ConnectiveFactory {
             if (con.getOfficialSymbol().equals(connective)) return con;
         }
         return null;
-    }
-
-    public static int getPrecedence(String connective) {
-        return getConnective(connective) != null ? getConnective(connective).getPrecedence() : 0;
     }
 
 }

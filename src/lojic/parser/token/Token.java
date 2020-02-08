@@ -92,6 +92,7 @@ public class Token implements CharSequence {
 
         public ParsedFormula(Token token) {
             this(token.getLexer(), token.getLocation());
+            add(token);
         }
 
         public List<Token> getTokens() {

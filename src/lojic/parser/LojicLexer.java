@@ -113,7 +113,6 @@ public class LojicLexer {
             Token token = tokens.get(i);
             if(token.isType(TokenType.UNARY_CONNECTIVE)) {
                 Token.ParsedFormula formula = new Token.ParsedFormula(token);
-                formula.add(token);
                 StringBuilder tokStr = new StringBuilder(token.toString());
                 Token right = tokens.get(i+1);
                 int removed = 0; // count the times we add to ParsedFormula

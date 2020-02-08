@@ -10,19 +10,36 @@ import java.util.List;
  * Logical operators, including Binary and Unary operators
  * @see lojic.nodes.ConnectiveFactory
  */
-public abstract class Connective {
+public class Connective {
 
+    private final Object connective;
     private final String symbol;
     private final String[] symbols;
     private final int precedence;
 
     /**
+     * @param connective The functional interface that returns this connective's truth values
      * @param official The official symbol which the parser recognizes
      * @param precedence The order of precedence. The lower it is, the higher the precedence is.
      *                   This value ranges from {@code 1~5}.
      * @param others Other symbols for the connective
      */
-    public Connective(String official, int precedence, String... others) {
+    public Connective(BinaryConnective connective, String official, int precedence, String... others) {
+        this.connective = connective;
+        symbol = official;
+        this.precedence = precedence;
+        symbols = others;
+    }
+
+    /**
+     * @param connective The functional interface that returns this connective's truth values
+     * @param official The official symbol which the parser recognizes
+     * @param precedence The order of precedence. The lower it is, the higher the precedence is.
+     *                   This value ranges from {@code 1~5}.
+     * @param others Other symbols for the connective
+     */
+    public Connective(UnaryConnective connective, String official, int precedence, String... others) {
+        this.connective = connective;
         symbol = official;
         this.precedence = precedence;
         symbols = others;
@@ -61,5 +78,44 @@ public abstract class Connective {
     public int getPrecedence() {
         return precedence;
     }
+
+    /**
+     * Check if this class denotes a BinaryConnective
+     *
+     * @return true if this class denotes a BinaryConnective
+     */
+    public boolean isBinary() {
+        return connective instanceof BinaryConnective;
+    }
+
+    /**
+     * Check if this class denotes a UnaryConnective
+     *
+     * @return true if this class denotes a UnaryConnective
+     */
+    public boolean isUnary() {
+        return connective instanceof UnaryConnective;
+    }
+
+    /**
+     * Return the truth value of the connective given its operand'(s) truth values
+     *
+     * @param booleans The operand'(s) truth values
+     * @return The truth value of the connective
+     * @throws IllegalArgumentException if the number of boolean arguments passed to this method does not
+     *          fit the type of connective this object denotes.
+     */
+    public boolean computeTruth(boolean... booleans) throws IllegalArgumentException {
+        if (connective instanceof BinaryConnective) {
+            if (booleans.length != 2) throw new IllegalArgumentException("Unexpected number of parameter(s)!");
+            else return ((BinaryConnective) connective).computeTruth(booleans[0], booleans[1]);
+        } else if (connective instanceof UnaryConnective) {
+            if (booleans.length != 1) throw new IllegalArgumentException("Unexpected number of parameter(s)!");
+            else return ((UnaryConnective) connective).computeTruth(booleans[0]);
+        } else {
+            return false; // This will never be reached
+        }
+    }
+
 
 }

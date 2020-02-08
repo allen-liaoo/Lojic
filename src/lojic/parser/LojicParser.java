@@ -2,6 +2,7 @@ package lojic.parser;
 
 import lojic.nodes.ConnectiveFactory;
 import lojic.parser.token.Token;
+import lojic.parser.token.TokenType;
 import lojic.tree.FormulaTree;
 
 import java.util.Arrays;
@@ -52,12 +53,12 @@ public class LojicParser {
         System.out.println();
         // DEBUG tokens.forEach(tk -> System.out.println(tk + "\n" + LojicUtil.generateIndicator(cache, tk.getLocation())));
 
-        //List<Token> token = expr(tokens, 10);
+        //parsetok(tokens, 0);
     }
 
     // DEBUG: Parse and print everything
-    /*
-    private void pe(ParseList<Token> tokens) {
+
+    /*private void pe(ParseList<Token> tokens) {
         for (Token token : tokens) {
             if (token.isType(TokenType.FORMULA) && !token.isUnparsedFormula()) {
                 parse(token.toString(), token.getLocation());
@@ -73,14 +74,22 @@ public class LojicParser {
     }*/
 
     // Precedence climbing, recursive
-    private List<Token> expr(ParseList<Token> list, int prevPrec) {
-        String left = list.next().toString();
-        while (ConnectiveFactory.getPrecedence(list.peek().toString()) <= prevPrec) {
+    private List<Token> parsetok(ParseList<Token> list, int prevPrec) {
+        Token left = list.next();
+        Token.ParsedFormula formula = new Token.ParsedFormula(left);
+        while (getPrecedence(list.peek()) <= prevPrec) {
             // Unfinished
-            left += list.next().toString();
+             formula.add(list.next());
         }
         System.out.println(left);
         return null;
+    }
+
+    private int getPrecedence(Token token) {
+        if (token.isType(TokenType.ATOM) || token.isType(TokenType.FORMULA)) return 0;
+        else {
+            return ConnectiveFactory.getConnective(token.toString()).getPrecedence();
+        }
     }
 
 }
