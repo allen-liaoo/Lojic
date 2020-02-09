@@ -5,10 +5,16 @@ abstract syntax trees and truth tables.
 
 ### Example
 ```java
-LojicParser parser = new LojicParser();
-FormulaTree tree = parser.parse("P->Q"); // throws SyntaxException if the syntax is incorrect
-TruthTable tb = new TruthTable(tree);
-Map<Node, boolean[]> table = table.detailFull().getTable();
+public class Example {
+    
+    public static void main(String[] args) {
+        LojicParser parser = new LojicParser();
+        NodeTree tree = parser.parse("P->Q"); // throws SyntaxException if the syntax is incorrect
+        TruthTable tb = new TruthTable(tree);
+        Map<Node, boolean[]> table = tb.detailFull().getTable();
+    }
+    
+}
 ```
 The result would be:
 
@@ -20,7 +26,7 @@ F|T| T
 F|F| T
 
 On the other hand,
-```java
+```
 parser.parse("(P->Q");
 ```
 The result would be
@@ -36,7 +42,7 @@ Name|Object Name|Official Symbol|Other Symbols|Precedence|Associativity
 Negation|NEG|¬|~, !|50|right
 Conjunction|AND|∧|&, ^, ×, •, ⋅|40|right
 Alternative Denial, Sheffer Stroke|NAND|↑|⊼|40|right
-Disjunction|OR|∨|+, ∥|30|right
+Disjunction|OR|∨|\|, +, ∥|30|right
 Joint Denial, Peirce's arrow|NOR|↓|⊽|30|right
 Exclusive Disjunction|XOR|⊕|⊻, <-/->, <=/=>, ↮, ≢|30|right
 Conditional, Material Implication|IF|→|->, =>, ⇒, ⊃|20|right
@@ -52,7 +58,7 @@ The opening parenthesis does not have to be the same type as the closing
 parenthesis. For example, `(A&B]->C` is identical to `(A&B)->C`.
 
 ### Format
-The name of atoms (propositions or operands) must be alphabetic or
+The name of atoms (propositions or operands) must be alphabetic and/or
 numeric. There cannot be whitespaces or special characters. There are no
 length limits to their names.
 

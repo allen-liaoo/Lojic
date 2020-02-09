@@ -121,7 +121,7 @@ IFF "\↔"
 ```
 
 ------------------------------------
-# FormulaTree (Node n, int levels)
+# NodeTree (Node n, int levels)
 Node getRoot()  
 int getLevels()  
 Atom[] getAtoms()  

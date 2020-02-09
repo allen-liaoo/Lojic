@@ -36,7 +36,6 @@ public class Atom implements TruthApt {
 
     @Override
     public boolean equals(Object obj) {
-        System.out.println("yay");
         return string.equals(obj.toString());
     }
 

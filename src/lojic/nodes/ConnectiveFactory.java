@@ -5,7 +5,8 @@ import lojic.nodes.connectives.Connective;
 /**
  * @author AlienIdeology
  *
- * The default, recognized connectives, their precedence, and their associativity.
+ * The default, recognized connectives, their precedence, and their associativity
+ * Any connective is right associative by default
  */
 // FEATURE: No symbols stripping - Remove official symbols
 public class ConnectiveFactory {
@@ -13,16 +14,6 @@ public class ConnectiveFactory {
     public final static int PRECEDENCE_DEFAULT = 60;
 
     public final static int PRECEDENCE_HIGHEST = 70;
-
-    public final static boolean RIGHT_ASSOCIATIVE_P50 = true;
-
-    public final static boolean RIGHT_ASSOCIATIVE_P40 = true;
-
-    public final static boolean RIGHT_ASSOCIATIVE_P30 = true;
-
-    public final static boolean RIGHT_ASSOCIATIVE_P20 = true;
-
-    public final static boolean RIGHT_ASSOCIATIVE_P10 = true;
 
     public final static Connective NEG = new Connective((right) -> !right, 
             "¬", 50, "~", "!");
@@ -34,7 +25,7 @@ public class ConnectiveFactory {
             "↑", 40, "⊼");
 
     public final static Connective OR = new Connective((left, right) -> left || right,
-            "∨", 30, "+", "∥");
+            "∨", 30, "|", "+", "∥");
 
     public final static Connective NOR = new Connective((left, right) -> !left && !right,
             "↓", 30, "⊽");

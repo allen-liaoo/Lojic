@@ -10,7 +10,7 @@ import lojic.nodes.truthapts.Formula;
 import lojic.nodes.truthapts.LocalAtom;
 import lojic.parser.token.Token;
 import lojic.parser.token.TokenType;
-import lojic.tree.FormulaTree;
+import lojic.tree.NodeTree;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,7 +20,7 @@ import java.util.List;
  * @author AlienIdeology
  *
  * A parser of tokens, lexed from LojicLexer
- * This generates a FormulaTree, which is a tree of Node objects.
+ * This generates a NodeTree, which is a tree of Node objects.
  */
 public class LojicParser {
 
@@ -36,54 +36,47 @@ public class LojicParser {
         cache = "";
         cacheAtoms = new ArrayList<>();
         for (Connective con : connectives) {
-            boolean assoc;
-            switch (con.getPrecedence()) {
-                case 50:
-                    assoc = ConnectiveFactory.RIGHT_ASSOCIATIVE_P50;
-                    break;
-                case 40:
-                    assoc = ConnectiveFactory.RIGHT_ASSOCIATIVE_P40;
-                    break;
-                case 30:
-                    assoc = ConnectiveFactory.RIGHT_ASSOCIATIVE_P30;
-                    break;
-                case 20:
-                    assoc = ConnectiveFactory.RIGHT_ASSOCIATIVE_P20;
-                    break;
-                case 10:
-                    assoc = ConnectiveFactory.RIGHT_ASSOCIATIVE_P10;
-                    break;
-                default:
-                    assoc = false;
-            }
-            con.setAssociativity(assoc);
+            con.setAssociativity(true);
         }
     }
 
     /**
-     * Parse the logical expression
+     * Parse the logical expression and clear cache
      *
      * @param formula The logical expression
      * @return A syntax tree that represents the expression
      */
-    public FormulaTree parse(String formula) {
+    public NodeTree parse(String formula) {
         if (formula == null || formula.isEmpty()) throw new IllegalArgumentException("Parser does not accept empty or null string");
 
         cache = LojicUtil.strip(formula);
-        parseString(new Formula(0, formula, null), cache, 0);
+        Node root = parseString(null, cache, 0, 0);
 
-        cache = "";
+        NodeTree tree =  new NodeTree(root, cacheAtoms.toArray(new Atom[0]));
         cacheAtoms.clear();
-        return new FormulaTree(null, 0);
+        cache = "";
+        return tree;
     }
 
-    public FormulaTree parse() {
-        return parse(cache);
-    }
-
+    /**
+     * Append a string to the cache
+     * Use {@link #parse()} after the formula is cached
+     *
+     * @param formula The string to be cached
+     * @return This parser for method chaining
+     */
     public LojicParser append(String formula) {
         cache += formula;
         return this;
+    }
+
+    /**
+     * Parse the cached logical expression
+     *
+     * @return A syntax tree that represents the expression
+     */
+    public NodeTree parse() {
+        return parse(cache);
     }
 
     /**
@@ -206,8 +199,8 @@ public class LojicParser {
         return null;
     }
 
-    // Recursive method used to parse any individual formula to nodes
-    private void parseString(Node parent, String formula, int location) {
+    // Recursive method used to parse any unparsed formula to nodes
+    private Node parseString(Node parent, String formula, int location, int level) {
         LojicLexer tokenizer = new LojicLexer(this, cache, formula);
         List<Token> tokens = tokenizer.lex(location);
         // DEBUG Print formulas
@@ -218,12 +211,15 @@ public class LojicParser {
         System.out.println();
         // DEBUG tokens.forEach(tk -> System.out.println(tk + "\n" + LojicUtil.generateIndicator(cache, tk.getLocation())));
 
-        Node node = parseTokens(parent, tokens);
+        return parseTokens(parent, tokens, level);
     }
 
-    private Node parseTokens(Node parent, List<Token> tokens) {
+    // Recursive method used to parse any parsed formula, list of tokens, or individual atom, to nodes
+    private Node parseTokens(Node parent, List<Token> tokens, int level) {
 
-        if (tokens.size() == 1) {
+        if (tokens.size() == 1 || // second boolean expression might be redundant
+            (tokens.stream().noneMatch(t -> t.isType(TokenType.UNARY_CONNECTIVE) || t.isType(TokenType.BINARY_CONNECTIVE)))
+        ) {
             Token tok = tokens.get(0);
             if (tok.isType(TokenType.ATOM)) {
                 Atom atom = new Atom(tok.toString());
@@ -233,9 +229,11 @@ public class LojicParser {
                     atom = cacheAtoms.get(cacheAtoms.indexOf(atom));
                 }
 
-                return new LocalAtom(tok.getLocation(), parent, atom);
-            } else if (tok instanceof Token.ParsedFormula) {
-                return parseTokens(parent, ((Token.ParsedFormula) tok).getTokens());
+                return new LocalAtom(level, parent, atom);
+            } else if (tok.isParsedFormula()) {
+                return parseTokens(parent, ((Token.ParsedFormula) tok).getTokens(), level);
+            } else if (tok.isType(TokenType.FORMULA)) {
+                return parseString(parent, tok.toString(), tok.getLocation(), level);
             }
         }
 
@@ -249,7 +247,7 @@ public class LojicParser {
             }
         }
 
-        System.out.println(Arrays.toString(indexes.stream().map(Arrays::toString).toArray()));
+        //System.out.println(Arrays.toString(indexes.stream().map(Arrays::toString).toArray()));
 
         int lowIndex = -1; // index of the connective with the lowest precedence
         int lowPrec = ConnectiveFactory.PRECEDENCE_DEFAULT;
@@ -273,15 +271,35 @@ public class LojicParser {
             }
         }
 
-        System.out.println(lowIndex + " " + lowPrec);
+        StringBuilder formula = new StringBuilder();
+        Connective mainConnective = getConnective(tokens.get(lowIndex).toString());
+        Formula thisNode = new Formula(level, "", parent);
+        thisNode.setConnective(mainConnective);
 
-        List<Token> left = lowIndex > 0 ?
-                tokens.subList(0, lowIndex) : null; // null when
+        // Main connective is unary
+        if (lowIndex <= 0) {
+            List<Token> right = tokens.subList(lowIndex+1, tokens.size());
+            Node rnode = parseTokens(thisNode, right, level+1);
 
-        List<Token> right = lowIndex < tokens.size()-1 ?
-                tokens.subList(lowIndex+1, tokens.size()) : null; // never null
+            thisNode.setChildren(new Node[]{rnode});
+            formula.append(mainConnective.getOfficialSymbol());
+            right.stream().map(Token::toString).forEach(formula::append);
 
-        return null;
+        // Main connective is binary
+        } else {
+            List<Token> left = tokens.subList(0, lowIndex);
+            List<Token> right = tokens.subList(lowIndex+1, tokens.size());
+            Node lnode = parseTokens(thisNode, left, level+1);
+            Node rnode = parseTokens(thisNode, right, level+1);
+
+            thisNode.setChildren(new Node[]{lnode, rnode});
+            left.stream().map(Token::toString).forEach(formula::append);
+            formula.append(mainConnective.getOfficialSymbol());
+            right.stream().map(Token::toString).forEach(formula::append);
+        }
+
+        thisNode.setString(formula.toString());
+        return thisNode;
     }
 
     // DEBUG: Parse and print everything

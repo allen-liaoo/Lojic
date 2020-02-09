@@ -2,7 +2,6 @@ package lojic.nodes.truthapts;
 
 import lojic.nodes.Node;
 import lojic.nodes.connectives.Connective;
-import lojic.parser.token.TokenType;
 
 /**
  * @author AlienIdeology
@@ -17,7 +16,7 @@ public class Formula extends Node implements TruthApt {
     private boolean[] truths = null;
 
     public Formula(int level, String string, Node parent) {
-        super(TokenType.FORMULA, level, string, parent);
+        super(level, string, parent);
     }
 
     /**
@@ -48,6 +47,10 @@ public class Formula extends Node implements TruthApt {
 
     public void setConnective(Connective con) {
         connective = con;
+    }
+
+    public void setString(String string) {
+        super.string = string;
     }
 
     public boolean[] getTruths() {

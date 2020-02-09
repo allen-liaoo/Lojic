@@ -1,7 +1,5 @@
 package lojic.nodes;
 
-import lojic.parser.token.TokenType;
-
 /**
  * @author AlienIdeology
  *
@@ -10,13 +8,11 @@ import lojic.parser.token.TokenType;
  */
 public class Node {
 
-    protected TokenType type;
     protected int level;
     protected String string;
     protected final Node parent;
 
-    public Node (TokenType type, int level, String string, Node parent) {
-        this.type = type;
+    public Node (int level, String string, Node parent) {
         this.level = level;
         this.string = string;
         this.parent = parent;
@@ -50,13 +46,20 @@ public class Node {
         return parent;
     }
 
+    @Override
+    public String toString() {
+        return "Node{" +
+                "level=" + level +
+                ", string='" + string + "\'}";
+    }
+
     /**
      * Get the type enum of this node
      *
      * @return Node type
      */
-    public TokenType getType() {
+    /*public TokenType getType() {
         return type;
-    }
+    }*/
 
 }
