@@ -314,7 +314,7 @@ public class LojicLexer {
         String next = peekChar();
         if (next != null) {
             for (TokenType tp : types) {
-                if (next.equals(tp.OFFICIAL_SYMBOL)) throw new SyntaxException(location, next,
+                if (next.equals(tp.OFFICIAL_SYMBOL)) throw new SyntaxException(location, (CharSequence) next,
                         LojicUtil.generateIndicator(baseString, location));
             }
         }

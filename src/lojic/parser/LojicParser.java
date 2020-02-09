@@ -247,8 +247,6 @@ public class LojicParser {
             }
         }
 
-        //System.out.println(Arrays.toString(indexes.stream().map(Arrays::toString).toArray()));
-
         int lowIndex = -1; // index of the connective with the lowest precedence
         int lowPrec = ConnectiveFactory.PRECEDENCE_DEFAULT;
         // Handle associativity and precedence
@@ -271,10 +269,12 @@ public class LojicParser {
             }
         }
 
+        // TODO: Thoroughly debugs parenthesizing node strings
         StringBuilder formula = new StringBuilder();
         Connective mainConnective = getConnective(tokens.get(lowIndex).toString());
         Formula thisNode = new Formula(level, "", parent);
         thisNode.setConnective(mainConnective);
+        formula.append("(");
 
         // Main connective is unary
         if (lowIndex <= 0) {
@@ -293,11 +293,15 @@ public class LojicParser {
             Node rnode = parseTokens(thisNode, right, level+1);
 
             thisNode.setChildren(new Node[]{lnode, rnode});
-            left.stream().map(Token::toString).forEach(formula::append);
+            //left.stream().map(Token::toString).forEach(formula::append);
+            formula.append(lnode.getString());
             formula.append(mainConnective.getOfficialSymbol());
-            right.stream().map(Token::toString).forEach(formula::append);
+            //right.stream().map(Token::toString).forEach(formula::append);
+            formula.append(rnode.getString());
+
         }
 
+        formula.append(")");
         thisNode.setString(formula.toString());
         return thisNode;
     }

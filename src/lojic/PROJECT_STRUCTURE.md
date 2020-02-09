@@ -128,16 +128,16 @@ Atom[] getAtoms()
 Node[] getNodes(int level) - return all nodes at a level  
 TruthApt[] getTruthApts() - return all TruthApts in order of precedence
 
-# TruthTable (FormulaTree)
+# TruthTable (NodeTree)
 detailSetting(boolean showSubColumn, Column...)  
-//default {false, ATOM, ROOT}  
-detailModerate() {false, PREMISE, ROOT}  
-detailFull() {true, ATOM FORMULA, ROOT}  
+//default {false, ATOMS, ROOT}  
+detailModerate() {false, PREMISES, ROOT}  
+detailFull() {true, ATOMS, FORMULAS, ROOT}  
 boolean isAlwaysTrue()  
 Node[] getPremises()  
 void fillTruths()  
 Map<Node, boolean[]> getTable()  
-FormulaTree getTree()
+NodeTree getTree()
 
 enum Column  
     ATOMS  
