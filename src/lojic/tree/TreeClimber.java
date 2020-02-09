@@ -42,15 +42,6 @@ public class TreeClimber {
         forEach(root, action);
     }
 
-    private void forEach(Node node, Consumer<Node> action) {
-        if (node instanceof Formula) {
-            for (Node n : ((Formula) node).getChildren()) {
-                forEach(n, action);
-            }
-        }
-        action.accept(node);
-    }
-
     /**
      * Filter the list with a {@link Predicate} condition
      *
@@ -91,6 +82,15 @@ public class TreeClimber {
         ArrayList<Node> temp = new ArrayList<>(cacheList);
         reset();
         return temp;
+    }
+
+    private void forEach(Node node, Consumer<Node> action) {
+        if (node instanceof Formula) {
+            for (Node n : ((Formula) node).getChildren()) {
+                forEach(n, action);
+            }
+        }
+        action.accept(node);
     }
 
     private TreeClimber reset() {

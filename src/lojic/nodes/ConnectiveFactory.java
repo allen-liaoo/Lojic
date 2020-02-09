@@ -19,13 +19,13 @@ public class ConnectiveFactory {
             "¬", 50, "~", "!");
 
     public final static Connective AND = new Connective((left, right) -> left && right,
-            "∧", 40, "&", "^", "×", "•", "⋅");
+            "∧", 40, "/\\", "&", "^", "×", "•", "⋅");
 
     public final static Connective NAND = new Connective((left, right) -> !left || !right,
             "↑", 40, "⊼");
 
     public final static Connective OR = new Connective((left, right) -> left || right,
-            "∨", 30, "|", "+", "∥");
+            "∨", 30, "\\/", "|", "+", "∥");
 
     public final static Connective NOR = new Connective((left, right) -> !left && !right,
             "↓", 30, "⊽");

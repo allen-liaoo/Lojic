@@ -57,20 +57,20 @@ public class TruthTable {
             boolean[] truths = new boolean[rowsize];
 
             if (isTAtom(atom.toString())) {
-                truths = fillTruths(rowsize, true, 0, truths.length);
+                truths = fillColumn(rowsize, true, 0, truths.length);
             } else if (isFAtom(atom.toString())) {
-                truths = fillTruths(rowsize, false, 0, truths.length);
+                truths = fillColumn(rowsize, false, 0, truths.length);
             } else {
                 boolean value = true;
-                int num = i + 1;
-                int times = 2 ^ (atoms.length - num);
+                int num = 2 ^ (i + 1);
+                int times = rowsize / num;
                 // TODO: fill truth values
             }
             atom.setTruths(truths);
         }
     }
 
-    private boolean[] fillTruths(int capacity, boolean value, int start, int end) {
+    private boolean[] fillColumn(int capacity, boolean value, int start, int end) {
         boolean[] truths = new boolean[capacity];
         for (int i = start; i < end; i++) {
             truths[i] = value;
