@@ -7,6 +7,7 @@ import lojic.parser.TokenType;
 /**
  * @author AlienIdeology
  */
+// FEATURE: No symbols stripping
 public class LojicUtil {
 
     public static boolean isAtomic(String token) {
@@ -30,7 +31,6 @@ public class LojicUtil {
         return false;
     }
 
-    // FEATURE: No symbols stripping
     public static boolean isParenthesized(String string) {
         return string.startsWith(TokenType.PARENTHESIS_OPEN.OFFICIAL_SYMBOL) &&
                 string.endsWith(TokenType.PARENTHESIS_CLOSE.OFFICIAL_SYMBOL);
@@ -71,7 +71,7 @@ public class LojicUtil {
     }
 
     @Nullable
-    public Connective getConnective(String connective) {
+    public Connective getDefaultConnective(String connective) {
         for (Connective con : DefaultFactory.DEFAULT_CONNECTIVES) {
             if (con.getOfficialSymbol().equals(connective)) return con;
         }
@@ -98,10 +98,8 @@ public class LojicUtil {
         for (int i = 0; i < index; i++) {
             builder.append(" ");
         }
-        return formula + "\n" + builder.toString() +
-                "\u001b[31m" + // Red word
-                "^" +
-                "\u001b[0m"; // Reset
+
+        return formula + "\n" + builder.toString() + "^";
     }
 
 }

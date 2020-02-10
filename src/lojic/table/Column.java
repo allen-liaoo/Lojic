@@ -2,7 +2,8 @@ package lojic.table;
 
 import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
-import lojic.nodes.Node;
+import lojic.nodes.truthapts.Atom;
+import lojic.nodes.truthapts.Formula;
 import lojic.nodes.truthapts.TruthApt;
 
 /**
@@ -10,32 +11,32 @@ import lojic.nodes.truthapts.TruthApt;
  *
  * A column of the {@link TruthTable},
  * which contains a {@link DetailSetting},
- * a {@link Node} and/or {@link TruthApt} (See {@link Column#getNode()},
+ * a {@link Formula} and/or {@link Atom} (See {@link Column#getFormula()} and {@link Column#getAtom()},
  * and an array of boolean values ({@code boolean[] values}).
  */
 public class Column {
 
     private final DetailSetting setting;
-    private final Node node;
-    private final TruthApt truthApt;
+    private final Formula formula;
+    private Atom atom;
     private final boolean[] values;
     private final boolean[] subColumnLeft;
     private final boolean[] subColumnRight;
 
-    Column(DetailSetting setting, Node node, TruthApt truthApt, boolean[] values) {
-        this.setting = setting;
-        this.node = node;
-        this.truthApt = truthApt;
-        this.values = values;
-        this.subColumnLeft = null;
-        this.subColumnRight = null;
+    Column(DetailSetting setting, Formula formula, boolean[] values) {
+        this(setting, formula, values, null, null);
     }
 
-    Column(DetailSetting setting, Node node, TruthApt truthApt, boolean[] values,
+    Column(DetailSetting setting, Atom atom, boolean[] values) {
+        this(setting, null, values, null, null);
+        this.atom = atom;
+    }
+
+    Column(DetailSetting setting, Formula formula, boolean[] values,
            boolean[] subColumnLeft, boolean[] subColumnRight) {
         this.setting = setting;
-        this.node = node;
-        this.truthApt = truthApt;
+        this.formula = formula;
+        this.atom = null;
         this.values = values;
         this.subColumnLeft = subColumnLeft;
         this.subColumnRight = subColumnRight;
@@ -51,23 +52,42 @@ public class Column {
     }
 
     /**
-     * Return the {@link Node} of this column, or null if the column denotes an atom
+     * Get the name of this column, which is the string representation of this column's formula or atom
      *
-     * @return The node
+     * @return The name of this column
+     */
+    public String getName() {
+        return formula != null ? formula.getString() : atom.toString();
+    }
+
+    /**
+     * Return the {@link Formula} of this column, or null if the column denotes an atom
+     *
+     * @return The formula
      */
     @Nullable
-    public Node getNode() {
-        return node;
+    public Formula getFormula() {
+        return formula;
+    }
+
+    /**
+     * Get the {@link Atom} object of this column, or null if the column denotes a formula
+     *
+     * @return The atom
+     */
+    @Nullable
+    public Atom getAtom() {
+        return atom;
     }
 
     /**
      * Get the {@link TruthApt} object of this column, which is never null
      *
-     * @return The truth apt object
+     * @return The truth-apt object
      */
     @NotNull
     public TruthApt getTruthApt() {
-        return truthApt;
+        return formula != null ? formula : atom;
     }
 
     /**
@@ -79,6 +99,10 @@ public class Column {
      */
     public boolean[] getValues() {
         return values;
+    }
+
+    public boolean hasSubColumn() {
+        return subColumnLeft != null || subColumnRight != null;
     }
 
     /**

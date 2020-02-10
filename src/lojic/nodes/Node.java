@@ -54,6 +54,15 @@ public class Node {
     }
 
     /**
+     * Check if this node is a {@link Formula}
+     *
+     * @return true if this node is a formula
+     */
+    public boolean isFormula() {
+        return !(this instanceof LocalAtom);
+    }
+
+    /**
      * Get the parent node
      *
      * @return parent node

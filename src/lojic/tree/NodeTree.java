@@ -115,27 +115,27 @@ public class NodeTree {
     private void printNode(StringBuilder builder, Node node, int tabs) {
         if (node instanceof LocalAtom) {
             builder.append(ATOM)
-                    .append("(")
+                    .append('(')
                     .append(node.getLevel())
                     .append("): ")
                     .append(node.getString())
-                    .append("\n");
+                    .append('\n');
 
         } else if (node instanceof Formula) {
             Formula formula = (Formula) node;
             builder.append(FORMULA)
-                    .append("(")
+                    .append('(')
                     .append(formula.getLevel())
                     .append("): ")
                     .append(formula.getString());
             if (formula.getConnective() != null) {
                 builder.append(" (")
                         .append(CONNECTIVE)
-                        .append(": ")
+                        .append(')').append(':').append(' ')
                         .append(formula.getConnective().getOfficialSymbol())
-                        .append(")");
+                        .append(')');
             }
-            builder.append("\n");
+            builder.append('\n');
 
             Node[] children = formula.getChildren();
             for (Node n : children) {
@@ -147,11 +147,11 @@ public class NodeTree {
                     printNode(builder, n, tabs + 1);
                 } else if (n instanceof LocalAtom) {
                     builder.append(ATOM)
-                            .append("(")
+                            .append('(')
                             .append(n.getLevel())
                             .append("): ")
                             .append(n.getString())
-                            .append("\n");
+                            .append('\n');
                 }
             }
         }

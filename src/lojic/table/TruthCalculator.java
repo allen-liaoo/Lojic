@@ -5,6 +5,7 @@ import lojic.nodes.Node;
 import lojic.nodes.connectives.Connective;
 import lojic.nodes.truthapts.Atom;
 import lojic.nodes.truthapts.Formula;
+import lojic.nodes.truthapts.LocalAtom;
 import lojic.nodes.truthapts.TruthApt;
 import lojic.tree.NodeTree;
 
@@ -22,7 +23,7 @@ import static lojic.table.DetailSetting.*;
 public class TruthCalculator {
 
     private final NodeTree nodeTree;
-    private int rowsize;
+    private int rowSize;
 
     private List<DetailSetting> detailSettings;
 
@@ -55,7 +56,7 @@ public class TruthCalculator {
                 noneTFAs--;
             }
         }
-        rowsize = noneTFAs == 0 ? 1 : (int) Math.pow(2, noneTFAs);
+        rowSize = noneTFAs == 0 ? 1 : (int) Math.pow(2, noneTFAs);
 
         computedAtoms = false;
         computedFormulas = false;
@@ -156,7 +157,7 @@ public class TruthCalculator {
         List<Column> columns = new ArrayList<>();
         if (detailSettings.contains(ATOMS)) {
             for (Atom atom : nodeTree.getAtoms()) {
-                columns.add(new Column(ATOMS, null, atom, atom.getTruths()));
+                columns.add(new Column(ATOMS, atom, atom.getTruths()));
             }
         }
 
@@ -166,16 +167,16 @@ public class TruthCalculator {
                         && !((Formula) node).isRoot()) {
                     Formula formula = (Formula) node;
                     if (!detailSettings.contains(SUB_COLUMNS)) {
-                        columns.add(new Column(FORMULAS, formula, formula, formula.getTruths()));
+                        columns.add(new Column(FORMULAS, formula, formula.getTruths()));
                         return;
                     }
 
                     TruthApt child1 = formula.getChildren()[0].getTruthApt();
                     if (formula.getConnective().isBinary()) {
                         TruthApt child2 = formula.getChildren()[1].getTruthApt();
-                        columns.add(new Column(FORMULAS, formula, formula, formula.getTruths(), child1.getTruths(), child2.getTruths()));
+                        columns.add(new Column(FORMULAS, formula, formula.getTruths(), child1.getTruths(), child2.getTruths()));
                     } else if (formula.getConnective().isUnary()) {
-                        columns.add(new Column(FORMULAS, formula, formula, formula.getTruths(), null, child1.getTruths()));
+                        columns.add(new Column(FORMULAS, formula, formula.getTruths(), null, child1.getTruths()));
                     }
                 }
             });
@@ -184,10 +185,14 @@ public class TruthCalculator {
         if (detailSettings.contains(ROOT)) {
             Node root = nodeTree.getRoot();
             TruthApt ta = root.getTruthApt();
-            columns.add(new Column(ROOT, root, ta, ta.getTruths()));
+            if (root.isFormula()) {
+                columns.add(new Column(ROOT, (Formula) root, ta.getTruths()));
+            } else {
+                columns.add(new Column(ROOT, ((LocalAtom) root).getAtom(), ta.getTruths()));
+            }
         }
 
-        return new TruthTable(nodeTree, columns);
+        return new TruthTable(this, columns);
     }
 
     private void computeFormulaTruths() {
@@ -200,7 +205,7 @@ public class TruthCalculator {
 
                 Formula formula = (Formula) node;
                 if (!formula.isSet()) {
-                    boolean[] truths = new boolean[rowsize];
+                    boolean[] truths = new boolean[rowSize];
                     Connective connective = formula.getConnective();
 
                     for (int j = 0; j < truths.length; j++) {
@@ -238,7 +243,7 @@ public class TruthCalculator {
         int count = 0;
         for (int i = 0; i < atoms.length; i++) {
             Atom atom = atoms[i];
-            boolean[] truths = new boolean[rowsize];
+            boolean[] truths = new boolean[rowSize];
 
             if (isTAtom(atom.toString())) {
                 Arrays.fill(truths,true);
@@ -248,7 +253,7 @@ public class TruthCalculator {
                 count++;
                 boolean value = true;
                 int times = (int) Math.pow(2, count); // the amount of times the process of filling should be repeated
-                int slots = rowsize / times; // the amount of slots one should fill true/false
+                int slots = rowSize / times; // the amount of slots one should fill true/false
                 // DEBUG: System.out.println("RowSize: " + rowsize + " Times: " + times + " Slots: " + slots);
 
                 int index = 0; // the starting index which t/f value changes
@@ -275,6 +280,16 @@ public class TruthCalculator {
             if (fa.equals(atom)) return true;
         }
         return false;
+    }
+
+    // Used by TruthTable
+    int getRowSize() {
+        return rowSize;
+    }
+
+    // Used by TruthTable
+    NodeTree getNodeTree() {
+        return nodeTree;
     }
 
 }

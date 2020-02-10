@@ -158,14 +158,23 @@ public class LojicParser {
         return this;
     }
 
+    /**
+     * Check if a string is a connective, as defined by the settings of this parser
+     *
+     * @param string The string
+     * @return true if the string is a connective
+     */
     // FEATURE: No symbols stripping - Change if condition
-    public boolean isConnective(String token) {
-        for (Connective con : connectives) {
-            if (token.equals(con.getOfficialSymbol())) return true;
-        }
-        return false;
+    public boolean isConnective(String string) {
+        return getConnective(string) != null;
     }
 
+    /**
+     * Check if a string is a binary connective, as defined by the settings of this parser
+     *
+     * @param string The string
+     * @return true if the string is a binary connective
+     */
     // FEATURE: No symbols stripping - Change if condition
     public boolean isBinaryConnective(String string) {
         for (Connective con : connectives) {
@@ -178,6 +187,12 @@ public class LojicParser {
         return false;
     }
 
+    /**
+     * Check if a string is a unary connective, as defined by the settings of this parser
+     *
+     * @param string The string
+     * @return true if the string is a unary connective
+     */
     // FEATURE: No symbols stripping - Change if condition
     public boolean isUnaryConnective(String string) {
         for (Connective con : connectives) {
@@ -188,6 +203,12 @@ public class LojicParser {
         return false;
     }
 
+    /**
+     * Get a connective object by its string
+     *
+     * @param connective The string
+     * @return the connective object, or null if the parser does not recognize this string as a connective
+     */
     @Nullable
     // FEATURE: No symbols stripping - Change if condition
     public Connective getConnective(String connective) {
@@ -202,12 +223,11 @@ public class LojicParser {
         LojicLexer tokenizer = new LojicLexer(this, cache, formula);
         List<Token> tokens = tokenizer.lex(location);
         // DEBUG Print formulas
-        System.out.println(tokens);
+        /*System.out.println(tokens);
         System.out.println(Arrays.toString(tokens.stream().map(tok -> (tok instanceof Token.ParsedFormula) ?
                 "PARSED_FORMULA" : tok.getType()).toArray()));
         System.out.println(Arrays.toString(tokens.stream().map(Token::getLocation).toArray()));
-        System.out.println();
-        // DEBUG tokens.forEach(tk -> System.out.println(tk + "\n" + LojicUtil.generateIndicator(cache, tk.getLocation())));
+        tokens.forEach(tk -> System.out.println(tk + "\n" + LojicUtil.generateIndicator(cache, tk.getLocation())));*/
 
         return parseTokens(parent, tokens, level);
     }
@@ -310,22 +330,5 @@ public class LojicParser {
             return getConnective(token.toString()).getPrecedence();
         }
     }
-
-    // DEBUG: Parse and print everything
-
-    /*private void pe(ParseList<Token> tokens) {
-        for (Token token : tokens) {
-            if (token.isType(TokenType.FORMULA) && !token.isUnparsedFormula()) {
-                parse(token.toString(), token.getLocation());
-            } else if (token.isUnparsedFormula()){
-                System.out.println(token.toString());
-                System.out.println(Arrays.toString(((Token.ParsedFormula)token).getTokens().toArray()));
-                System.out.println(Arrays.toString(((Token.ParsedFormula)token).getTokens().stream().map(Token::getType).toArray()));
-                System.out.println(Arrays.toString(((Token.ParsedFormula)token).getTokens().stream().map(Token::getLocation).toArray()));
-                System.out.println();
-                pe(new ParseList<>(((Token.ParsedFormula) token).getTokens()));
-            }
-        }
-    }*/
 
 }
