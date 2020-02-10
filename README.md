@@ -5,11 +5,11 @@ abstract syntax trees and truth tables.
 ### Format
  - Formula - Any statement that contains a connective is a formula
  - Connective - Logical operators like AND, OR
-  - Official symbol - The connective symbol that this java library deals
-  with and displays as. A connective only has one official symbol.
-  - Other symbols - Any symbols that is also recognized by the parser/lexer.
-  - Precedence - See [Wikipedia.org/Logical_connective#Order__of_precedence](https://en.wikipedia.org/wiki/Logical_connective#Order_of_precedence)
-  - Associativity - See [Wikipedia.org/Operator_associativity](https://en.wikipedia.org/wiki/Operator_associativity)
+   - Official symbol - The connective symbol that this java library deals
+     with and displays as. A connective only has one official symbol.
+   - Other symbols - Any symbols that is also recognized by the parser/lexer.
+   - Precedence - See [Wikipedia.org/Logical_connective#Order__of_precedence](https://en.wikipedia.org/wiki/Logical_connective#Order_of_precedence)
+   - Associativity - See [Wikipedia.org/Operator_associativity](https://en.wikipedia.org/wiki/Operator_associativity)
  - Atom - Variables that denotes propositions
 
 The name of atoms (propositions or operands) must be alphabetic and/or
@@ -27,8 +27,9 @@ public class Example {
     public static void main(String[] args) {
         LojicParser parser = new LojicParser();
         NodeTree tree = parser.parse("P->Q"); // throws SyntaxException if the syntax is incorrect
-        TruthTable tb = new TruthTable(tree);
-        Map<Node, boolean[]> table = tb.detailFull().getTable();
+        
+        TruthTable table = new TruthCalculator(tree).compute();
+        String result = table.print();
     }
     
 }
@@ -85,8 +86,9 @@ T|F
 
 ### Todo List
 - [x] Debug lexer (location tracking, error handling)
-- [ ] Finish parser
-- [ ] Formula Tree
+- [x] Finish parser
+- [x] Formula Tree
 - [x] T, F, 0, 1
+- [ ] Major debugging of NodeTree, TruthCalculator, and TruthTable
 - [ ] TruthTable
 - [ ] Javadocs

@@ -1,5 +1,7 @@
 package lojic.nodes.connectives;
 
+import lojic.DefaultFactory;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -8,7 +10,7 @@ import java.util.List;
  * @author AlienIdeology
  *
  * Logical operators, including Binary and Unary operators
- * @see lojic.nodes.ConnectiveFactory
+ * @see DefaultFactory
  */
 public class Connective {
 

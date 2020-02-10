@@ -43,6 +43,7 @@ public class NodeTree {
 
     /**
      * Get the root node
+     * This returns either a {@link LocalAtom} or a {@link Formula}.
      *
      * @return The root node
      */

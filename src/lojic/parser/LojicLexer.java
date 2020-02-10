@@ -1,8 +1,6 @@
 package lojic.parser;
 
 import lojic.LojicUtil;
-import lojic.parser.token.Token;
-import lojic.parser.token.TokenType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,14 +12,14 @@ import java.util.List;
  * Tokenizes a string in terms of {@code alphabetic-chars|parenthesized-formulas|connective-char|unrecognized-char}
  * {@code alphabetic-chars} and {@code parenthesized-formulas} are grouped into char sequences
  */
-public class LojicLexer {
+class LojicLexer {
 
     private final LojicParser parser;
     private final String baseString;
     private String string;
     private int index;
 
-    public LojicLexer(LojicParser parser, String baseString, String string) {
+    LojicLexer(LojicParser parser, String baseString, String string) {
         this.parser = parser;
         this.baseString = baseString;
         this.string = string;
@@ -110,7 +108,7 @@ public class LojicLexer {
      * 3. The atom or formula to the left of the unary connective(s) (#1)
      *
      * Then the method updates the {@code ParseList<Token>} by deleting all the tokens absorbed and
-     * replacing them with a single {@link lojic.parser.token.Token.ParsedFormula} object.
+     * replacing them with a single {@link Token.ParsedFormula} object.
      *
      * @param tokens The list of tokens
      */

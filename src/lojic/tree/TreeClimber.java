@@ -26,7 +26,7 @@ public class TreeClimber {
      *
      * @param root The root node
      */
-    public TreeClimber(Node root) {
+    TreeClimber(Node root) {
         this.root = root;
         this.list = new ArrayList<>();
         forEach(list::add);
@@ -93,7 +93,7 @@ public class TreeClimber {
         action.accept(node);
     }
 
-    private TreeClimber reset() {
+    public TreeClimber reset() {
         this.cacheList = new ArrayList<>(list);
         return this;
     }

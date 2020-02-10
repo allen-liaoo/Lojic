@@ -128,21 +128,18 @@ Atom[] getAtoms()
 Node[] getNodes(int level) - return all nodes at a level  
 TruthApt[] getTruthApts() - return all TruthApts in order of precedence
 
-# TruthTable (NodeTree)
+# TruthCalculator (NodeTree)
 detailSetting(boolean showSubColumn, Column...)  
 //default {false, ATOMS, ROOT}  
 detailModerate() {false, PREMISES, ROOT}  
 detailFull() {true, ATOMS, FORMULAS, ROOT}  
 boolean isAlwaysTrue()  
-Node[] getPremises()  
-void fillTruths()  
-Map<Node, boolean[]> getTable()  
 NodeTree getTree()
 
-enum Column  
+enum DetailSetting  
     ATOMS  
-    PREMISES  
     FORMULAS  
+    SUB_COLUMNS  
     ROOT  
 fillTruths() Uses:  
 FormulaTree.getAtoms() -> Fill in all atoms with truth values  
@@ -150,3 +147,6 @@ FormulaTree.getNodes(int level) -> For all nodes at level, check parent formula.
 if parent formula has no truth value, compute truth value. Get all child nodes from parent formula,  
 and remove them from the list. Repeat the process until there is no nodes in the list.  
 Then get list of nodes at an upper level (level--). repeat until level == 1.
+
+### TruthTable
+TruthTable getTable()

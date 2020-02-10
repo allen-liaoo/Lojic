@@ -1,15 +1,13 @@
 package lojic.parser;
 
 import com.sun.istack.internal.Nullable;
+import lojic.DefaultFactory;
 import lojic.LojicUtil;
-import lojic.nodes.ConnectiveFactory;
 import lojic.nodes.Node;
 import lojic.nodes.connectives.Connective;
 import lojic.nodes.truthapts.Atom;
 import lojic.nodes.truthapts.Formula;
 import lojic.nodes.truthapts.LocalAtom;
-import lojic.parser.token.Token;
-import lojic.parser.token.TokenType;
 import lojic.tree.NodeTree;
 
 import java.util.ArrayList;
@@ -32,7 +30,7 @@ public class LojicParser {
      * Load the parser with default connectives and associativity
      */
     public LojicParser() {
-        connectives = Arrays.asList(ConnectiveFactory.DEFAULT_CONNECTIVES);
+        connectives = Arrays.asList(DefaultFactory.DEFAULT_CONNECTIVES);
         cache = "";
         cacheAtoms = new ArrayList<>();
         for (Connective con : connectives) {
@@ -134,29 +132,29 @@ public class LojicParser {
     /**
      * Removes unnecessary default connectives
      * Unmoved connectives:
-     * 1. {@link ConnectiveFactory#NEG}
-     * 2. {@link ConnectiveFactory#AND}
-     * 3. {@link ConnectiveFactory#OR}
-     * 4. {@link ConnectiveFactory#IF}
-     * 5. {@link ConnectiveFactory#IFF}
+     * 1. {@link DefaultFactory#NEG}
+     * 2. {@link DefaultFactory#AND}
+     * 3. {@link DefaultFactory#OR}
+     * 4. {@link DefaultFactory#IF}
+     * 5. {@link DefaultFactory#IFF}
      *
      * Removed connectives
-     * 1. {@link ConnectiveFactory#NAND}
-     * 2. {@link ConnectiveFactory#NOR}
-     * 3. {@link ConnectiveFactory#XOR}
-     * 4. {@link ConnectiveFactory#NIF}
-     * 5. {@link ConnectiveFactory#IF_CON}
-     * 6. {@link ConnectiveFactory#NIF_CON}
+     * 1. {@link DefaultFactory#NAND}
+     * 2. {@link DefaultFactory#NOR}
+     * 3. {@link DefaultFactory#XOR}
+     * 4. {@link DefaultFactory#NIF}
+     * 5. {@link DefaultFactory#IF_CON}
+     * 6. {@link DefaultFactory#NIF_CON}
      *
      * @return This parser for method chaining
      */
     public LojicParser useMinimalConnectives() {
-        removeConnectives(ConnectiveFactory.NAND,
-                ConnectiveFactory.NOR,
-                ConnectiveFactory.XOR,
-                ConnectiveFactory.NIF,
-                ConnectiveFactory.IF_CON,
-                ConnectiveFactory.NIF_CON);
+        removeConnectives(DefaultFactory.NAND,
+                DefaultFactory.NOR,
+                DefaultFactory.XOR,
+                DefaultFactory.NIF,
+                DefaultFactory.IF_CON,
+                DefaultFactory.NIF_CON);
         return this;
     }
 
@@ -242,13 +240,13 @@ public class LojicParser {
         // Get the indexes of connectives, ignores atom or formulas
         for (int i = 0; i < tokens.size(); i++) {
             int prec = getPrecedence(tokens.get(i));
-            if (prec < ConnectiveFactory.PRECEDENCE_DEFAULT) {
+            if (prec < DefaultFactory.PRECEDENCE_DEFAULT) {
                 indexes.add(new int[]{i, prec});
             }
         }
 
         int lowIndex = -1; // index of the connective with the lowest precedence
-        int lowPrec = ConnectiveFactory.PRECEDENCE_DEFAULT;
+        int lowPrec = DefaultFactory.PRECEDENCE_DEFAULT;
         // Handle associativity and precedence
         for (int j = 0; j < indexes.size(); j++) {
             int index = indexes.get(j)[0];
@@ -271,8 +269,8 @@ public class LojicParser {
 
         // TODO: Thoroughly debugs parenthesizing node strings
         StringBuilder formula = new StringBuilder();
-        Connective mainConnective = getConnective(tokens.get(lowIndex).toString());
         Formula thisNode = new Formula(level, "", parent);
+        Connective mainConnective = getConnective(tokens.get(lowIndex).toString());
         thisNode.setConnective(mainConnective);
         formula.append("(");
 
@@ -306,6 +304,13 @@ public class LojicParser {
         return thisNode;
     }
 
+    private int getPrecedence(Token token) {
+        if (token.isType(TokenType.ATOM) || token.isType(TokenType.FORMULA)) return DefaultFactory.PRECEDENCE_HIGHEST;
+        else {
+            return getConnective(token.toString()).getPrecedence();
+        }
+    }
+
     // DEBUG: Parse and print everything
 
     /*private void pe(ParseList<Token> tokens) {
@@ -322,24 +327,5 @@ public class LojicParser {
             }
         }
     }*/
-
-    // Precedence climbing, recursive
-    /*private List<Token> parsetok(ParseList<Token> list, int prevPrec) {
-        Token left = list.next();
-        Token.ParsedFormula formula = new Token.ParsedFormula(left);
-        while (getPrecedence(list.peek()) <= prevPrec) {
-            // Unfinished
-             formula.add(list.next());
-        }
-        System.out.println(left);
-        return null;
-    }*/
-
-    private int getPrecedence(Token token) {
-        if (token.isType(TokenType.ATOM) || token.isType(TokenType.FORMULA)) return ConnectiveFactory.PRECEDENCE_HIGHEST;
-        else {
-            return getConnective(token.toString()).getPrecedence();
-        }
-    }
 
 }

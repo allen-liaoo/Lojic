@@ -1,9 +1,8 @@
 package lojic;
 
 import com.sun.istack.internal.Nullable;
-import lojic.nodes.ConnectiveFactory;
 import lojic.nodes.connectives.Connective;
-import lojic.parser.token.TokenType;
+import lojic.parser.TokenType;
 
 /**
  * @author AlienIdeology
@@ -38,21 +37,21 @@ public class LojicUtil {
     }
 
     public static boolean isFormula(String token) {
-        for (Connective con : ConnectiveFactory.DEFAULT_CONNECTIVES) {
+        for (Connective con : DefaultFactory.DEFAULT_CONNECTIVES) {
             if (token.contains(con.getOfficialSymbol())) return true;
         }
         return false;
     }
 
     public boolean isDefaultConnective(String token) {
-        for (Connective con : ConnectiveFactory.DEFAULT_CONNECTIVES) {
+        for (Connective con : DefaultFactory.DEFAULT_CONNECTIVES) {
             if (token.equals(con.getOfficialSymbol())) return true;
         }
         return false;
     }
 
     public boolean isDefaultBinaryConnective(String string) {
-        for (Connective con : ConnectiveFactory.DEFAULT_CONNECTIVES) {
+        for (Connective con : DefaultFactory.DEFAULT_CONNECTIVES) {
             if (con.isBinary()) {
                 if (string.equals(con.getOfficialSymbol())) {
                     return true;
@@ -63,7 +62,7 @@ public class LojicUtil {
     }
 
     public boolean isDefaultUnaryConnective(String string) {
-        for (Connective con : ConnectiveFactory.DEFAULT_CONNECTIVES) {
+        for (Connective con : DefaultFactory.DEFAULT_CONNECTIVES) {
             if (con.isUnary()) {
                 if (string.equals(con.getOfficialSymbol())) return true;
             }
@@ -73,7 +72,7 @@ public class LojicUtil {
 
     @Nullable
     public Connective getConnective(String connective) {
-        for (Connective con : ConnectiveFactory.DEFAULT_CONNECTIVES) {
+        for (Connective con : DefaultFactory.DEFAULT_CONNECTIVES) {
             if (con.getOfficialSymbol().equals(connective)) return con;
         }
         return null;
@@ -84,7 +83,7 @@ public class LojicUtil {
     public static String strip(String input) {
         input = input.replaceAll("\\s", ""); // Get rid of all white spaces
 
-        for (Connective con : ConnectiveFactory.DEFAULT_CONNECTIVES) {
+        for (Connective con : DefaultFactory.DEFAULT_CONNECTIVES) {
             for (String s : con.getSymbols()) {
                 if (input.contains(s))
                     input = input.replace(s, con.getOfficialSymbol());

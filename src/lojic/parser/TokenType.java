@@ -1,4 +1,4 @@
-package lojic.parser.token;
+package lojic.parser;
 
 /**
  * @author AlienIdeology
@@ -11,6 +11,8 @@ public enum TokenType {
     PARENTHESIS_OPEN ("(", "(", "{", "["),
     PARENTHESIS_CLOSE (")", ")", "}", "]"),
     UNKNOWN,
+
+    @Deprecated
     END, // When the lexer runs out of string to parse
 
 

@@ -1,15 +1,17 @@
-package lojic.nodes;
+package lojic;
 
 import lojic.nodes.connectives.Connective;
+import lojic.table.TruthCalculator;
 
 /**
  * @author AlienIdeology
  *
- * The default, recognized connectives, their precedence, and their associativity
- * Any connective is right associative by default
+ * Contains static fields of:
+ * 1. Default, recognized connectives, their precedence, and their associativity (right associative by default)
+ * 2. Default true/false atoms (See {@link TruthCalculator#TFAtomsDefault()}
  */
 // FEATURE: No symbols stripping - Remove official symbols
-public class ConnectiveFactory {
+public class DefaultFactory {
 
     public final static int PRECEDENCE_DEFAULT = 60;
 
@@ -57,5 +59,9 @@ public class ConnectiveFactory {
             NIF, NIF_CON,
             IF, IF_CON,
     };
+
+    public static final String[] TRUE_ATOMS = new String[]{"T", "⊤", "1"};
+
+    public static final String[] FALSE_ATOMS = new String[]{"F", "⊥", "0"};
 
 }

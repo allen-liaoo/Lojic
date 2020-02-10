@@ -1,95 +1,38 @@
 package lojic.table;
 
-import lojic.nodes.truthapts.Atom;
 import lojic.tree.NodeTree;
 
-import static lojic.table.Column.*;
+import java.util.List;
 
 /**
  * @author AlienIdeology
+ *
+ * A truth table
+ * This consists of {@link Column}s of {@link lojic.nodes.truthapts.TruthApt} and boolean arrays of truth values
+ * which corresponds to each TruthApt object
  */
 public class TruthTable {
 
     private final NodeTree nodeTree;
-    private int rowsize;
+    private final List<Column> columns;
 
-    private boolean showSubColumn;
-    private Column[] columns;
-
-    private String[] trueAtoms = new String[]{"T", "⊤", "1"};
-    private String[] falseAtoms = new String[]{"F", "⊥", "0"};
-
-    public TruthTable(NodeTree nodeTree) {
+    TruthTable(NodeTree nodeTree, List<Column> columns) {
         this.nodeTree = nodeTree;
-        rowsize = 2 ^ (nodeTree.getAtoms().length);
-        detailSetting(false, ATOMS, ROOT);
-    }
-
-    public TruthTable detailSetting(boolean showSubColumn, Column... columns) {
-        this.showSubColumn = showSubColumn;
         this.columns = columns;
-        return this;
     }
 
-    public TruthTable detailModerate() {
-        return detailSetting(false, PREMISES, ROOT);
+    public List<Column> getColumns() {
+        return columns;
     }
 
-    public TruthTable detailFull() {
-        return detailSetting(true, ATOMS, FORMULAS, ROOT);
-    }
+    public String print() {
+        StringBuilder builder = new StringBuilder();
 
-    public void setTrueAtoms(String... trueAtoms) {
-        this.trueAtoms = (trueAtoms == null)
-                ? new String[]{} : trueAtoms;
-    }
+        for (Column column : columns) {
 
-    public void setFalseAtoms(String... falseAtoms) {
-        this.falseAtoms = (falseAtoms == null)
-                ? new String[]{} : falseAtoms;
-    }
-
-    private void fillAtomTruths() {
-        Atom[] atoms = nodeTree.getAtoms();
-
-        for (int i = 0; i < atoms.length; i++) {
-            Atom atom = atoms[i];
-            boolean[] truths = new boolean[rowsize];
-
-            if (isTAtom(atom.toString())) {
-                truths = fillColumn(rowsize, true, 0, truths.length);
-            } else if (isFAtom(atom.toString())) {
-                truths = fillColumn(rowsize, false, 0, truths.length);
-            } else {
-                boolean value = true;
-                int num = 2 ^ (i + 1);
-                int times = rowsize / num;
-                // TODO: fill truth values
-            }
-            atom.setTruths(truths);
         }
-    }
 
-    private boolean[] fillColumn(int capacity, boolean value, int start, int end) {
-        boolean[] truths = new boolean[capacity];
-        for (int i = start; i < end; i++) {
-            truths[i] = value;
-        }
-        return truths;
-    }
-
-    private boolean isTAtom(String atom) {
-        for (String ta : trueAtoms) {
-            if (ta.equals(atom)) return true;
-        }
-        return false;
-    }
-
-    private boolean isFAtom(String atom) {
-        for (String fa : falseAtoms) {
-            if (fa.equals(atom)) return true;
-        }
-        return false;
+        return builder.toString();
     }
 
 }

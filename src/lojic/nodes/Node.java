@@ -1,10 +1,15 @@
 package lojic.nodes;
 
+import lojic.nodes.truthapts.Formula;
+import lojic.nodes.truthapts.LocalAtom;
+import lojic.nodes.truthapts.TruthApt;
+
 /**
  * @author AlienIdeology
  *
  * Localized elements of a logical expression
  * Localization - Objects that are localized contian informations about its whereabouts in the formula tree
+ * A node is either a {@link Formula} or a {@link LocalAtom}
  */
 public class Node {
 
@@ -38,6 +43,17 @@ public class Node {
     }
 
     /**
+     * Return the {@link TruthApt} object which this Node represents (in the case of a {@link Formula})
+     * or contains (in the case of a {@link LocalAtom})
+     *
+     * @return The {@link TruthApt} object
+     */
+    public TruthApt getTruthApt() {
+        return (this instanceof LocalAtom) ?
+                ((LocalAtom) this).getAtom() : (Formula) this;
+    }
+
+    /**
      * Get the parent node
      *
      * @return parent node
@@ -50,7 +66,10 @@ public class Node {
     public String toString() {
         return "Node{" +
                 "level=" + level +
-                ", string='" + string + "\'}";
+                ", string='" + string + "'" +
+                ", type=" + ((this instanceof LocalAtom) ?
+                "LOCAL_ATOM" : "FORMULA") +
+                "}";
     }
 
     /**
