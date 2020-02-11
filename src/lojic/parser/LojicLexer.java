@@ -11,6 +11,8 @@ import java.util.List;
  * A lexer of logical expressions
  * Tokenizes a string in terms of {@code alphabetic-chars|parenthesized-formulas|connective-char|unrecognized-char}
  * {@code alphabetic-chars} and {@code parenthesized-formulas} are grouped into char sequences
+ *
+ * This class is for the Lojic library's internal use only, users should ignore this
  */
 class LojicLexer {
 
@@ -26,10 +28,22 @@ class LojicLexer {
         this.index = -1;
     }
 
-    public void setIndex(int in) {
-        index = in;
+    /**
+     * Set the index of this lexer
+     * This method is for the Lojic library's internal use only, users should ignore this
+     *
+     * @param index The index
+     */
+    public void setIndex(int index) {
+        this.index = index;
     }
 
+    /**
+     * Update this lexer's string
+     * This method is for the Lojic library's internal use only, users should ignore this
+     *
+     * @param string The string
+     */
     public void updateString(String string) {
         this.string = string;
     }
@@ -45,6 +59,9 @@ class LojicLexer {
      * lex("P∧Q") => ["P", "∧", "Q"]
      * lex("((P∧Q))") => ["P", "∧", "Q"]
      * lex("(P∧Q)->R") => ["P∧Q", "->", "R"]
+     *
+     * This method is for the Lojic library's internal use only, users should ignore this
+     * @see LojicParser for parsing logical expressions
      *
      * @param location The location of the formula in the base formula in which this lexer starts
      * @return a list of tokens
@@ -185,7 +202,7 @@ class LojicLexer {
                     // Cases like "(" or "((" or "((P->Q)"
                     if (nxt == null) { // !hasNext()
                         // "(", "(("
-                        if(LojicUtil.isOpenParenthesis(cache.substring(cache.length()-1))) {
+                        if(LojicParser.isOpenParenthesis(cache.substring(cache.length()-1))) {
                             errorNoNext(loc+1);
                         // "((P->Q)"
                         } else {
@@ -195,9 +212,9 @@ class LojicLexer {
                     }
 
 
-                    if (LojicUtil.isOpenParenthesis(nxt)) {
+                    if (LojicParser.isOpenParenthesis(nxt)) {
                         count++;
-                    } else if (LojicUtil.isCloseParenthesis(nxt)) {
+                    } else if (LojicParser.isCloseParenthesis(nxt)) {
                         count--;
                     }
                     cache.append(nxt);
@@ -215,7 +232,7 @@ class LojicLexer {
                         LojicUtil.generateIndicator(baseString, loc-1));
 
                 // Return formula of atom
-                return LojicUtil.isAtomic(result) ? new Token (this, result, TokenType.ATOM, loc) :
+                return LojicParser.isAtomic(result) ? new Token (this, result, TokenType.ATOM, loc) :
                         new Token(this, result, TokenType.FORMULA, loc);
             }
 
@@ -262,18 +279,18 @@ class LojicLexer {
         TokenType type;
         if (parser.isBinaryConnective(ch)) type = TokenType.BINARY_CONNECTIVE;
         else if (parser.isUnaryConnective(ch)) type = TokenType.UNARY_CONNECTIVE;
-        else if (LojicUtil.isOpenParenthesis(ch)) {
+        else if (LojicParser.isOpenParenthesis(ch)) {
             type = TokenType.PARENTHESIS_OPEN;
         }
-        else if (LojicUtil.isCloseParenthesis(ch)) {
+        else if (LojicParser.isCloseParenthesis(ch)) {
             type = TokenType.PARENTHESIS_CLOSE;
         }
-        else if (LojicUtil.isAtomic(ch)) {
+        else if (LojicParser.isAtomic(ch)) {
             type = TokenType.ATOM;
             StringBuilder cache = new StringBuilder(ch);
             while (hasNext()) {
                 ch = peekChar();
-                if (LojicUtil.isAtomic(ch)) {
+                if (LojicParser.isAtomic(ch)) {
                     cache.append(ch);
                     index++;
                 } else {

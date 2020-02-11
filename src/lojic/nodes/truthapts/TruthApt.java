@@ -16,6 +16,8 @@ public interface TruthApt {
 
     /**
      * Check if the truth values are set
+     * When an instance of  {@link lojic.table.TruthTable} is created, all truth apt objects will already be set
+     * This method is for the Lojic library's internal use only, users should ignore this
      *
      * @return true if set, false if not
      */
@@ -24,6 +26,7 @@ public interface TruthApt {
     /**
      * Set the truth values
      * Used to set the column of booleans for the truth-table
+     * This method is for the Lojic library's internal use only, users should ignore this
      *
      * @param truths The truth values
      */

@@ -3,6 +3,7 @@ package lojic.nodes;
 import lojic.nodes.truthapts.Formula;
 import lojic.nodes.truthapts.LocalAtom;
 import lojic.nodes.truthapts.TruthApt;
+import lojic.tree.NodeTree;
 
 /**
  * @author AlienIdeology
@@ -11,13 +12,22 @@ import lojic.nodes.truthapts.TruthApt;
  * Localization - Objects that are localized contian informations about its whereabouts in the formula tree
  * A node is either a {@link Formula} or a {@link LocalAtom}
  */
-public class Node {
+public abstract class Node {
 
     protected int level;
     protected String string;
     protected final Node parent;
 
-    public Node (int level, String string, Node parent) {
+    /**
+     * Constructor of a node
+     * This constructor is for the Lojic library's internal use only, users should ignore this
+     * @see lojic.parser.LojicParser for constructing nodes
+     *
+     * @param level The level of the node tree which this node is on
+     * @param string The node's string
+     * @param parent The node's parent
+     */
+    protected Node (int level, String string, Node parent) {
         this.level = level;
         this.string = string;
         this.parent = parent;
@@ -54,9 +64,9 @@ public class Node {
     }
 
     /**
-     * Check if this node is a {@link Formula}
+     * Check if this node is a {@link Formula} or a {@link LocalAtom}
      *
-     * @return true if this node is a formula
+     * @return true if this node is a formula, or false if it is a local atom
      */
     public boolean isFormula() {
         return this instanceof Formula;
@@ -71,6 +81,15 @@ public class Node {
         return parent;
     }
 
+    /**
+     * Copy the data of this node and return the result
+     * This method is for the Lojic library's internal use only, users should ignore this
+     * @see lojic.tree.NodeTree#copyOf(NodeTree) for copying nodes
+     *
+     * @return A copy of this node
+     */
+    public abstract Node copy();
+
     @Override
     public String toString() {
         return "Node{" +
@@ -80,14 +99,5 @@ public class Node {
                 "LOCAL_ATOM" : "FORMULA") +
                 "}";
     }
-
-    /**
-     * Get the type enum of this node
-     *
-     * @return Node type
-     */
-    /*public TokenType getType() {
-        return type;
-    }*/
 
 }

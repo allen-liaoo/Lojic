@@ -107,10 +107,8 @@ T|F
 1|0
 
 ### Todo List
-- [x] Debug lexer (location tracking, error handling)
-- [x] Finish parser
-- [x] Formula Tree
-- [x] T, F, 0, 1
-- [ ] Major debugging of NodeTree, TruthCalculator, and TruthTable
+- [x] Lexer and Parser (LojicLexer and LojicParser)
+- [x] Abstract Syntax Tree (NodeTree)
 - [ ] TruthTable
+- [ ] TruthTable printing
 - [ ] Javadocs

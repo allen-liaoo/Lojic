@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static lojic.table.DetailSetting.*;
+import static lojic.table.ColumnType.*;
 
 /**
  * @author AlienIdeology
@@ -25,7 +25,7 @@ public class TruthCalculator {
     private final NodeTree nodeTree;
     private int rowSize;
 
-    private List<DetailSetting> detailSettings;
+    private List<ColumnType> columnTypes;
 
     private String[] trueAtoms;
     private String[] falseAtoms;
@@ -36,12 +36,12 @@ public class TruthCalculator {
     /**
      * The constructor for a TruthCalculator
      *
-     * @param nodeTree The nodetree which truth values are to be derived from
+     * @param nodeTree The {@link NodeTree} which truth values are to be derived from
      */
     public TruthCalculator(NodeTree nodeTree) {
         this.nodeTree = nodeTree;
 
-        detailDefault();
+        showColumnsDefault();
         TFAtomsDefault();
 
         // init rowsize
@@ -59,25 +59,25 @@ public class TruthCalculator {
     }
 
     /**
-     * Set the {@link DetailSetting} of the truth table, which determines the output of the table
+     * Set the {@link ColumnType} of the truth table, which determines the output of the table
      * and the way truth values are to be computed
      *
-     * @param detailSettings The enum detail settings
+     * @param columnTypes The enum column types to be included in this table
      * @return This truth calculator for method chaining
      */
-    public TruthCalculator detailSetting(DetailSetting... detailSettings) {
-        this.detailSettings = Arrays.asList(detailSettings);
+    public TruthCalculator showColumns(ColumnType... columnTypes) {
+        this.columnTypes = Arrays.asList(columnTypes);
         return this;
     }
 
     /**
-     * Use the default detail settings, which consists of
-     * {@link DetailSetting#ATOMS} and {@link DetailSetting#ROOT}
+     * Use the default column types, which consists of
+     * {@link ColumnType#ATOMS} and {@link ColumnType#ROOT}
      *
      * @return This truth calculator for method chaining
      */
-    public TruthCalculator detailDefault() {
-        return detailSetting(ATOMS, ROOT);
+    public TruthCalculator showColumnsDefault() {
+        return showColumns(ATOMS, ROOT);
     }
 
     /**
@@ -87,6 +87,8 @@ public class TruthCalculator {
      * True Atoms: "T", "⊤", "1"
      * False Atoms: "F", "⊥", "0"
      * For example, any atom with the string "T" will only has the boolean value "true" on the truth table
+     * @see DefaultFactory#TRUE_ATOMS for default true atoms
+     * @see DefaultFactory#FALSE_ATOMS for default false atoms
      *
      * @return This truth calculator for method chaining
      */
@@ -113,6 +115,7 @@ public class TruthCalculator {
     /**
      * Set the True Atoms that this calculator will recognize
      * Pass a {@code null} or {@code empty} argument in the parameter to disable recognition of True Atoms
+     * @see #TFAtomsDefault()
      *
      * @param trueAtoms The string of true atoms
      * @return This truth calculator for method chaining
@@ -126,6 +129,7 @@ public class TruthCalculator {
     /**
      * Set the False Atoms that this calculator will recognize
      * Pass a {@code null} or {@code empty} argument in the parameter to disable recognition of False Atoms
+     * @see #TFAtomsDefault()
      *
      * @param falseAtoms The false atoms
      * @return This truth calculator for method chaining
@@ -147,24 +151,24 @@ public class TruthCalculator {
         if (!computedFormulas)
             computeFormulaTruths();
 
-        if (detailSettings == null)
-            detailDefault();
+        if (columnTypes == null)
+            showColumnsDefault();
 
         List<Column> exports = new ArrayList<>();
 
-        if (detailSettings.contains(ATOMS)) {
+        if (columnTypes.contains(ATOMS)) {
             for (Atom atom : nodeTree.getAtoms()) {
                 exports.add(new Column(ATOMS, atom, atom.getTruths()));
             }
         }
 
-        if (detailSettings.contains(FORMULAS)) {
+        if (columnTypes.contains(FORMULAS)) {
             nodeTree.climb().forEach(node -> {
                 if (node instanceof Formula
                         && !((Formula) node).isRoot()) {
 
                     Formula formula = (Formula) node;
-                    if (!detailSettings.contains(SUB_COLUMNS)) {
+                    if (!columnTypes.contains(SUB_COLUMNS)) {
                         exports.add(new Column(FORMULAS, formula, formula.getTruths()));
                         return;
                     }
@@ -175,7 +179,7 @@ public class TruthCalculator {
         }
 
         root:
-        if (detailSettings.contains(ROOT)) {
+        if (columnTypes.contains(ROOT)) {
             Node root = nodeTree.getRoot();
             TruthApt ta = root.getTruthApt();
 
@@ -185,7 +189,7 @@ public class TruthCalculator {
             }
 
             // handle root formula
-            if (!detailSettings.contains(SUB_COLUMNS)) {
+            if (!columnTypes.contains(SUB_COLUMNS)) {
 
                 exports.add(new Column(ROOT, (Formula) root, ta.getTruths()));
 
@@ -197,7 +201,7 @@ public class TruthCalculator {
             }
         }
 
-        return new TruthTable(this, exports);
+        return new TruthTable(nodeTree, exports);
     }
 
     private Column buildSubColumns(Formula formula) {
@@ -309,11 +313,6 @@ public class TruthCalculator {
             if (fa.equals(atom)) return true;
         }
         return false;
-    }
-
-    // Used by TruthTable
-    NodeTree getNodeTree() {
-        return nodeTree;
     }
 
 }

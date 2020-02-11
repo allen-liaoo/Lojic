@@ -21,6 +21,10 @@ public class Connective {
     private boolean isRightAssociative;
 
     /**
+     * Constructor of a binary connective
+     * For examples of how to create instances of binary connectives,
+     * @see DefaultFactory for its binary connectives
+     *
      * @param connective The functional interface that returns this connective's truth values
      * @param official The official symbol which the parser recognizes
      * @param precedence The order of precedence. The lower it is, the higher the precedence is.
@@ -35,6 +39,10 @@ public class Connective {
     }
 
     /**
+     * Constructor of a unary connective
+     * For an example of how to create an instance of an unary connective,
+     * @see DefaultFactory#NEG
+     *
      * @param connective The functional interface that returns this connective's truth values
      * @param official The official symbol which the parser recognizes
      * @param precedence The order of precedence. The lower it is, the higher the precedence is.
@@ -112,6 +120,8 @@ public class Connective {
 
     /**
      * Set the connective's associativity.
+     * This method is for the Lojic library's internal use only, users should ignore this
+     * @see lojic.parser.LojicParser#setAssociativity(int, boolean)  for setting associativity of connectives
      *
      * @param isRightAssociative true if the connective is right associative,
      *                           false if it is left associative.

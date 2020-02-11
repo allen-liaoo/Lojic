@@ -10,10 +10,6 @@ public class SyntaxException extends RuntimeException {
     private String indicator;
     private int index;
 
-    public SyntaxException(String message) {
-        super(message);
-    }
-
     /**
      * Custom error message with an index
      *
@@ -40,10 +36,21 @@ public class SyntaxException extends RuntimeException {
         this.indicator = indicator;
     }
 
+    /**
+     * Get the index (of the string) in which the syntax exception occurs
+     *
+     * @return The index
+     */
     public int getIndex() {
         return index;
     }
 
+    /**
+     * Get the string indicator (which consists of a logical expression
+     * and a char "^" pointing at the index in which this syntax exception occured
+     *
+     * @return The string indicator
+     */
     public String getIndicator() {
         return indicator;
     }

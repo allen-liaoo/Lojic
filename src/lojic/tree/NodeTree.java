@@ -5,6 +5,9 @@ import lojic.nodes.truthapts.Atom;
 import lojic.nodes.truthapts.Formula;
 import lojic.nodes.truthapts.LocalAtom;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author AlienIdeology
  *
@@ -12,6 +15,21 @@ import lojic.nodes.truthapts.LocalAtom;
  * parsed by {@link lojic.parser.LojicParser}.
  */
 public class NodeTree {
+
+    /**
+     * Make a copy of a node tree, utilizing methods like {@link Node#copy()} and {@link Atom#copy()}
+     *
+     * @param tree The original node tree to be copied from
+     * @return The new node tree
+     */
+    public static NodeTree copyOf(NodeTree tree) {
+        List<Atom> atoms = new ArrayList<>();
+        for (Atom a : tree.getAtoms()) {
+            atoms.add(a.copy());
+        }
+
+        return new NodeTree(tree.getRoot().copy(), atoms.toArray(new Atom[0]));
+    }
 
     private Node root;
     private int levels;
@@ -25,6 +43,8 @@ public class NodeTree {
 
     /**
      * Constructor of a NodeTree
+     * This constructor is for the Lojic library's internal use only, users should ignore this
+     * @see lojic.parser.LojicParser#parse for creating instances of nodetrees
      *
      * @param root The root node
      * @param atoms The unique atoms in the logical expression

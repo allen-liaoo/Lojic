@@ -12,10 +12,11 @@ import java.util.List;
  * A truth table that shows the truth values of each atoms and formulas, and the logical relation between each them.
  * This consists of {@link Column}s of {@link lojic.nodes.truthapts.TruthApt} and boolean arrays of truth values
  * which corresponds to each TruthApt object
+ *
+ * @see TruthCalculator#compute() for creating instances of truth tables
  */
 public class TruthTable {
 
-    private final TruthCalculator calculator;
     private final NodeTree nodeTree;
     private final List<Column> columns;
 
@@ -25,9 +26,16 @@ public class TruthTable {
     private boolean isTautology = true;
     private boolean isContradiction = true;
 
-    TruthTable(TruthCalculator calculator, List<Column> columns) {
-        this.calculator = calculator;
-        this.nodeTree = calculator.getNodeTree();
+    /**
+     * Constructor of TruthTable
+     * This constructor is for the Lojic library's internal use only, users should ignore this
+     * @see TruthCalculator#compute() for creating instances of truth tables
+     *
+     * @param nodeTree The node tree wich the calculator calculated from
+     * @param columns The columns of this table
+     */
+    TruthTable(NodeTree nodeTree, List<Column> columns) {
+        this.nodeTree = nodeTree;
         this.columns = columns;
 
         // define row & column size
@@ -172,7 +180,7 @@ public class TruthTable {
      * +---+---+-------+
      * </pre>
      *
-     * For a truth table with {@link DetailSetting#SUB_COLUMNS}, the table would look like this:
+     * For a truth table with {@link ColumnType#SUB_COLUMNS}, the table would look like this:
      * +---+---+-------+
      * | P | Q | (P→Q) |
      * +---+---+-------+

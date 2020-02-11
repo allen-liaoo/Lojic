@@ -129,9 +129,8 @@ Node[] getNodes(int level) - return all nodes at a level
 TruthApt[] getTruthApts() - return all TruthApts in order of precedence
 
 # TruthCalculator (NodeTree)
-detailSetting(boolean showSubColumn, Column...)  
-//default {false, ATOMS, ROOT}  
-detailFull() {true, ATOMS, FORMULAS, ROOT}
+showColumns(Column...)  
+showDefaultColumns{ATOMS, ROOT}
 
 FormulaTree.getAtoms() -> Fill in all atoms with truth values  
 FormulaTree.getNodes(int level) -> For all nodes at level, check parent formula.  
@@ -140,7 +139,7 @@ and remove them from the list. Repeat the process until there is no nodes in the
 Then get list of nodes at an upper level (level--). repeat until level == 1.
 
 
-### enum DetailSetting
+### enum ColumnType
     ATOMS    
     FORMULAS    
     SUB_COLUMNS    

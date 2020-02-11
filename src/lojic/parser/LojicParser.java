@@ -49,6 +49,66 @@ public class LojicParser {
     }
 
     /**
+     * Check if a string is a valid atom
+     * Returns true if the atom string contains only alphabetic or numeric letters
+     *
+     * @param string The string
+     * @return true if the string is a valid atom, false if not
+     *          returns false if the string is null or empty
+     */
+    public static boolean isAtomic(String string) {
+        if (string == null || string.isEmpty()) return false;
+        for (char ch : string.toCharArray()) {
+            if (!Character.isAlphabetic(ch) && !Character.isDigit(ch)) return false;
+        }
+        return true;
+    }
+
+    /**
+     * Check if a string is an open parenthesis
+     *
+     * @param string The string
+     * @return true if a string is an open parenthesis, false if not
+     *          returns false if the string is null or empty
+     */
+    public static boolean isOpenParenthesis(String string) {
+        if (string == null || string.isEmpty()) return false;
+        for (String s : TokenType.PARENTHESIS_OPEN.SYMBOLS) {
+            if(string.equals(s)) return true;
+        }
+        return false;
+    }
+
+    /**
+     * Check if a string is an closing parenthesis
+     *
+     * @param string The string
+     * @return true if a string is an closing parenthesis, false if not
+     *          returns false if the string is null or empty
+     */
+    public static boolean isCloseParenthesis(String string) {
+        if (string == null || string.isEmpty()) return false;
+        for (String s : TokenType.PARENTHESIS_CLOSE.SYMBOLS) {
+            if(string.equals(s)) return true;
+        }
+        return false;
+    }
+
+    /**
+     * Check if a string's first character is an open parenthesis,
+     * and if its last character is a closing parenthesis
+     *
+     * @param string The string
+     * @return true if a string is an parenthesized, false if not
+     *          returns false if the string is null or empty
+     */
+    public static boolean isParenthesized(String string) {
+        if (string == null || string.isEmpty()) return false;
+        return isOpenParenthesis(String.valueOf(string.charAt(0)))
+                && isCloseParenthesis(String.valueOf(string.charAt(string.length()-1)));
+    }
+
+    /**
      * Parse a logical expression and clear cache
      *
      * @param formula The logical expression

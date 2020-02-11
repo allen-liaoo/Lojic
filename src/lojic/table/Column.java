@@ -8,29 +8,29 @@ import lojic.nodes.truthapts.TruthApt;
  * @author AlienIdeology
  *
  * A column of the {@link TruthTable},
- * which contains a {@link DetailSetting},
+ * which contains a {@link ColumnType},
  * a {@link Formula} and/or {@link Atom} (See {@link Column#getFormula()} and {@link Column#getAtom()},
  * and an array of boolean values ({@code boolean[] values}).
  */
 public class Column {
 
-    private final DetailSetting setting;
+    private final ColumnType setting;
     private final Formula formula;
     private Atom atom;
     private final boolean[] values;
     private final Column subColumnLeft;
     private final Column subColumnRight;
 
-    Column(DetailSetting setting, Formula formula, boolean[] values) {
+    Column(ColumnType setting, Formula formula, boolean[] values) {
         this(setting, formula, values, null, null);
     }
 
-    Column(DetailSetting setting, Atom atom, boolean[] values) {
+    Column(ColumnType setting, Atom atom, boolean[] values) {
         this(setting, null, values, null, null);
         this.atom = atom;
     }
 
-    Column(DetailSetting setting, Formula formula, boolean[] values,
+    Column(ColumnType setting, Formula formula, boolean[] values,
            Column subColumnLeft, Column subColumnRight) {
         this.setting = setting;
         this.formula = formula;
@@ -41,15 +41,15 @@ public class Column {
     }
 
     /**
-     * Get the table's {@link DetailSetting} which this column is a type of
+     * Get the table's {@link ColumnType} which this column is a type of
      * This will only return these types of setting:
-     * 1. {@link DetailSetting#ATOMS}
-     * 2. {@link DetailSetting#FORMULAS}
-     * 2. {@link DetailSetting#ROOT}
+     * 1. {@link ColumnType#ATOMS}
+     * 2. {@link ColumnType#FORMULAS}
+     * 2. {@link ColumnType#ROOT}
      *
      * @return The column's detail setting
      */
-    public DetailSetting getSetting() {
+    public ColumnType getSetting() {
         return setting;
     }
 
@@ -130,7 +130,7 @@ public class Column {
 
     /**
      * Given that this column denotes a formula, and the detail setting is set to show both
-     * {@link DetailSetting#FORMULAS} and {@link DetailSetting#SUB_COLUMNS},
+     * {@link ColumnType#FORMULAS} and {@link ColumnType#SUB_COLUMNS},
      * get the column to the left of this formula's BINARY connective.
      *
      * This returns {@code null} if the detail setting is NOT set to show formulas and sub columns,
@@ -145,7 +145,7 @@ public class Column {
 
     /**
      * Given that this column denotes a formula, and the detail setting is set to show both
-     * {@link DetailSetting#FORMULAS} and {@link DetailSetting#SUB_COLUMNS},
+     * {@link ColumnType#FORMULAS} and {@link ColumnType#SUB_COLUMNS},
      * get the column to the right of this formula's (binary or unary) connective.
      *
      * This returns {@code null} the detail setting is NOT set to show formulas and sub columns,
