@@ -1,7 +1,6 @@
 package lojic.parser;
 
 import lojic.DefaultFactory;
-import lojic.LojicUtil;
 import lojic.nodes.Node;
 import lojic.nodes.connectives.Connective;
 import lojic.nodes.truthapts.Atom;
@@ -58,7 +57,7 @@ public class LojicParser {
     public NodeTree parse(String formula) {
         if (formula == null || formula.isEmpty()) throw new IllegalArgumentException("Parser does not accept empty or null string");
 
-        cache = LojicUtil.strip(formula);
+        cache = strip(formula);
         Node root = parseString(null, cache, 0, 0);
 
         NodeTree tree =  new NodeTree(root, cacheAtoms.toArray(new Atom[0]));
@@ -155,7 +154,7 @@ public class LojicParser {
      * 3. {@link DefaultFactory#XOR}
      * 4. {@link DefaultFactory#NIF}
      * 5. {@link DefaultFactory#IF_CON}
-     * 6. {@link DefaultFactory#NIF_CON}
+     * 6. {@link DefaultFactory#N_IF_CON}
      *
      * @return This parser for method chaining
      */
@@ -165,7 +164,7 @@ public class LojicParser {
                 DefaultFactory.XOR,
                 DefaultFactory.NIF,
                 DefaultFactory.IF_CON,
-                DefaultFactory.NIF_CON);
+                DefaultFactory.N_IF_CON);
         return this;
     }
 
@@ -226,6 +225,25 @@ public class LojicParser {
             if (con.getOfficialSymbol().equals(connective)) return con;
         }
         return null;
+    }
+
+    /**
+     * Strips a string of all unofficial connective symbols and white spaces
+     *
+     * @param input The string to be stripped
+     * @return The result string
+     */
+    // FEATURE: No symbols stripping - Remove for loops
+    public String strip(String input) {
+        input = input.replaceAll("\\s", ""); // Get rid of all white spaces
+
+        for (Connective con : connectives) {
+            for (String s : con.getSymbols()) {
+                if (input.contains(s))
+                    input = input.replace(s, con.getOfficialSymbol());
+            }
+        }
+        return input;
     }
 
     // Recursive method used to parse any unparsed formula to nodes

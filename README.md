@@ -88,8 +88,8 @@ Exclusive Disjunction|XOR|⊕|⊻, <-/->, <=/=>, ↮, ≢|30|right
 Conditional, Material Implication|IF|→|->, =>, ⇒, ⊃|20|right
 Material Nonimplication|NIF|↛|-/>, =/>|20|right
 Converse Implication|IF_CON|←|<-, <=, ⇐, ⊂|20|right
-Converse Nonimplication|NIF_CON|↚|</-, </=|20|right
-Biconditional, Logical Equality|IFF|↔|<->, <=>, ≡, ⇔, =|10|right
+Converse Nonimplication|N_IF_CON|↚|</-, </=|20|right
+Biconditional, Logical Equality|IFF|↔|<>, <->, <=>, ≡, ⇔, =|10|right
 
 ### Parenthesis
 > (), {}, []

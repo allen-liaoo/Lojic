@@ -36,28 +36,32 @@ public class DefaultFactory {
             "⊕", 30, "⊻", "<-/->", "<=/=>", "↮", "≢");
 
     public final static Connective IF = new Connective((left, right) -> !left || right,
-            "→", 20, "->", "=>", "⇒", "⊃");
+            "→", 20, "->", "=>", "⇒", "⊃", ">");
 
     public final static Connective NIF = new Connective((left, right) -> left && !right,
             "↛", 20, "-/>", "=/>");
 
     public final static Connective IF_CON = new Connective((left, right) -> left || !right,
-            "←", 20, "<-", "<=", "⇐", "⊂");
+            "←", 20, "<-", "<=", "⇐", "⊂", "<");
 
-    public final static Connective NIF_CON = new Connective((left, right) -> !left && right,
+    public final static Connective N_IF_CON = new Connective((left, right) -> !left && right,
             "↚", 20, "</-", "</=", "<-/");
 
     public final static Connective IFF = new Connective((left, right) -> (left || !right) && (!left || right),
-            "↔", 10, "<->", "<=>", "≡", "⇔", "=");
+            "↔", 10, "<>", "<->", "<=>", "≡", "⇔", "=");
 
     public static final Connective[] DEFAULT_CONNECTIVES = new Connective[] {
             // Order of this list is important for replacing unofficial symbols
             NEG,
             AND, NAND,
+
             OR, NOR, XOR,
-            IFF,  // IFF before IF group because "<->" should be replaced first, then "<-" or "->"
-            NIF, NIF_CON,
-            IF, IF_CON,
+
+            IFF,  // "<->" replaced before "<-" or "->"
+            NIF,
+            N_IF_CON, // "<-/" replaced before "<-"
+            IF_CON, // "<" replaced second to last
+            IF // ">" replaced last
     };
 
     public static final String[] TRUE_ATOMS = new String[]{"T", "⊤", "1"};

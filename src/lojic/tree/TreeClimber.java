@@ -73,8 +73,18 @@ public class TreeClimber {
     }
 
     /**
+     * Resets this tree climber and remove previous filters
+     *
+     * @return This climber for method chaining
+     */
+    public TreeClimber reset() {
+        this.cacheList = new ArrayList<>(list);
+        return this;
+    }
+
+    /**
      * Get the list that is filtered
-     * This automatically resets the cache list
+     * This automatically {@link #reset()} the cache list
      *
      * @return The list that is filtered
      */
@@ -91,11 +101,6 @@ public class TreeClimber {
             }
         }
         action.accept(node);
-    }
-
-    public TreeClimber reset() {
-        this.cacheList = new ArrayList<>(list);
-        return this;
     }
 
 }
