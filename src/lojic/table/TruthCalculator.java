@@ -40,11 +40,7 @@ public class TruthCalculator {
      */
     public TruthCalculator(NodeTree nodeTree) {
         this.nodeTree = nodeTree;
-        init();
-    }
 
-    // initialize variables
-    private void init() {
         detailDefault();
         TFAtomsDefault();
 
@@ -154,10 +150,11 @@ public class TruthCalculator {
         if (detailSettings == null)
             detailDefault();
 
-        List<Column> columns = new ArrayList<>();
+        List<Column> exports = new ArrayList<>();
+
         if (detailSettings.contains(ATOMS)) {
             for (Atom atom : nodeTree.getAtoms()) {
-                columns.add(new Column(ATOMS, atom, atom.getTruths()));
+                exports.add(new Column(ATOMS, atom, atom.getTruths()));
             }
         }
 
@@ -165,34 +162,66 @@ public class TruthCalculator {
             nodeTree.climb().forEach(node -> {
                 if (node instanceof Formula
                         && !((Formula) node).isRoot()) {
+
                     Formula formula = (Formula) node;
                     if (!detailSettings.contains(SUB_COLUMNS)) {
-                        columns.add(new Column(FORMULAS, formula, formula.getTruths()));
+                        exports.add(new Column(FORMULAS, formula, formula.getTruths()));
                         return;
                     }
 
-                    TruthApt child1 = formula.getChildren()[0].getTruthApt();
-                    if (formula.getConnective().isBinary()) {
-                        TruthApt child2 = formula.getChildren()[1].getTruthApt();
-                        columns.add(new Column(FORMULAS, formula, formula.getTruths(), child1.getTruths(), child2.getTruths()));
-                    } else if (formula.getConnective().isUnary()) {
-                        columns.add(new Column(FORMULAS, formula, formula.getTruths(), null, child1.getTruths()));
-                    }
+                    exports.add(buildSubColumns(formula));
                 }
             });
         }
 
+        root:
         if (detailSettings.contains(ROOT)) {
             Node root = nodeTree.getRoot();
             TruthApt ta = root.getTruthApt();
-            if (root.isFormula()) {
-                columns.add(new Column(ROOT, (Formula) root, ta.getTruths()));
+
+            if (!root.isFormula()) {
+                exports.add(new Column(ROOT, ((LocalAtom) root).getAtom(), ta.getTruths()));
+                break root;
+            }
+
+            // handle root formula
+            if (!detailSettings.contains(SUB_COLUMNS)) {
+
+                exports.add(new Column(ROOT, (Formula) root, ta.getTruths()));
+
             } else {
-                columns.add(new Column(ROOT, ((LocalAtom) root).getAtom(), ta.getTruths()));
+
+                Column temp = buildSubColumns((Formula) root);
+                exports.add(new Column(ROOT, temp.getFormula(), temp.getValues(), temp.getSubColumnLeft(), temp.getSubColumnRight()));
+
             }
         }
 
-        return new TruthTable(this, columns);
+        return new TruthTable(this, exports);
+    }
+
+    private Column buildSubColumns(Formula formula) {
+        Node leftN = formula.getChildren()[0];
+
+        Column left = subcol(leftN);
+
+        if (formula.getConnective().isUnary()){
+            return new Column(FORMULAS, formula,formula.getTruths(), null, left);
+        } else {
+            Node rightN = formula.getChildren()[1];
+            Column right = subcol(rightN);
+            return new Column(FORMULAS, formula,formula.getTruths(), left, right);
+        }
+    }
+
+    private Column subcol(Node node) {
+        Column column;
+        if (node instanceof LocalAtom)
+            column = new Column(ATOMS, ((LocalAtom) node).getAtom(), node.getTruthApt().getTruths());
+        else {
+            column = buildSubColumns((Formula) node);
+        }
+        return column;
     }
 
     private void computeFormulaTruths() {
@@ -280,11 +309,6 @@ public class TruthCalculator {
             if (fa.equals(atom)) return true;
         }
         return false;
-    }
-
-    // Used by TruthTable
-    int getRowSize() {
-        return rowSize;
     }
 
     // Used by TruthTable

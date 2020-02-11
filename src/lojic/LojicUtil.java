@@ -1,6 +1,5 @@
 package lojic;
 
-import com.sun.istack.internal.Nullable;
 import lojic.nodes.connectives.Connective;
 import lojic.parser.TokenType;
 
@@ -70,7 +69,6 @@ public class LojicUtil {
         return false;
     }
 
-    @Nullable
     public Connective getDefaultConnective(String connective) {
         for (Connective con : DefaultFactory.DEFAULT_CONNECTIVES) {
             if (con.getOfficialSymbol().equals(connective)) return con;

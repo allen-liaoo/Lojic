@@ -25,8 +25,7 @@ official symbols and all parenthesis to the standard type `()`.
 public class Example {
     
     public static void main(String[] args) {
-        LojicParser parser = new LojicParser();
-        NodeTree tree = parser.parse("P->Q"); // throws SyntaxException if the syntax is incorrect
+        NodeTree tree = LojicParser.parseDefault("P->Q"); // throws SyntaxException if the syntax is incorrect
         
         TruthTable table = new TruthCalculator(tree).compute();
         String result = table.print();
@@ -36,7 +35,7 @@ public class Example {
 ```
 The result would be:
 
-P|Q|P->Q
+P|Q|(P→Q)
 :---:|:---:|:----:
 T|T| T
 T|F| F
@@ -47,11 +46,34 @@ On the other hand,
 ```
 parser.parse("(P->Q");
 ```
-The result would be
+There would be a SyntaxException thrown:
 ```
 lojic.parser.SyntaxException: Index 4 - Missing closing parenthesis
 (P->Q
     ^
+```
+
+You can also configure the parser for it to recognize more or less
+connectives than the default. Start by creating an instance of
+LojicParser:
+```java
+public class MoreExample {
+    
+    public static void main(String[] args) {
+        LojicParser parser = new LojicParser();
+        NodeTree tree = parser
+                            .useMinimalConnectives() // Method chaining
+                            .append("P->") // caches a string
+                            .append("(Q->R)")
+                            .parse(); // an alternative way of parsing an expression
+                                      // whenever one parses the string, the parser's cache resets
+        
+        TruthTable table = new TruthCalculator(tree).compute();
+        List<Column> columns = table.getFullTable(); 
+        // alternatively, you can get a list of columns for the table rather than a string output
+    }
+    
+}
 ```
 
 ### Logical Connectives

@@ -59,7 +59,7 @@ public class Node {
      * @return true if this node is a formula
      */
     public boolean isFormula() {
-        return !(this instanceof LocalAtom);
+        return this instanceof Formula;
     }
 
     /**

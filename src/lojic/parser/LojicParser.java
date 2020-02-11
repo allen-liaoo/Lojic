@@ -1,6 +1,5 @@
 package lojic.parser;
 
-import com.sun.istack.internal.Nullable;
 import lojic.DefaultFactory;
 import lojic.LojicUtil;
 import lojic.nodes.Node;
@@ -39,7 +38,19 @@ public class LojicParser {
     }
 
     /**
-     * Parse the logical expression and clear cache
+     * Parse a logical expression with all default settings
+     * @see DefaultFactory for all default constants
+     * Note: this is a static method
+     *
+     * @param formula The logical expression
+     * @return A syntax tree that represents the expression
+     */
+    public static NodeTree parseDefault(String formula) {
+        return new LojicParser().parse(formula);
+    }
+
+    /**
+     * Parse a logical expression and clear cache
      *
      * @param formula The logical expression
      * @return A syntax tree that represents the expression
@@ -209,7 +220,6 @@ public class LojicParser {
      * @param connective The string
      * @return the connective object, or null if the parser does not recognize this string as a connective
      */
-    @Nullable
     // FEATURE: No symbols stripping - Change if condition
     public Connective getConnective(String connective) {
         for (Connective con : connectives) {

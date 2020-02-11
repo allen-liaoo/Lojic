@@ -1,7 +1,5 @@
 package lojic.table;
 
-import com.sun.istack.internal.NotNull;
-import com.sun.istack.internal.Nullable;
 import lojic.nodes.truthapts.Atom;
 import lojic.nodes.truthapts.Formula;
 import lojic.nodes.truthapts.TruthApt;
@@ -20,8 +18,8 @@ public class Column {
     private final Formula formula;
     private Atom atom;
     private final boolean[] values;
-    private final boolean[] subColumnLeft;
-    private final boolean[] subColumnRight;
+    private final Column subColumnLeft;
+    private final Column subColumnRight;
 
     Column(DetailSetting setting, Formula formula, boolean[] values) {
         this(setting, formula, values, null, null);
@@ -33,7 +31,7 @@ public class Column {
     }
 
     Column(DetailSetting setting, Formula formula, boolean[] values,
-           boolean[] subColumnLeft, boolean[] subColumnRight) {
+           Column subColumnLeft, Column subColumnRight) {
         this.setting = setting;
         this.formula = formula;
         this.atom = null;
@@ -44,6 +42,10 @@ public class Column {
 
     /**
      * Get the table's {@link DetailSetting} which this column is a type of
+     * This will only return these types of setting:
+     * 1. {@link DetailSetting#ATOMS}
+     * 2. {@link DetailSetting#FORMULAS}
+     * 2. {@link DetailSetting#ROOT}
      *
      * @return The column's detail setting
      */
@@ -65,7 +67,6 @@ public class Column {
      *
      * @return The formula
      */
-    @Nullable
     public Formula getFormula() {
         return formula;
     }
@@ -75,7 +76,6 @@ public class Column {
      *
      * @return The atom
      */
-    @Nullable
     public Atom getAtom() {
         return atom;
     }
@@ -85,7 +85,6 @@ public class Column {
      *
      * @return The truth-apt object
      */
-    @NotNull
     public TruthApt getTruthApt() {
         return formula != null ? formula : atom;
     }
@@ -101,37 +100,70 @@ public class Column {
         return values;
     }
 
+    /**
+     * Check if this column has any sub-columns
+     *
+     * @return True if this column contain sub-columns
+     */
     public boolean hasSubColumn() {
-        return subColumnLeft != null || subColumnRight != null;
+        return hasSubColumnLeft() || hasSubColumnRight();
     }
 
     /**
-     * Given that this column denotes a formula, and the detail setting is set to show sub columns,
-     * get the array of boolean values to the left of this formula's BINARY connective.
+     * Check if this column has any sub-columns on its left
+     * A column of a formula has an unary main connective has no left sub column
      *
-     * This returns {@code null} if the detail setting is NOT set to show sub columns,
-     * or if this formula represents a formula with an UNARY connective,
+     * @return True if this column contain sub-columns on its left
+     */
+    public boolean hasSubColumnLeft() {
+        return subColumnLeft != null;
+    }
+
+    /**
+     * Check if this column has any sub-columns on its right
+     *
+     * @return True if this column contain sub-columns on its right
+     */
+    public boolean hasSubColumnRight() {
+        return subColumnRight != null;
+    }
+
+    /**
+     * Given that this column denotes a formula, and the detail setting is set to show both
+     * {@link DetailSetting#FORMULAS} and {@link DetailSetting#SUB_COLUMNS},
+     * get the column to the left of this formula's BINARY connective.
+     *
+     * This returns {@code null} if the detail setting is NOT set to show formulas and sub columns,
+     * or if this formula has an UNARY main connective,
      * or if this column does not denote a formula.
      *
-     * @return Nullable boolean values on the left of a formula
+     * @return Nullable column on the left of a formula
      */
-    @Nullable
-    public boolean[] getSubColumnLeft() {
+    public Column getSubColumnLeft() {
         return subColumnLeft;
     }
 
     /**
-     * Given that this column denotes a formula, and the detail setting is set to show sub columns,
-     * get the array of boolean values to the right of this formula's (binary or unary) connective.
+     * Given that this column denotes a formula, and the detail setting is set to show both
+     * {@link DetailSetting#FORMULAS} and {@link DetailSetting#SUB_COLUMNS},
+     * get the column to the right of this formula's (binary or unary) connective.
      *
-     * This returns {@code null} the detail setting is NOT set to show sub columns,
+     * This returns {@code null} the detail setting is NOT set to show formulas and sub columns,
      * or if this column does not denote a formula.
      *
-     * @return Nullable boolean values on the right of a formula
+     * @return Nullable column on the right of a formula
      */
-    @Nullable
-    public boolean[] getSubColumnRight() {
+    public Column getSubColumnRight() {
         return subColumnRight;
     }
 
+    @Override
+    public String toString() {
+        return "Column{" +
+                "setting=" + setting +
+                ", formula/atom=" + (formula == null ? atom : formula) +
+                ", subColumnLeft=" + (subColumnLeft != null ? "PRESENT" : "NULL") +
+                ", subColumnRight=" + (subColumnRight != null ? "PRESENT" : "NULL") +
+                '}';
+    }
 }
