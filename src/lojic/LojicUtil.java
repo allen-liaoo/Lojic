@@ -8,14 +8,6 @@ import lojic.nodes.connectives.Connective;
 // FEATURE: No symbols stripping
 public class LojicUtil {
 
-    // TODO: needs change, uneffective
-    public static boolean isFormula(String token) {
-        for (Connective con : DefaultFactory.DEFAULT_CONNECTIVES) {
-            if (token.contains(con.getOfficialSymbol())) return true;
-        }
-        return false;
-    }
-
     // Strip a string of all unofficial connective symbols and white spaces
     // FEATURE: No symbols stripping - Remove for loops
     public static String strip(String input) {

@@ -36,17 +36,7 @@ public class LojicParser {
         }
     }
 
-    /**
-     * Parse a logical expression with all default settings
-     * @see DefaultFactory for all default constants
-     * Note: this is a static method
-     *
-     * @param formula The logical expression
-     * @return A syntax tree that represents the expression
-     */
-    public static NodeTree parseDefault(String formula) {
-        return new LojicParser().parse(formula);
-    }
+    /* Static Utilities */
 
     /**
      * Check if a string is a valid atom
@@ -108,6 +98,20 @@ public class LojicParser {
                 && isCloseParenthesis(String.valueOf(string.charAt(string.length()-1)));
     }
 
+    /* Parsing */
+
+    /**
+     * Parse a logical expression with all default settings
+     * @see DefaultFactory for all default constants
+     * Note: this is a static method
+     *
+     * @param formula The logical expression
+     * @return A syntax tree that represents the expression
+     */
+    public static NodeTree parseDefault(String formula) {
+        return new LojicParser().parse(formula);
+    }
+
     /**
      * Parse a logical expression and clear cache
      *
@@ -146,6 +150,102 @@ public class LojicParser {
     public NodeTree parse() {
         return parse(cache);
     }
+
+    /* Non-static Utilities */
+
+    /**
+     * Check if a string is a formula by checking if it contains connectives
+     * as defined by the settings of this parser
+     *
+     * @param string The string
+     * @return true if the string is a formula
+     */
+    public boolean isFormula(String string) {
+        for (Connective con : connectives) {
+            if (string.contains(con.getOfficialSymbol())) return true;
+        }
+        return false;
+    }
+
+    /**
+     * Check if a string is a connective, as defined by the settings of this parser
+     *
+     * @param string The string
+     * @return true if the string is a connective
+     */
+    // FEATURE: No symbols stripping - Change if condition
+    public boolean isConnective(String string) {
+        return getConnective(string) != null;
+    }
+
+    /**
+     * Check if a string is a binary connective, as defined by the settings of this parser
+     *
+     * @param string The string
+     * @return true if the string is a binary connective
+     */
+    // FEATURE: No symbols stripping - Change if condition
+    public boolean isBinaryConnective(String string) {
+        for (Connective con : connectives) {
+            if (con.isBinary()) {
+                if (string.equals(con.getOfficialSymbol())) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Check if a string is a unary connective, as defined by the settings of this parser
+     *
+     * @param string The string
+     * @return true if the string is a unary connective
+     */
+    // FEATURE: No symbols stripping - Change if condition
+    public boolean isUnaryConnective(String string) {
+        for (Connective con : connectives) {
+            if (con.isUnary()) {
+                if (string.equals(con.getOfficialSymbol())) return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Get a connective object by its string
+     *
+     * @param connective The string
+     * @return the connective object, or null if the parser does not recognize this string as a connective
+     */
+    // FEATURE: No symbols stripping - Change if condition
+    public Connective getConnective(String connective) {
+        for (Connective con : connectives) {
+            if (con.getOfficialSymbol().equals(connective)) return con;
+        }
+        return null;
+    }
+
+    /**
+     * Strips a string of all unofficial connective symbols and white spaces
+     *
+     * @param input The string to be stripped
+     * @return The result string
+     */
+    // FEATURE: No symbols stripping - Remove for loops
+    public String strip(String input) {
+        input = input.replaceAll("\\s", ""); // Get rid of all white spaces
+
+        for (Connective con : connectives) {
+            for (String s : con.getSymbols()) {
+                if (input.contains(s))
+                    input = input.replace(s, con.getOfficialSymbol());
+            }
+        }
+        return input;
+    }
+
+    /* Parser Settings */
 
     /**
      * Set the associativity of connectives at a precedence level.
@@ -226,84 +326,6 @@ public class LojicParser {
                 DefaultFactory.IF_CON,
                 DefaultFactory.N_IF_CON);
         return this;
-    }
-
-    /**
-     * Check if a string is a connective, as defined by the settings of this parser
-     *
-     * @param string The string
-     * @return true if the string is a connective
-     */
-    // FEATURE: No symbols stripping - Change if condition
-    public boolean isConnective(String string) {
-        return getConnective(string) != null;
-    }
-
-    /**
-     * Check if a string is a binary connective, as defined by the settings of this parser
-     *
-     * @param string The string
-     * @return true if the string is a binary connective
-     */
-    // FEATURE: No symbols stripping - Change if condition
-    public boolean isBinaryConnective(String string) {
-        for (Connective con : connectives) {
-            if (con.isBinary()) {
-                if (string.equals(con.getOfficialSymbol())) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Check if a string is a unary connective, as defined by the settings of this parser
-     *
-     * @param string The string
-     * @return true if the string is a unary connective
-     */
-    // FEATURE: No symbols stripping - Change if condition
-    public boolean isUnaryConnective(String string) {
-        for (Connective con : connectives) {
-            if (con.isUnary()) {
-                if (string.equals(con.getOfficialSymbol())) return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Get a connective object by its string
-     *
-     * @param connective The string
-     * @return the connective object, or null if the parser does not recognize this string as a connective
-     */
-    // FEATURE: No symbols stripping - Change if condition
-    public Connective getConnective(String connective) {
-        for (Connective con : connectives) {
-            if (con.getOfficialSymbol().equals(connective)) return con;
-        }
-        return null;
-    }
-
-    /**
-     * Strips a string of all unofficial connective symbols and white spaces
-     *
-     * @param input The string to be stripped
-     * @return The result string
-     */
-    // FEATURE: No symbols stripping - Remove for loops
-    public String strip(String input) {
-        input = input.replaceAll("\\s", ""); // Get rid of all white spaces
-
-        for (Connective con : connectives) {
-            for (String s : con.getSymbols()) {
-                if (input.contains(s))
-                    input = input.replace(s, con.getOfficialSymbol());
-            }
-        }
-        return input;
     }
 
     // Recursive method used to parse any unparsed formula to nodes

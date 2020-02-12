@@ -211,7 +211,6 @@ class LojicLexer {
                         }
                     }
 
-
                     if (LojicParser.isOpenParenthesis(nxt)) {
                         count++;
                     } else if (LojicParser.isCloseParenthesis(nxt)) {
@@ -220,6 +219,9 @@ class LojicLexer {
                     cache.append(nxt);
                     loc++;
                 }
+
+                // After ")"
+                errorNext(loc+1, TokenType.UNARY_CONNECTIVE, TokenType.PARENTHESIS_OPEN, TokenType.ATOM);
 
                 String result = cache.toString();
                 // Remove parenthesis in front and at the end
@@ -327,11 +329,24 @@ class LojicLexer {
     // FEATURE: No symbols stripping - Change for loop
     private void errorNext(int location, TokenType... types) throws SyntaxException {
         String next = peekChar();
-        if (next != null) {
-            for (TokenType tp : types) {
-                if (next.equals(tp.OFFICIAL_SYMBOL)) throw new SyntaxException(location, (CharSequence) next,
-                        LojicUtil.generateIndicator(baseString, location));
-            }
+        if (next == null) return;
+
+        for (TokenType tp : types) {
+            boolean error;
+            error = switch (tp) {
+                case UNARY_CONNECTIVE -> parser.isUnaryConnective(next);
+                case BINARY_CONNECTIVE -> parser.isBinaryConnective(next);
+
+                case PARENTHESIS_OPEN -> LojicParser.isOpenParenthesis(next);
+                case PARENTHESIS_CLOSE -> LojicParser.isCloseParenthesis(next);
+
+                case ATOM -> LojicParser.isAtomic(next);
+
+                default -> false; // Unused: FORMULA, UNKNOWN, END
+            };
+
+            if (error) throw new SyntaxException(location, (CharSequence) next,
+                    LojicUtil.generateIndicator(baseString, location));
         }
     }
 

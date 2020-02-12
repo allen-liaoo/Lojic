@@ -42,4 +42,5 @@ public class LocalAtom extends Node {
     public Node copy() {
         return new LocalAtom(level,  parent.copy(),  this.atom.copy());
     }
+
 }

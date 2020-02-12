@@ -14,6 +14,7 @@ import java.util.Arrays;
  * @see LocalAtom for a localized version
  */
 public class Atom implements TruthApt {
+
     private final String string;
     private boolean[] truths = null;
 
