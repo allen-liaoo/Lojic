@@ -75,6 +75,8 @@ public class MoreExample {
     
 }
 ```
+For more example, see [example/ NANDFuncCompleteness.java](https://github.com/AlienIdeology/Lojic/tree/master/example/src/NANDFuncCompleteness.java)  
+(It is a proof of NAND operator's functional completeness by truth tables)
 
 ### Logical Connectives
 Name|Object Name|Official Symbol|Other Symbols|Precedence|Associativity
