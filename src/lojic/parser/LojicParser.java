@@ -378,9 +378,9 @@ public class LojicParser {
         int lowIndex = -1; // index of the connective with the lowest precedence
         int lowPrec = DefaultFactory.PRECEDENCE_DEFAULT;
         // Handle associativity and precedence
-        for (int j = 0; j < indexes.size(); j++) {
-            int index = indexes.get(j)[0];
-            int prec = indexes.get(j)[1];
+        for (int[] ints : indexes) {
+            int index = ints[0];
+            int prec = ints[1];
 
             // When it meets a lower precedence, cache the index and precedence
             if (prec < lowPrec) {
@@ -411,7 +411,8 @@ public class LojicParser {
 
             thisNode.setChildren(new Node[]{rnode});
             formula.append(mainConnective.getOfficialSymbol());
-            right.stream().map(Token::toString).forEach(formula::append);
+            formula.append(rnode.getString());
+            //right.stream().map(Token::toString).forEach(formula::append);
 
         // Main connective is binary
         } else {

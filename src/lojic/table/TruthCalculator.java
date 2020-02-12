@@ -19,6 +19,7 @@ import static lojic.table.ColumnType.*;
  * @author AlienIdeology
  *
  * A calculator for computing truth values of {@link TruthApt} formulas or atoms on a {@link NodeTree}
+ * The method {@link #compute()} generates a {@link TruthTable} base on the filled truth values
  */
 public class TruthCalculator {
 
@@ -29,6 +30,8 @@ public class TruthCalculator {
 
     private String[] trueAtoms;
     private String[] falseAtoms;
+
+    private int subColumnsLevel; // the level (how deep) of sub-columns that one want this calculator to construct
 
     private boolean computedAtoms;
     private boolean computedFormulas; // When formulas are computed, the root is also computed
@@ -52,10 +55,11 @@ public class TruthCalculator {
                 noneTFAs--;
             }
         }
-        rowSize = noneTFAs == 0 ? 1 : (int) Math.pow(2, noneTFAs);
+        this.rowSize = noneTFAs == 0 ? 1 : (int) Math.pow(2, noneTFAs);
 
-        computedAtoms = false;
-        computedFormulas = false;
+        this.subColumnsLevel = 0;
+        this.computedAtoms = false;
+        this.computedFormulas = false;
     }
 
     /**
@@ -78,6 +82,44 @@ public class TruthCalculator {
      */
     public TruthCalculator showColumnsDefault() {
         return showColumns(ATOMS, ROOT);
+    }
+
+    /**
+     * Sub-columns are columns of atoms and/or non-root formulas
+     * which belongs within a column of a formula
+     *
+     * This method sets the level of sub-columns in which one wants the {@link TruthTable} to show
+     * How level is calculated:
+     * Level 0 is the main column itself.
+     * Level 1 denotes the sub-columns on the main column's right and/or left.
+     * Level 2 denotes the sub-columns of the level 1's sub-column(s).
+     * And so on...
+     *
+     * Keep in mind that when a formula is present as a column and as a sub-column,
+     * the integer levels of the formula's column and sub-column(s) are not necessarily the same,
+     * since the levels of sub-columns are relative to their main column.
+     *
+     * To disable showing sub-columns (which is the default setting), invoking this method
+     * with a parameter {@code int level = 0}.
+     *
+     * @param level the level
+     * @return This truth calculator for method chaining
+     * @throws IllegalArgumentException if the integer level < 0.
+     */
+    public TruthCalculator showSubColumns(int level) {
+        if(level < 0) throw new IllegalArgumentException("Sub-columns level must be greater or equal to 0");
+        this.subColumnsLevel = level;
+        return this;
+    }
+
+    /**
+     * This is the default setting, which shows no sub-columns
+     * @see #showSubColumns(int) for more information on sub-columns
+     *
+     * @return This truth calculator for method chaining
+     */
+    public TruthCalculator disableSubColumns() {
+        return showSubColumns(0);
     }
 
     /**
@@ -155,6 +197,7 @@ public class TruthCalculator {
             showColumnsDefault();
 
         List<Column> exports = new ArrayList<>();
+        boolean showsSubColumns = subColumnsLevel > 0;
 
         if (columnTypes.contains(ATOMS)) {
             for (Atom atom : nodeTree.getAtoms()) {
@@ -168,12 +211,12 @@ public class TruthCalculator {
                         && !((Formula) node).isRoot()) {
 
                     Formula formula = (Formula) node;
-                    if (!columnTypes.contains(SUB_COLUMNS)) {
+                    if (!showsSubColumns) {
                         exports.add(new Column(FORMULAS, formula, formula.getTruths()));
                         return;
                     }
 
-                    exports.add(buildSubColumns(formula));
+                    exports.add(buildSubColumns(formula, 0));
                 }
             });
         }
@@ -189,41 +232,43 @@ public class TruthCalculator {
             }
 
             // handle root formula
-            if (!columnTypes.contains(SUB_COLUMNS)) {
+            if (!showsSubColumns) {
 
                 exports.add(new Column(ROOT, (Formula) root, ta.getTruths()));
 
             } else {
 
-                Column temp = buildSubColumns((Formula) root);
+                Column temp = buildSubColumns((Formula) root, 0);
                 exports.add(new Column(ROOT, temp.getFormula(), temp.getValues(), temp.getSubColumnLeft(), temp.getSubColumnRight()));
 
             }
         }
 
-        return new TruthTable(nodeTree, exports);
+        return new TruthTable(nodeTree, exports, subColumnsLevel);
     }
 
-    private Column buildSubColumns(Formula formula) {
+    private Column buildSubColumns(Formula formula, int lvlCount) {
+        //if (lvlCount > subColumnsLevel) return null;
         Node leftN = formula.getChildren()[0];
 
-        Column left = subcol(leftN);
+        Column left = subcol(leftN, lvlCount+1);
 
         if (formula.getConnective().isUnary()){
             return new Column(FORMULAS, formula,formula.getTruths(), null, left);
         } else {
             Node rightN = formula.getChildren()[1];
-            Column right = subcol(rightN);
+            Column right = subcol(rightN, lvlCount+1);
             return new Column(FORMULAS, formula,formula.getTruths(), left, right);
         }
     }
 
-    private Column subcol(Node node) {
+    private Column subcol(Node node, int lvlCount) {
+        if (lvlCount > subColumnsLevel) return null;
         Column column;
         if (node instanceof LocalAtom)
             column = new Column(ATOMS, ((LocalAtom) node).getAtom(), node.getTruthApt().getTruths());
         else {
-            column = buildSubColumns((Formula) node);
+            column = buildSubColumns((Formula) node, lvlCount);
         }
         return column;
     }

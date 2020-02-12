@@ -4,6 +4,7 @@ import lojic.nodes.Node;
 import lojic.nodes.truthapts.Atom;
 import lojic.nodes.truthapts.Formula;
 import lojic.nodes.truthapts.LocalAtom;
+import lojic.table.TruthCalculator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,6 +60,16 @@ public class NodeTree {
             if (node.getLevel() > levels)
                 levels = node.getLevel();
         });
+    }
+
+    /**
+     * Create an instance of {@link TruthCalculator} which
+     * can be used to generate a {@link lojic.table.TruthTable}
+     *
+     * @return The truth calculator
+     */
+    public TruthCalculator createCalculator() {
+        return new TruthCalculator(this);
     }
 
     /**

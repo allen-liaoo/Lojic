@@ -27,7 +27,7 @@ public class Example {
     public static void main(String[] args) {
         NodeTree tree = LojicParser.parseDefault("P->Q"); // throws SyntaxException if the syntax is incorrect
         
-        TruthTable table = new TruthCalculator(tree).compute();
+        TruthTable table = tree.createCalculator().compute();
         String result = table.print();
     }
     
@@ -68,7 +68,7 @@ public class MoreExample {
                             .parse(); // an alternative way of parsing an expression
                                       // whenever one parses the string, the parser's cache resets
         
-        TruthTable table = new TruthCalculator(tree).compute();
+        TruthTable table = tree.createCalculator().compute();
         List<Column> columns = table.getFullTable(); 
         // alternatively, you can get a list of columns for the table rather than a string output
     }
@@ -109,6 +109,6 @@ T|F
 ### Todo List
 - [x] Lexer and Parser (LojicLexer and LojicParser)
 - [x] Abstract Syntax Tree (NodeTree)
-- [ ] TruthTable
-- [ ] TruthTable printing
+- [x] TruthTable
 - [ ] Javadocs
+- [ ] Examples

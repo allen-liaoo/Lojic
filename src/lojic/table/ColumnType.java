@@ -18,11 +18,6 @@ public enum ColumnType {
     FORMULAS,
 
     /**
-     * Columns of atoms and/or non-root formulas which belongs within a column of a formula
-     */
-    SUB_COLUMNS,
-
-    /**
      * A column of the root atom or formula, which is the original (full) logical expression
      */
     ROOT

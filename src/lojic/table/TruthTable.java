@@ -1,7 +1,7 @@
 package lojic.table;
 
+import lojic.nodes.Node;
 import lojic.nodes.connectives.Connective;
-import lojic.nodes.truthapts.Formula;
 import lojic.tree.NodeTree;
 
 import java.util.List;
@@ -19,6 +19,7 @@ public class TruthTable {
 
     private final NodeTree nodeTree;
     private final List<Column> columns;
+    private final int subColumnsLevel;
 
     private final int rowSize;
     private final int columnSize;
@@ -33,18 +34,19 @@ public class TruthTable {
      *
      * @param nodeTree The node tree wich the calculator calculated from
      * @param columns The columns of this table
+     * @param subColumnsLevel The level of sub-columns that this table has
      */
-    TruthTable(NodeTree nodeTree, List<Column> columns) {
+    TruthTable(NodeTree nodeTree, List<Column> columns, int subColumnsLevel) {
         this.nodeTree = nodeTree;
         this.columns = columns;
+        this.subColumnsLevel = subColumnsLevel;
+        this.columnSize = columns.size();
 
-        // define row & column size
+        // define row size
         if (columns.isEmpty()) {
             this.rowSize = 0;
-            this.columnSize = 0;
         } else {
             this.rowSize = columns.get(0).getValues().length;
-            this.columnSize = columns.size();
         }
 
         if (!columns.isEmpty()) {
@@ -74,6 +76,26 @@ public class TruthTable {
      */
     public List<Column> getFullTable() {
         return columns;
+    }
+
+    /**
+     * Get the integer value if levels of sub-columns on this table
+     * This returns {@code 0} if this table has no sub-columns
+     * @see TruthCalculator#showSubColumns(int) for more information on sub-columns
+     *
+     * @return the integer level of sub-columns
+     */
+    public int getSubColumnsLevel() {
+        return subColumnsLevel;
+    }
+
+    /**
+     * Check if this truth table shows sub-columns
+     *
+     * @return true if this table show sub-columns
+     */
+    public boolean showsSubColumns() {
+        return subColumnsLevel > 0;
     }
 
     /**
@@ -138,6 +160,16 @@ public class TruthTable {
     }
 
     /**
+     * Remove a column by index
+     *
+     * @param index The index
+     * @return The column that is removed
+     */
+    public Column removeColumn(int index) {
+        return columns.remove(index);
+    }
+
+    /**
      * Check if the conclusion (last column) is a tautology (it is always true).
      *
      * @return true only if the conclusion is always true
@@ -180,7 +212,7 @@ public class TruthTable {
      * +---+---+-------+
      * </pre>
      *
-     * For a truth table with {@link ColumnType#SUB_COLUMNS}, the table would look like this:
+     * For a truth table with with sub-columns, the table would look like this:
      * +---+---+-------+
      * | P | Q | (P→Q) |
      * +---+---+-------+
@@ -228,7 +260,18 @@ public class TruthTable {
                 builder.append('|').append(' ');
 
                 Column column = columns.get(k);
-                formulaValString(builder, column, widths[k], j);
+                if (column.getAtom() != null || !showsSubColumns()) {
+                    int size = widths[k];
+                    addSpaces(builder, size-1);
+
+                    builder.insert(builder.length() - (size / 2), tfChar(column, j));
+                } else {
+                    printFormula(builder, column, j);
+
+                    // account for previous offset of name string
+                    if ((column.getName().length() % 2) == 0)
+                        builder.append(' ');
+                }
 
                 builder.append(' ');
             }
@@ -238,41 +281,46 @@ public class TruthTable {
         return builder.toString();
     }
 
-    private void formulaValString(StringBuilder builder, Column column, int width, int index) {
-        int mid; // index in which t/f value is inserted, starts from 1
-
-        if(column.getAtom() != null) { // atom column
-
-            mid = column.getName().length() / 2;
-            if (!(mid % 2 == 0)) mid -= 1;
-            if (mid <= 0) mid = 1;
-
-        } else { // formula column
-
-            Formula formula = column.getFormula();
-            mid = conIndex(column, formula.getConnective());
-            System.out.println("Con: " + mid);
+    private void printFormula(StringBuilder builder, Column column, int index) {
+        if (column.getFormula() == null) {
+            printAtom(builder, column, index);
+            return;
         }
+
+        // Add space under "("
+        builder.append(' ');
+
+        int conIndex = conIndex(column, column.getFormula().getConnective());
+        conIndex--; // offset by the first parenthesis
 
         if (column.hasSubColumnLeft()) {
-            formulaValString(builder, column.getSubColumnLeft(), mid - 1, index);
+            Column left = column.getSubColumnLeft();
+            printFormula(builder, left, index);
         } else {
-            addSpaces(builder, mid - 1);
+            addSpaces(builder, conIndex - 1);
         }
 
-        builder.append(
-                (column.getValues()[index]) ? 'T' : 'F'
-        );
+        builder.append(tfChar(column, index));
 
-        int end = (width >= 2) ? width - mid : width - mid - 1;
         if (column.hasSubColumnRight()) {
-            formulaValString(builder, column.getSubColumnRight(), end, index);
+            Column right = column.getSubColumnRight();
+            printFormula(builder, right, index);
         } else {
-            addSpaces(builder, end);
+            addSpaces(builder, column.getName().length() - conIndex - 2);
         }
 
-        //System.out.println("width: " + width + " middle: " + middle);
+        // Add space under ")"
+        builder.append(' ');
+    }
 
+    private void printAtom(StringBuilder builder, Column column, int index) {
+        String atomStr = column.getName();
+        int spaces = atomStr.length() / 2;
+        addSpaces(builder, spaces);
+
+        builder.append(tfChar(column, index));
+
+        addSpaces(builder, atomStr.length() - spaces - 1);
     }
 
     // get the index of the connective in a formula string
@@ -282,8 +330,8 @@ public class TruthTable {
         String name = column.getName();
 
         if (connective.isBinary()) {
-            Column left = column.getSubColumnLeft();
-            String lname = left.getName();
+            Node left = column.getFormula().getChildren()[0];
+            String lname = left.getString();
 
             int removed = 0;
             while (!name.startsWith(lname)) {
@@ -297,6 +345,7 @@ public class TruthTable {
 
         } else {
 
+            // counts the amount of "(" before an unary connective
             int count = 0;
             String temp = name;
             while (temp.startsWith("(")) {
@@ -326,24 +375,15 @@ public class TruthTable {
     }
 
     // add # amount of space
+    // Can be replaced by String#repeat (since java 11)
     private void addSpaces(StringBuilder builder, int times) {
         for (int i = 0; i < times; i++) {
             builder.append(' ');
         }
     }
 
-    // w: 1 m: 0
-    // w: 2 m: 0
-    // w: 3 m: 1
-    // w: 4 m: 2
-    // w: 5 m: 2
-    // w: 6 m: 3
-    // w: 7 m: 3
-    // w: 8 m: 4
-        /*
-        +---+-----+---------+
-        | p | qr  | (p→qr)  |
-        +---+-----+---------+
-        | T |  T  | T TT    |*/
+    private char tfChar(Column column, int index) {
+        return (column.getValues()[index]) ? 'T' : 'F';
+    }
 
 }
