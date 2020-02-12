@@ -13,19 +13,19 @@ import java.util.List;
  */
 class Token implements CharSequence {
 
-    private LojicLexer lexer;
+    private final LojicLexer lexer;
     private String string;
-    private TokenType type;
+    private final TokenType type;
     private int location;
 
-    public Token(LojicLexer lexer, String string, TokenType type) {
+    Token(LojicLexer lexer, String string, TokenType type) {
         this.lexer = lexer;
         this.string = string;
         this.type = type;
         this.location = 0;
     }
 
-    public Token(LojicLexer lexer, String string, TokenType type, int location) {
+    Token(LojicLexer lexer, String string, TokenType type, int location) {
         this.lexer = lexer;
         this.string = string;
         this.type = type;
@@ -85,7 +85,7 @@ class Token implements CharSequence {
      */
     static class ParsedFormula extends Token {
 
-        private List<Token> tokens;
+        private final List<Token> tokens;
 
         ParsedFormula(LojicLexer lexer, int location) {
             super(lexer, "", TokenType.FORMULA, location);

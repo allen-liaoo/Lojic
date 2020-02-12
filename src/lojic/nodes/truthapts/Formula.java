@@ -88,14 +88,17 @@ public class Formula extends Node implements TruthApt {
         super.string = string;
     }
 
+    @Override
     public boolean[] getTruths() {
         return truths;
     }
 
+    @Override
     public boolean isSet() {
         return truths != null;
     }
 
+    @Override
     public void setTruths(boolean[] truths) {
         this.truths = truths;
     }

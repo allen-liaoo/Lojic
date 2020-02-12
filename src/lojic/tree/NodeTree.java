@@ -32,7 +32,7 @@ public class NodeTree {
         return new NodeTree(tree.getRoot().copy(), atoms.toArray(new Atom[0]));
     }
 
-    private Node root;
+    private final Node root;
     private int levels;
     private final Atom[] atoms;
     private final TreeClimber climber;

@@ -1,6 +1,8 @@
 package lojic;
 
+import lojic.nodes.connectives.BinaryConnective;
 import lojic.nodes.connectives.Connective;
+import lojic.nodes.connectives.UnaryConnective;
 import lojic.table.TruthCalculator;
 
 /**
@@ -8,7 +10,7 @@ import lojic.table.TruthCalculator;
  *
  * Contains static fields of:
  * 1. Default, recognized connectives, their precedence, and their associativity (right associative by default)
- * 2. Default true/false atoms (See {@link TruthCalculator#TFAtomsDefault()}
+ * 2. Default true/false atoms (See {@link TruthCalculator#tfAtomsDefault()}
  */
 // FEATURE: No symbols stripping - Remove official symbols
 public class DefaultFactory {
@@ -27,37 +29,37 @@ public class DefaultFactory {
      */
     public final static int PRECEDENCE_HIGHEST = 70;
 
-    public final static Connective NEG = new Connective((right) -> !right, 
+    public final static UnaryConnective NEG = new UnaryConnective((right) -> !right, 
             "¬", 50, "~", "!");
 
-    public final static Connective AND = new Connective((left, right) -> left && right,
+    public final static BinaryConnective AND = new BinaryConnective((left, right) -> left && right,
             "∧", 40, "/\\", "&", "^", "×", "•", "⋅");
 
-    public final static Connective NAND = new Connective((left, right) -> !left || !right,
+    public final static BinaryConnective NAND = new BinaryConnective((left, right) -> !left || !right,
             "↑", 40, "⊼");
 
-    public final static Connective OR = new Connective((left, right) -> left || right,
+    public final static Connective OR = new BinaryConnective((left, right) -> left || right,
             "∨", 30, "\\/", "|", "+", "∥");
 
-    public final static Connective NOR = new Connective((left, right) -> !left && !right,
+    public final static BinaryConnective NOR = new BinaryConnective((left, right) -> !left && !right,
             "↓", 30, "⊽");
 
-    public final static Connective XOR = new Connective((left, right) -> (left && !right) || (!left && right),
+    public final static BinaryConnective XOR = new BinaryConnective((left, right) -> (left && !right) || (!left && right),
             "⊕", 30, "⊻", "<-/->", "<=/=>", "↮", "≢");
 
-    public final static Connective IF = new Connective((left, right) -> !left || right,
+    public final static BinaryConnective IF = new BinaryConnective((left, right) -> !left || right,
             "→", 20, "->", "=>", "⇒", "⊃", ">");
 
-    public final static Connective NIF = new Connective((left, right) -> left && !right,
+    public final static BinaryConnective NIF = new BinaryConnective((left, right) -> left && !right,
             "↛", 20, "-/>", "=/>");
 
-    public final static Connective IF_CON = new Connective((left, right) -> left || !right,
+    public final static BinaryConnective IF_CON = new BinaryConnective((left, right) -> left || !right,
             "←", 20, "<-", "<=", "⇐", "⊂", "<");
 
-    public final static Connective N_IF_CON = new Connective((left, right) -> !left && right,
+    public final static BinaryConnective N_IF_CON = new BinaryConnective((left, right) -> !left && right,
             "↚", 20, "</-", "</=", "<-/");
 
-    public final static Connective IFF = new Connective((left, right) -> (left || !right) && (!left || right),
+    public final static BinaryConnective IFF = new BinaryConnective((left, right) -> (left || !right) && (!left || right),
             "↔", 10, "<>", "<->", "<=>", "≡", "⇔", "=");
 
     /**

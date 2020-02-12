@@ -14,7 +14,7 @@ import lojic.tree.NodeTree;
  */
 public abstract class Node {
 
-    protected int level;
+    protected final int level;
     protected String string;
     protected final Node parent;
 

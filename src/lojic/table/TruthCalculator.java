@@ -24,7 +24,7 @@ import static lojic.table.ColumnType.*;
 public class TruthCalculator {
 
     private final NodeTree nodeTree;
-    private int rowSize;
+    private final int rowSize;
 
     private List<ColumnType> columnTypes;
 
@@ -45,7 +45,7 @@ public class TruthCalculator {
         this.nodeTree = nodeTree;
 
         showColumnsDefault();
-        TFAtomsDefault();
+        tfAtomsDefault();
 
         // init rowsize
         Atom[] atoms = nodeTree.getAtoms();
@@ -113,6 +113,19 @@ public class TruthCalculator {
     }
 
     /**
+     * This shows all sub-columns of any formula or root formula
+     * This is identical as invoking the method {@link #showSubColumns(int)} while
+     * passing {@link Integer#MAX_VALUE} as the parameter
+     *
+     * @see #showSubColumns(int) for more information on sub-columns
+     *
+     * @return This truth calculator for method chaining
+     */
+    public TruthCalculator showAllSubColumns() {
+        return showSubColumns(Integer.MAX_VALUE);
+    }
+
+    /**
      * This is the default setting, which shows no sub-columns
      * @see #showSubColumns(int) for more information on sub-columns
      *
@@ -134,7 +147,7 @@ public class TruthCalculator {
      *
      * @return This truth calculator for method chaining
      */
-    public TruthCalculator TFAtomsDefault() {
+    public TruthCalculator tfAtomsDefault() {
         trueAtoms = DefaultFactory.TRUE_ATOMS;
         falseAtoms = DefaultFactory.FALSE_ATOMS;
         return this;
@@ -148,16 +161,16 @@ public class TruthCalculator {
      *
      * @return This truth calculator for method chaining
      */
-    public TruthCalculator TFAtomsDisable() {
-        setTrueAtoms((String) null);
-        setFalseAtoms((String) null);
+    public TruthCalculator tfAtomsDisable() {
+        setTrueAtoms((String[]) null);
+        setFalseAtoms((String[]) null);
         return this;
     }
 
     /**
      * Set the True Atoms that this calculator will recognize
      * Pass a {@code null} or {@code empty} argument in the parameter to disable recognition of True Atoms
-     * @see #TFAtomsDefault()
+     * @see #tfAtomsDefault()
      *
      * @param trueAtoms The string of true atoms
      * @return This truth calculator for method chaining
@@ -171,7 +184,7 @@ public class TruthCalculator {
     /**
      * Set the False Atoms that this calculator will recognize
      * Pass a {@code null} or {@code empty} argument in the parameter to disable recognition of False Atoms
-     * @see #TFAtomsDefault()
+     * @see #tfAtomsDefault()
      *
      * @param falseAtoms The false atoms
      * @return This truth calculator for method chaining
@@ -319,14 +332,17 @@ public class TruthCalculator {
         Atom[] atoms = nodeTree.getAtoms();
 
         int count = 0;
-        for (int i = 0; i < atoms.length; i++) {
-            Atom atom = atoms[i];
+        for (Atom atom : atoms) {
             boolean[] truths = new boolean[rowSize];
 
             if (isTAtom(atom.toString())) {
-                Arrays.fill(truths,true);
+
+                Arrays.fill(truths, true);
+
             } else if (isFAtom(atom.toString())) {
-                Arrays.fill(truths,false);
+
+                Arrays.fill(truths, false);
+
             } else {
                 count++;
                 boolean value = true;
@@ -336,7 +352,7 @@ public class TruthCalculator {
 
                 int index = 0; // the starting index which t/f value changes
                 for (int j = 0; j < times; j++) {
-                    Arrays.fill(truths,index, (index + slots), value);
+                    Arrays.fill(truths, index, (index + slots), value);
                     value = !value;
                     index += slots;
                 }

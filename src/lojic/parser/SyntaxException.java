@@ -7,8 +7,8 @@ package lojic.parser;
  */
 public class SyntaxException extends RuntimeException {
 
-    private String indicator;
-    private int index;
+    private final String indicator;
+    private final int index;
 
     /**
      * Custom error message with an index
@@ -47,7 +47,7 @@ public class SyntaxException extends RuntimeException {
 
     /**
      * Get the string indicator (which consists of a logical expression
-     * and a char "^" pointing at the index in which this syntax exception occured
+     * and a char "^" pointing at the index in which this syntax exception occurred
      *
      * @return The string indicator
      */

@@ -3,7 +3,9 @@ package lojic.nodes.truthapts;
 /**
  * @author AlienIdeology
  *
- * Nodes with truth-table values
+ * Nodes with {@code boolean } truth values,
+ * which would be set by a {@link lojic.table.TruthCalculator}
+ * and shown on a {@link lojic.table.TruthTable}
  */
 public interface TruthApt {
 
@@ -13,6 +15,33 @@ public interface TruthApt {
      * @return The truth values
      */
     boolean[] getTruths();
+
+    /**
+     * Check if this truth-apt object has all {@code true} values
+     *
+     * @return True if this truth-apt object is always true
+     */
+    default boolean isTautology() {
+        boolean isTautology = true;
+        for (boolean val : getTruths()) {
+            if (!val) isTautology = false;
+        }
+        return isTautology;
+    }
+
+    /**
+     * Check if this truth-apt object has all {@code false} values
+     *
+     * @return True if this truth-apt object is always false
+     */
+    default boolean isContradiction() {
+        boolean isContradiction = true;
+        for (boolean val : getTruths()) {
+            if (val) isContradiction = false;
+        }
+        return isContradiction;
+    }
+
 
     /**
      * Check if the truth values are set

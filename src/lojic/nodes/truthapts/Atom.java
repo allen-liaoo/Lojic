@@ -34,14 +34,17 @@ public class Atom implements TruthApt {
         return string;
     }
 
+    @Override
     public boolean[] getTruths() {
         return truths;
     }
 
+    @Override
     public boolean isSet() {
         return truths != null;
     }
 
+    @Override
     public void setTruths(boolean[] truths) {
         this.truths = truths;
     }

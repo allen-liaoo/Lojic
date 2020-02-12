@@ -4,20 +4,20 @@ import lojic.table.TruthTable;
 /**
  * @author AlienIdeology
  *
- * The logical operator NAND (↑) is logically equivilent to  ¬∨.
+ * The logical operator NAND (↑) is logically equivilent to  ¬ ∧.
  *
- *      ¬ (P ∨ Q) ≡ (P ↑ Q)
+ *      ¬ (P ∧ Q) ≡ (P ↑ Q)
  *
  * NAND (↑) is an operator that, by itself, is functionally complete--
  * which is to say that using just this operator, one can denote all possible truth tables.
  *
  * Here are some well known sets of functionally complete operators:
  * {¬, ∧} (Negation, And)
- * {¬, ∨) (Negation, Or
+ * {¬, ∨) (Negation, Or)
  *
  * To prove that NAND by itself is functionally complete, this class contains the code that
- * showcases truth tables of NAND expressions which are identical to other logical operators
- * (Including Negation, And, Or, and If)
+ * showcases truth tables of NAND expressions which are identical to the truth tables of
+ * other logical operators (Including Negation, And, Or, and If).
  */
 public class NANDFuncCompleteness {
 
@@ -39,13 +39,6 @@ public class NANDFuncCompleteness {
                 negTTable.print()
         );
 
-        System.out.println(
-                parser.parse("¬P")
-                        .createCalculator()
-                        .compute()
-                        .print()
-        );
-
         /*
 
         This is the result:
@@ -60,7 +53,6 @@ public class NANDFuncCompleteness {
 
         Which is identical to the truth table of ¬P:
 
-
         +---+-------+
         | P | (¬P)  |
         +---+-------+
@@ -69,26 +61,17 @@ public class NANDFuncCompleteness {
         | F |   T   |
         +---+-------+
 
-        <!-------------------------------->
-        System.out.println(
-                parser.parse("¬P")
-                    .createCalculator()
-                    .compute()
-                .print()
-        );
-        <!-------------------------------->
-
          */
 
         /*
         Let's move on to
         AND
 
-        (P & Q) ≡ (P↑Q) ↑ (P↑Q)
+        (P ∧ Q) ≡ (P↑Q) ↑ (P↑Q)
 
-        P↑Q is essentially ¬(P&Q).
-        When we combine two of P↑Q together, we are essentially
-        negating P↑Q, resulting in ¬¬(P&Q), which is (P&Q)
+        P↑Q is essentially ¬(P∧Q).
+        When we combine two of P↑Q together, we are negating
+        P↑Q, resulting in ¬¬(P∧Q), which is (P∧Q)
          */
 
         TruthTable andTTable = parser.parse("(P↑Q) ↑ (P↑Q)")
@@ -115,7 +98,7 @@ public class NANDFuncCompleteness {
         | F | F |       F       |
         +---+---+---------------+
 
-        Which is identical to the truth table of (P & Q):
+        Which is identical to the truth table of (P ∧ Q):
 
         +---+---+-------+
         | P | Q | (P∧Q) |
@@ -132,7 +115,7 @@ public class NANDFuncCompleteness {
          */
 
         /*
-        Here comes the most complicated one:
+        Moving on to
         OR
 
         (P ∨ Q) ≡ (P↑P) ↑ (Q↑Q)
@@ -197,21 +180,18 @@ public class NANDFuncCompleteness {
         Almost there! Lastly,
         IF
 
-        (P -> Q) ≡ ((P↑(Q↑Q))↑(P↑(Q↑Q))) ↑ ((P↑(Q↑Q))↑(P↑(Q↑Q)))
+        (P -> Q) ≡ (P ↑ (Q↑Q))
 
-        (Oof... do we even want to know how it works?)
         So,
         ¬(P∧Q) ≡ (P -> Q)       (try it)
 
         P↑(Q↑Q) is (P ↑ ¬Q)
-        (P ↑ ¬Q) ↑ (P ↑ ¬Q) would be the negation of (P ↑ ¬Q),
-        which is (P & ¬Q)
-
-        Repeat the process once again, and we get ¬(P∧Q).
-        Tada!
+        which is also ¬(P∧Q)
+        Easy!
          */
 
-        TruthTable ifTTable = parser.parse("((P↑(Q↑Q))↑(P↑(Q↑Q)))↑((P↑(Q↑Q))↑(P↑(Q↑Q)))")
+        TruthTable ifTTable = parser.parse("P↑(Q↑Q)")
+                // or this: ((P↑(Q↑Q))↑(P↑(Q↑Q)))↑((P↑(Q↑Q))↑(P↑(Q↑Q)))
                 .createCalculator()
                 .compute();
 
@@ -223,17 +203,17 @@ public class NANDFuncCompleteness {
 
         The result is:
 
-        +---+---+-----------------------------------------------+
-        | P | Q | (((P↑(Q↑Q))↑(P↑(Q↑Q)))↑((P↑(Q↑Q))↑(P↑(Q↑Q)))) |
-        +---+---+-----------------------------------------------+
-        | T | T |                       T                       |
-        +---+---+-----------------------------------------------+
-        | T | F |                       F                       |
-        +---+---+-----------------------------------------------+
-        | F | T |                       T                       |
-        +---+---+-----------------------------------------------+
-        | F | F |                       T                       |
-        +---+---+-----------------------------------------------+
+        +---+---+-----------+
+        | P | Q | (P↑(Q↑Q)) |
+        +---+---+-----------+
+        | T | T |     T     |
+        +---+---+-----------+
+        | T | F |     F     |
+        +---+---+-----------+
+        | F | T |     T     |
+        +---+---+-----------+
+        | F | F |     T     |
+        +---+---+-----------+
 
 
         Which is identical to the truth table of (P -> Q):

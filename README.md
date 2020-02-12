@@ -113,4 +113,4 @@ T|F
 - [x] Abstract Syntax Tree (NodeTree)
 - [x] TruthTable
 - [ ] Javadocs
-- [ ] Examples
+- [x] More Example

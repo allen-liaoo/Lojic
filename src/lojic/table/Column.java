@@ -90,6 +90,24 @@ public class Column {
     }
 
     /**
+     * Check if this column has all {@code true} values
+     *
+     * @return True if this column is always true
+     */
+    public boolean isTautology() {
+        return getTruthApt().isTautology();
+    }
+
+    /**
+     * Check if this column object has all {@code false} values
+     *
+     * @return True if this column is always false
+     */
+    public boolean isContradiction() {
+        return getTruthApt().isContradiction();
+    }
+
+    /**
      * Get the boolean values of this column
      * This only includes the main boolean values. If there are sub-columns under this column,
      * use {@link #getSubColumnLeft()} and {@link #getSubColumnRight()}

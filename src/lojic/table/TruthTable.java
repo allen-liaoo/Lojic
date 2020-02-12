@@ -24,15 +24,12 @@ public class TruthTable {
     private final int rowSize;
     private final int columnSize;
 
-    private boolean isTautology = true;
-    private boolean isContradiction = true;
-
     /**
      * Constructor of TruthTable
      * This constructor is for the Lojic library's internal use only, users should ignore this
      * @see TruthCalculator#compute() for creating instances of truth tables
      *
-     * @param nodeTree The node tree wich the calculator calculated from
+     * @param nodeTree The node tree which the calculator calculated from
      * @param columns The columns of this table
      * @param subColumnsLevel The level of sub-columns that this table has
      */
@@ -47,16 +44,6 @@ public class TruthTable {
             this.rowSize = 0;
         } else {
             this.rowSize = columns.get(0).getValues().length;
-        }
-
-        if (!columns.isEmpty()) {
-            Column root = columns.get(columns.size()-1);
-            for (boolean val : root.getValues()) {
-                if (val)
-                    isContradiction = false;
-                else
-                    isTautology = false;
-            }
         }
     }
 
@@ -173,18 +160,26 @@ public class TruthTable {
      * Check if the conclusion (last column) is a tautology (it is always true).
      *
      * @return true only if the conclusion is always true
+     * @throws NullPointerException if the truth table is empty
      */
-    public boolean isTautology() {
-        return isTautology;
+    public boolean rootIsTautology() {
+        if (columns.isEmpty()) throw new NullPointerException("Empty truth table!");
+
+        Column root = columns.get(columns.size()-1);
+        return root.isTautology();
     }
 
     /**
      * Check if the conclusion (last column) is a contradiction (it is always false).
      *
-     * @return true only if the conclusion is always flase
+     * @return true only if the conclusion is always false
+     * @throws NullPointerException if the truth table is empty
      */
-    public boolean isContradiction() {
-        return isContradiction;
+    public boolean rootIsContradiction() {
+        if (columns.isEmpty()) throw new NullPointerException("Empty truth table!");
+
+        Column root = columns.get(columns.size()-1);
+        return root.isContradiction();
     }
 
     /**
@@ -213,6 +208,7 @@ public class TruthTable {
      * </pre>
      *
      * For a truth table with with sub-columns, the table would look like this:
+     * <pre>
      * +---+---+-------+
      * | P | Q | (P→Q) |
      * +---+---+-------+
@@ -224,7 +220,10 @@ public class TruthTable {
      * +---+---+-------+
      * | F | F |  FTF  |
      * +---+---+-------+
-     * (With the truth values of atoms or formulas to the right and left of any formula shown)
+     * </pre>
+     * Sub-columns are columns of the truth values (of atoms or formulas) to the
+     * right and left of the main formula
+     * @see TruthCalculator#showSubColumns(int) for more infornation on truth columns
      *
      * @return The string representation of the table
      */

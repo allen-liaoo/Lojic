@@ -7,8 +7,13 @@ import lojic.nodes.connectives.Connective;
  */
 // FEATURE: No symbols stripping
 public class LojicUtil {
-
-    // Strip a string of all unofficial connective symbols and white spaces
+    /**
+     * Replace all unofficial symbols of default connectives with official symbols
+     * Removes all white spaces
+     *
+     * @param input The string to be stripped
+     * @return The string result
+     */
     // FEATURE: No symbols stripping - Remove for loops
     public static String strip(String input) {
         input = input.replaceAll("\\s", ""); // Get rid of all white spaces
@@ -22,7 +27,15 @@ public class LojicUtil {
         return input;
     }
 
-    // For printing detailed error messages which indicates the location the error occurs
+    /**
+     * Get the string representation of a {@link lojic.parser.SyntaxException}'s
+     * error indicator, which puts a ^ under the location on a string which the
+     * syntax exception occurred
+     *
+     * @param formula The string formula
+     * @param index The location of the error
+     * @return The indicator string
+     */
     public static String generateIndicator(String formula, int index) {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < index; i++) {

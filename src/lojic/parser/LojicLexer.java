@@ -266,7 +266,7 @@ class LojicLexer {
      * @return 1. String of alphabetic character(s)
      *         2. Char of parenthesis
      *         3. Char of connectives
-     *         4. Char of unrecognized characters (Numbers, Unicodes)
+     *         4. Char of unrecognized characters (Numbers, Unicode)
      *         5. Empty token if the index is at the end
      */
     private Token next() {
@@ -332,18 +332,32 @@ class LojicLexer {
         if (next == null) return;
 
         for (TokenType tp : types) {
-            boolean error;
-            error = switch (tp) {
-                case UNARY_CONNECTIVE -> parser.isUnaryConnective(next);
-                case BINARY_CONNECTIVE -> parser.isBinaryConnective(next);
+            // See the end of the doc for enhanced switch replacement (temporary disabled to support earlier version)
+            boolean error = false;
+            switch (tp) {
+                case UNARY_CONNECTIVE: {
+                    error = parser.isUnaryConnective(next);
+                    break;
+                }
+                case BINARY_CONNECTIVE: {
+                    error = parser.isBinaryConnective(next);
+                    break;
+                }
 
-                case PARENTHESIS_OPEN -> LojicParser.isOpenParenthesis(next);
-                case PARENTHESIS_CLOSE -> LojicParser.isCloseParenthesis(next);
+                case PARENTHESIS_OPEN: {
+                    error = LojicParser.isOpenParenthesis(next);
+                    break;
+                }
+                case PARENTHESIS_CLOSE: {
+                    error = LojicParser.isCloseParenthesis(next);
+                    break;
+                }
 
-                case ATOM -> LojicParser.isAtomic(next);
+                case ATOM: {
+                    error = LojicParser.isAtomic(next);
 
-                default -> false; // Unused: FORMULA, UNKNOWN, END
-            };
+                }
+            }
 
             if (error) throw new SyntaxException(location, (CharSequence) next,
                     LojicUtil.generateIndicator(baseString, location));
@@ -360,5 +374,20 @@ class LojicLexer {
     private boolean hasNext() {
         return string.length() > index+1;
     }
+
+    /*
+    boolean error = switch (tp) {
+        case UNARY_CONNECTIVE -> parser.isUnaryConnective(next);
+        case BINARY_CONNECTIVE -> parser.isBinaryConnective(next);
+
+        case PARENTHESIS_OPEN -> LojicParser.isOpenParenthesis(next);
+        case PARENTHESIS_CLOSE -> LojicParser.isCloseParenthesis(next);
+
+        case ATOM -> LojicParser.isAtomic(next);
+
+        default -> false;
+    }
+    */
+
 
 }

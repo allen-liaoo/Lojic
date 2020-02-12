@@ -8,9 +8,7 @@ import lojic.nodes.truthapts.Formula;
 import lojic.nodes.truthapts.LocalAtom;
 import lojic.tree.NodeTree;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author AlienIdeology
@@ -20,7 +18,7 @@ import java.util.List;
  */
 public class LojicParser {
 
-    private List<Connective> connectives;
+    private final List<Connective> connectives;
     private String cache;
     private List<Atom> cacheAtoms;
 
@@ -28,12 +26,9 @@ public class LojicParser {
      * Load the parser with default connectives and associativity
      */
     public LojicParser() {
-        connectives = Arrays.asList(DefaultFactory.DEFAULT_CONNECTIVES);
-        cache = "";
+        connectives = new ArrayList<>();
         cacheAtoms = new ArrayList<>();
-        for (Connective con : connectives) {
-            con.setAssociativity(true);
-        }
+        reset();
     }
 
     /* Static Utilities */
@@ -125,7 +120,7 @@ public class LojicParser {
         Node root = parseString(null, cache, 0, 0);
 
         NodeTree tree =  new NodeTree(root, cacheAtoms.toArray(new Atom[0]));
-        cacheAtoms.clear();
+        cacheAtoms = new ArrayList<>();
         cache = "";
         return tree;
     }
@@ -248,6 +243,23 @@ public class LojicParser {
     /* Parser Settings */
 
     /**
+     * Resets the parser, restore its settings (to default connectives) and clear its cache
+     *
+     * @return This parser for method chaining
+     */
+    public LojicParser reset() {
+        connectives.clear();
+        cache = "";
+        cacheAtoms.clear();
+        for (Connective con : DefaultFactory.DEFAULT_CONNECTIVES) {
+            // default right associative
+            con.setAssociativity(true);
+            connectives.add(con);
+        }
+        return this;
+    }
+
+    /**
      * Set the associativity of connectives at a precedence level.
      * All connectives with the same precedence level must have the same associativity (left or right).
      *
@@ -271,20 +283,63 @@ public class LojicParser {
      * will be added to the list.
      * Connectives with the same official symbols will replace instances connectives with the same official symbol.
      *
+     * Note: To change a already-existing connective's official symbol, use {@link #replaceConnective(String, Connective)}
+     *
      * @param connectives The connectives to add or replace
      * @return This parser for method chaining
+     * @throws IllegalArgumentException If one of the connectives contains some "other symbols" that already belongs
+     *          to an existing connective
      */
     public LojicParser setConnectives(Connective... connectives) {
+        HashMap<Integer, Connective> toBeReplaced = new HashMap<>();
+        List<Connective> toBeAdded = new ArrayList<>();
         for (Connective con : connectives) {
-            boolean replaced = false;
             for (Connective con1 : this.connectives) {
+                // Check for existing connectives
+                // Equal official symbols
                 if (con.getOfficialSymbol().equals(con1.getOfficialSymbol())) {
-                    this.connectives.set(this.connectives.indexOf(con1), con);
-                    replaced = true;
+                    toBeReplaced.put(this.connectives.indexOf(con1), con);
+                    continue;
                 }
-                if (!replaced) this.connectives.add(con);
+
+                // Equal truth tables
+                if (Arrays.equals(con.getPossibleTruths(), con1.getPossibleTruths())) {
+                    toBeReplaced.put(this.connectives.indexOf(con1), con);
+                    continue;
+                }
+
+                // Contains same symbols
+                if (!Collections.disjoint(Arrays.asList(con1.getSymbols()),
+                        Arrays.asList(con.getSymbols()))) {
+                    throw new IllegalArgumentException("Cannot add a connective with \"Other Symbols\" that already exists!");
+                }
+
+                toBeAdded.add(con);
             }
         }
+
+        toBeReplaced.forEach(this.connectives::set);
+        this.connectives.addAll(toBeAdded);
+        return this;
+    }
+
+    /**
+     * Replaces an already-included connective with a new connective
+     * This method finds the connective with the specified official symbol, then replace that connective
+     *
+     * @param offSymbol The official symbol of the original connective
+     * @param connective The new connective
+     * @return This parser for method chaining
+     */
+    public LojicParser replaceConnective(String offSymbol, Connective connective) {
+        HashMap<Integer, Connective> toBeReplaced = new HashMap<>();
+        for (Connective con : this.connectives) {
+            if (con.getOfficialSymbol().equals(offSymbol)) {
+                toBeReplaced.put(this.connectives.indexOf(con), connective);
+                break;
+            }
+        }
+        toBeReplaced.forEach(this.connectives::set);
         return this;
     }
 
@@ -296,6 +351,25 @@ public class LojicParser {
      */
     public LojicParser removeConnectives(Connective... connectives) {
         this.connectives.removeAll(Arrays.asList(connectives));
+        return this;
+    }
+
+    /**
+     * Remove connectives from the list by providing an array of official symbols
+     *
+     * @param conSymbols The connectives' symbols
+     * @return This parser for method chaining
+     */
+    public LojicParser removeConnectives(String... conSymbols) {
+        List<Connective> toBeRemoved = new ArrayList<>();
+        for (Connective connective : connectives) {
+            for (String sym : conSymbols) {
+                if (connective.getOfficialSymbol().equals(sym)) {
+                    toBeRemoved.add(connective);
+                }
+            }
+        }
+        toBeRemoved.forEach(connectives::remove);
         return this;
     }
 
