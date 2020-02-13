@@ -12,6 +12,7 @@ import lojic.tree.NodeTree;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import static lojic.table.ColumnType.*;
 
@@ -40,8 +41,10 @@ public class TruthCalculator {
      * The constructor for a TruthCalculator
      *
      * @param nodeTree The {@link NodeTree} which truth values are to be derived from
+     * @throws NullPointerException If the node tree is null
      */
     public TruthCalculator(NodeTree nodeTree) {
+        Objects.requireNonNull(nodeTree, "Cannot construct a TruthCalculator with a null NodeTree!");
         this.nodeTree = nodeTree;
 
         showColumnsDefault();
@@ -162,8 +165,8 @@ public class TruthCalculator {
      * @return This truth calculator for method chaining
      */
     public TruthCalculator tfAtomsDisable() {
-        setTrueAtoms((String[]) null);
-        setFalseAtoms((String[]) null);
+        setTrueAtoms();
+        setFalseAtoms();
         return this;
     }
 

@@ -5,6 +5,7 @@ import lojic.nodes.truthapts.Formula;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -30,15 +31,17 @@ public class TreeClimber {
         this.root = root;
         this.list = new ArrayList<>();
         forEach(list::add);
-        reset();
+        this.cacheList = new ArrayList<>(list);
     }
 
     /**
      * Executes a {@link Consumer} action for each node of the NodeTree
      *
      * @param action The action to be executed
+     * @throws NullPointerException if the parameter is null
      */
     public void forEach(Consumer<Node> action) {
+        Objects.requireNonNull(action, "Cannot iterate a NodeTree with a null Consumer!");
         forEach(root, action);
     }
 
@@ -48,8 +51,10 @@ public class TreeClimber {
      * @param filter The condition.
      *               If an element does not satisfy the condition, it is removed from the cache list
      * @return This climber for method chaining
+     * @throws NullPointerException if the parameter is null
      */
     public TreeClimber filter(Predicate<Node> filter) {
+        Objects.requireNonNull(filter, "Cannot filter a NodeTree with a null Predicate!");
         forEach(n -> {
             if (!filter.test(n)) {
                 cacheList.remove(n);
@@ -64,8 +69,10 @@ public class TreeClimber {
      * @param filter The condition, with the first parameter being the list which this method removes elements from
      *               If an element does not satisfy the condition, it is removed from the cache list
      * @return This climber for method chaining
+     * @throws NullPointerException if the parameter is null
      */
     public TreeClimber filter(BiPredicate<List<Node>, Node> filter) {
+        Objects.requireNonNull(filter, "Cannot filter a NodeTree with a null BiPredicate!");
         forEach(n -> {
             if (!filter.test(cacheList, n)) cacheList.remove(n);
         });

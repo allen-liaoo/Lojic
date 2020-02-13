@@ -8,6 +8,7 @@ import lojic.table.TruthCalculator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author AlienIdeology
@@ -22,8 +23,10 @@ public class NodeTree {
      *
      * @param tree The original node tree to be copied from
      * @return The new node tree
+     * @throws NullPointerException if the parameter is null
      */
     public static NodeTree copyOf(NodeTree tree) {
+        Objects.requireNonNull(tree, "Cannot copy an empty NodeTree!");
         List<Atom> atoms = new ArrayList<>();
         for (Atom a : tree.getAtoms()) {
             atoms.add(a.copy());
@@ -49,8 +52,12 @@ public class NodeTree {
      *
      * @param root The root node
      * @param atoms The unique atoms in the logical expression
+     * @throws NullPointerException if either parameters are null
      */
     public NodeTree(Node root, Atom[] atoms) {
+        Objects.requireNonNull(root, "Cannot construct a NodeTree with a null root!");
+        Objects.requireNonNull(atoms, "Cannot construct a NodeTree with a null array of atoms!");
+        if (atoms.length == 0) throw new IllegalArgumentException("Cannot construct a NodeTree with an empty array of atoms!");
         this.root = root;
         this.atoms = atoms;
         this.climber = new TreeClimber(root);

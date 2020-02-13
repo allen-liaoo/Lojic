@@ -21,8 +21,8 @@ public class UnaryConnective extends Connective {
      * For an example of how to create an instance of an unary connective,
      * @see DefaultFactory#NEG
      *
-     * @param computation The lambda expression used to compute a boolean value based on truth values
-     *                    on the left and right of this connective
+     * @param computation The lambda expression used to compute a boolean value based on the truth value
+     *                    on the right of this connective
      * @param official The official symbol which the parser recognizes
      * @param precedence The order of precedence. The lower it is, the higher the precedence is.
      *                   This value ranges from {@code 1~5}.

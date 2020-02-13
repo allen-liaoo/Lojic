@@ -2,7 +2,9 @@ package lojic.parser;
 
 import lojic.DefaultFactory;
 import lojic.nodes.Node;
+import lojic.nodes.connectives.BinaryConnective;
 import lojic.nodes.connectives.Connective;
+import lojic.nodes.connectives.UnaryConnective;
 import lojic.nodes.truthapts.Atom;
 import lojic.nodes.truthapts.Formula;
 import lojic.nodes.truthapts.LocalAtom;
@@ -53,8 +55,8 @@ public class LojicParser {
      * Check if a string is an open parenthesis
      *
      * @param string The string
-     * @return true if a string is an open parenthesis, false if not
-     *          returns false if the string is null or empty
+     * @return true if a string is an open parenthesis, false if it is not,
+     *          or if the string is null or empty
      */
     public static boolean isOpenParenthesis(String string) {
         if (string == null || string.isEmpty()) return false;
@@ -112,6 +114,7 @@ public class LojicParser {
      *
      * @param formula The logical expression
      * @return A syntax tree that represents the expression
+     * @throws IllegalArgumentException If the string formula is null or empty
      */
     public NodeTree parse(String formula) {
         if (formula == null || formula.isEmpty()) throw new IllegalArgumentException("Parser does not accept empty or null string");
@@ -141,6 +144,7 @@ public class LojicParser {
      * Parse the cached logical expression
      *
      * @return A syntax tree that represents the expression
+     * @throws IllegalArgumentException If the string formula is null or empty
      */
     public NodeTree parse() {
         return parse(cache);
@@ -153,9 +157,11 @@ public class LojicParser {
      * as defined by the settings of this parser
      *
      * @param string The string
-     * @return true if the string is a formula
+     * @return true if the string is a formula, false if it is not,
+     *          or if the string is null or empty
      */
     public boolean isFormula(String string) {
+        if (string == null || string.isEmpty()) return false;
         for (Connective con : connectives) {
             if (string.contains(con.getOfficialSymbol())) return true;
         }
@@ -166,7 +172,8 @@ public class LojicParser {
      * Check if a string is a connective, as defined by the settings of this parser
      *
      * @param string The string
-     * @return true if the string is a connective
+     * @return true if the string is a connective, false if it is not,
+     *          or if the string is null or empty
      */
     // FEATURE: No symbols stripping - Change if condition
     public boolean isConnective(String string) {
@@ -177,34 +184,24 @@ public class LojicParser {
      * Check if a string is a binary connective, as defined by the settings of this parser
      *
      * @param string The string
-     * @return true if the string is a binary connective
+     * @return true if the string is a binary connective, false if it is not,
+     *          or if the string is null or empty
      */
     // FEATURE: No symbols stripping - Change if condition
     public boolean isBinaryConnective(String string) {
-        for (Connective con : connectives) {
-            if (con.isBinary()) {
-                if (string.equals(con.getOfficialSymbol())) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return getConnective(string) instanceof BinaryConnective;
     }
 
     /**
      * Check if a string is a unary connective, as defined by the settings of this parser
      *
      * @param string The string
-     * @return true if the string is a unary connective
+     * @return true if the string is a unary connective, false if it is not,
+     *          or if the string is null or empty
      */
     // FEATURE: No symbols stripping - Change if condition
     public boolean isUnaryConnective(String string) {
-        for (Connective con : connectives) {
-            if (con.isUnary()) {
-                if (string.equals(con.getOfficialSymbol())) return true;
-            }
-        }
-        return false;
+        return getConnective(string) instanceof UnaryConnective;
     }
 
     /**
@@ -215,6 +212,7 @@ public class LojicParser {
      */
     // FEATURE: No symbols stripping - Change if condition
     public Connective getConnective(String connective) {
+        if (connective == null || connective.isEmpty()) return null;
         for (Connective con : connectives) {
             if (con.getOfficialSymbol().equals(connective)) return con;
         }
@@ -281,19 +279,23 @@ public class LojicParser {
      * Add or replace connectives to this parser
      * Connectives with unique official symbols (is not already stored in the parser's list of connectives)
      * will be added to the list.
-     * Connectives with the same official symbols will replace instances connectives with the same official symbol.
+     * Connectives with the same official symbols or the same {@link Connective#getPossibleTruths()} with
+     * existing instances of connectives will replace those existing connectives.
      *
-     * Note: To change a already-existing connective's official symbol, use {@link #replaceConnective(String, Connective)}
+     * Note: It is recommended to use {@link #replaceConnective(String, Connective)}, especially if one wants
+     * to change a already-existing connective's official symbol
      *
-     * @param connectives The connectives to add or replace
+     * @param connectives The connectives to be added or to replace
      * @return This parser for method chaining
      * @throws IllegalArgumentException If one of the connectives contains some "other symbols" that already belongs
      *          to an existing connective
+     * @throws NullPointerException If a connective is null
      */
     public LojicParser setConnectives(Connective... connectives) {
         HashMap<Integer, Connective> toBeReplaced = new HashMap<>();
         List<Connective> toBeAdded = new ArrayList<>();
         for (Connective con : connectives) {
+            Objects.requireNonNull(con, "Cannot add/replace a null connective!");
             for (Connective con1 : this.connectives) {
                 // Check for existing connectives
                 // Equal official symbols
@@ -330,8 +332,13 @@ public class LojicParser {
      * @param offSymbol The official symbol of the original connective
      * @param connective The new connective
      * @return This parser for method chaining
+     * @throws IllegalArgumentException If the official symbol is null or empty
+     * @throws NullPointerException If the connective is null
      */
     public LojicParser replaceConnective(String offSymbol, Connective connective) {
+        if (offSymbol == null || offSymbol.isEmpty()) throw new IllegalArgumentException("Cannot replace a connective with a null official symbol!");
+        Objects.requireNonNull(connective, "Cannot replace null connective! Use LojicParser#removeConnectives(Connective...) instead.");
+
         HashMap<Integer, Connective> toBeReplaced = new HashMap<>();
         for (Connective con : this.connectives) {
             if (con.getOfficialSymbol().equals(offSymbol)) {
@@ -357,13 +364,15 @@ public class LojicParser {
     /**
      * Remove connectives from the list by providing an array of official symbols
      *
-     * @param conSymbols The connectives' symbols
+     * @param conSymbols The connectives' official symbols
      * @return This parser for method chaining
+     * @throws NullPointerException If a connective official symbol is null
      */
     public LojicParser removeConnectives(String... conSymbols) {
         List<Connective> toBeRemoved = new ArrayList<>();
         for (Connective connective : connectives) {
             for (String sym : conSymbols) {
+                Objects.requireNonNull(sym, "Cannot remove a null connective!");
                 if (connective.getOfficialSymbol().equals(sym)) {
                     toBeRemoved.add(connective);
                 }
