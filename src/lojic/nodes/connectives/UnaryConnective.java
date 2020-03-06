@@ -14,6 +14,12 @@ import java.util.function.Predicate;
  */
 public class UnaryConnective extends Connective {
 
+    /**
+     * This is the possible values to which the atom or formula on this unary connective's right can have
+     * @see Connective#getPossibleTruths() for more information
+     */
+    public static final boolean[] POSSIBLE_INPUT_VALUES = new boolean[]{true, false};
+
     private final Predicate<Boolean> computation;
 
     /**
@@ -34,16 +40,6 @@ public class UnaryConnective extends Connective {
     }
 
     /**
-     * Compute the truth value based on the node on its right.
-     *
-     * @param right right truth value
-     * @return The truth value
-     */
-    public boolean computeTruth(boolean right) {
-        return computation.test(right);
-    }
-
-    /**
      * Get the {@link Predicate} underlying this unary connective
      *
      * @return The predicate object
@@ -52,13 +48,22 @@ public class UnaryConnective extends Connective {
         return computation;
     }
 
+    /**
+     * Compute the truth value based on the node on its right.
+     *
+     * @param right right truth value
+     * @return The truth value
+     */
+    boolean computeTruth(boolean right) {
+        return computation.test(right);
+    }
+
     @Override
     public boolean[] getPossibleTruths() {
         boolean[] truths = new boolean[2];
-        boolean[] truthsR = new boolean[]{true, false};
 
         for (int i = 0; i < truths.length; i++) {
-            truths[i] = computation.test(truthsR[i]);
+            truths[i] = computation.test(POSSIBLE_INPUT_VALUES[i]);
         }
         return truths;
     }

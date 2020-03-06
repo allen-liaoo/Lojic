@@ -10,6 +10,24 @@ public class SyntaxException extends RuntimeException {
     private final String indicator;
     private final int index;
 
+    public SyntaxException(String message) {
+        super(message);
+        this.indicator = null;
+        this.index = -1;
+    }
+
+    /**
+     * Override a syntax exception's message with a new message
+     *
+     * @param newMsg The new string message
+     * @param exception The original syntax exception
+     */
+    public SyntaxException(String newMsg, SyntaxException exception) {
+        super(newMsg);
+        this.index = exception.getIndex();
+        this.indicator = exception.getIndicator();
+    }
+
     /**
      * Custom error message with an index
      *

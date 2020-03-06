@@ -104,6 +104,8 @@ public class LojicParser {
      *
      * @param formula The logical expression
      * @return A syntax tree that represents the expression
+     * @throws IllegalArgumentException If the string formula is null or empty
+     * @throws SyntaxException If the string has a wrong syntax
      */
     public static NodeTree parseDefault(String formula) {
         return new LojicParser().parse(formula);
@@ -115,6 +117,7 @@ public class LojicParser {
      * @param formula The logical expression
      * @return A syntax tree that represents the expression
      * @throws IllegalArgumentException If the string formula is null or empty
+     * @throws SyntaxException If the string has a wrong syntax
      */
     public NodeTree parse(String formula) {
         if (formula == null || formula.isEmpty()) throw new IllegalArgumentException("Parser does not accept empty or null string");
@@ -145,6 +148,7 @@ public class LojicParser {
      *
      * @return A syntax tree that represents the expression
      * @throws IllegalArgumentException If the string formula is null or empty
+     * @throws SyntaxException If the string has a wrong syntax
      */
     public NodeTree parse() {
         return parse(cache);

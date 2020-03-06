@@ -8,49 +8,33 @@ import lojic.nodes.truthapts.TruthApt;
  * @author AlienIdeology
  *
  * A column of the {@link TruthTable},
- * which contains a {@link ColumnType},
  * a {@link Formula} and/or {@link Atom} (See {@link Column#getFormula()} and {@link Column#getAtom()},
  * and an array of boolean values ({@code boolean[] values}).
  */
 public class Column {
 
-    private final ColumnType setting;
     private final Formula formula;
     private Atom atom;
     private final boolean[] values;
     private final Column subColumnLeft;
     private final Column subColumnRight;
 
-    Column(ColumnType setting, Formula formula, boolean[] values) {
-        this(setting, formula, values, null, null);
+    Column(Formula formula, boolean[] values) {
+        this(formula, values, null, null);
     }
 
-    Column(ColumnType setting, Atom atom, boolean[] values) {
-        this(setting, null, values, null, null);
+    Column(Atom atom, boolean[] values) {
+        this( null, values, null, null);
         this.atom = atom;
     }
 
-    Column(ColumnType setting, Formula formula, boolean[] values,
+    Column(Formula formula, boolean[] values,
            Column subColumnLeft, Column subColumnRight) {
-        this.setting = setting;
         this.formula = formula;
         this.atom = null;
         this.values = values;
         this.subColumnLeft = subColumnLeft;
         this.subColumnRight = subColumnRight;
-    }
-
-    /**
-     * Get the table's {@link ColumnType} which this column is a type of
-     * This will only return these types of setting:
-     * 1. {@link ColumnType#ATOMS}
-     * 2. {@link ColumnType#FORMULAS}
-     * 2. {@link ColumnType#ROOT}
-     *
-     * @return The column's detail setting
-     */
-    public ColumnType getSetting() {
-        return setting;
     }
 
     /**
@@ -87,6 +71,16 @@ public class Column {
      */
     public TruthApt getTruthApt() {
         return formula != null ? formula : atom;
+    }
+
+    /**
+     * Check if this column represents an atom
+     * A column can either represent an atom or the root formula
+     *
+     * @return true if this column represents an atom, false if it represents a root formula
+     */
+    public boolean isAtom() {
+        return atom != null;
     }
 
     /**
@@ -181,7 +175,6 @@ public class Column {
     @Override
     public String toString() {
         return "Column{" +
-                "setting=" + setting +
                 ", formula/atom=" + (formula == null ? atom : formula) +
                 ", subColumnLeft=" + (subColumnLeft != null ? "PRESENT" : "NULL") +
                 ", subColumnRight=" + (subColumnRight != null ? "PRESENT" : "NULL") +

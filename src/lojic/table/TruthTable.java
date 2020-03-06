@@ -5,6 +5,7 @@ import lojic.nodes.connectives.Connective;
 import lojic.tree.NodeTree;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author AlienIdeology
@@ -66,23 +67,24 @@ public class TruthTable {
     }
 
     /**
-     * Get the integer value if levels of sub-columns on this table
-     * This returns {@code 0} if this table has no sub-columns
-     * @see TruthCalculator#showSubColumns(int) for more information on sub-columns
+     * Get a list of columns of which represents the root column's atoms
      *
-     * @return the integer level of sub-columns
+     * @return The list of non-null atom columns
      */
-    public int getSubColumnsLevel() {
-        return subColumnsLevel;
+    public List<Column> getAtomColumns() {
+        return columns.stream()
+                .filter(Column::isAtom)
+                .collect(Collectors.toList());
     }
 
     /**
-     * Check if this truth table shows sub-columns
+     * Get a the column that represents the root formula,
+     * which is always present (non-null)
      *
-     * @return true if this table show sub-columns
+     * @return The non-null root column
      */
-    public boolean showsSubColumns() {
-        return subColumnsLevel > 0;
+    public Column getRootColumn() {
+        return columns.get(columns.size()-1);
     }
 
     /**
@@ -144,6 +146,26 @@ public class TruthTable {
      */
     public int getColumnSize() {
         return columnSize;
+    }
+
+    /**
+     * Get the integer value if levels of sub-columns on this table
+     * This returns {@code 0} if this table has no sub-columns
+     * @see TruthCalculator#showSubColumns(int) for more information on sub-columns
+     *
+     * @return the integer level of sub-columns
+     */
+    public int getSubColumnsLevel() {
+        return subColumnsLevel;
+    }
+
+    /**
+     * Check if this truth table shows sub-columns
+     *
+     * @return true if this table show sub-columns
+     */
+    public boolean showsSubColumns() {
+        return subColumnsLevel > 0;
     }
 
     /**

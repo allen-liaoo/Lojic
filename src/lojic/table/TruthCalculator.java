@@ -14,8 +14,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import static lojic.table.ColumnType.*;
-
 /**
  * @author AlienIdeology
  *
@@ -27,8 +25,6 @@ public class TruthCalculator {
     private final NodeTree nodeTree;
     private final int rowSize;
 
-    private List<ColumnType> columnTypes;
-
     private String[] trueAtoms;
     private String[] falseAtoms;
 
@@ -38,7 +34,20 @@ public class TruthCalculator {
     private boolean computedFormulas; // When formulas are computed, the root is also computed
 
     /**
-     * The constructor for a TruthCalculator
+     * Constructor for an empty TruthCalculator,
+     * which is used to copy TruthCalculator settings
+     *
+     * @see lojic.argument.Argument#setCalculatorSetting(TruthCalculator)
+     */
+    public TruthCalculator() {
+        this.nodeTree = null;
+        this.rowSize = -1;
+        this.subColumnsLevel = 0;
+        tfAtomsDefault();
+    }
+
+    /**
+     * The constructor for a non-empty TruthCalculator
      *
      * @param nodeTree The {@link NodeTree} which truth values are to be derived from
      * @throws NullPointerException If the node tree is null
@@ -46,8 +55,6 @@ public class TruthCalculator {
     public TruthCalculator(NodeTree nodeTree) {
         Objects.requireNonNull(nodeTree, "Cannot construct a TruthCalculator with a null NodeTree!");
         this.nodeTree = nodeTree;
-
-        showColumnsDefault();
         tfAtomsDefault();
 
         // init rowsize
@@ -66,25 +73,17 @@ public class TruthCalculator {
     }
 
     /**
-     * Set the {@link ColumnType} of the truth table, which determines the output of the table
-     * and the way truth values are to be computed
+     * Copy the setting of another TruthCalculator
      *
-     * @param columnTypes The enum column types to be included in this table
+     * @param sample The sample truth calculator, which can be an empty calculator
+     *               See {@link #TruthCalculator()}
      * @return This truth calculator for method chaining
      */
-    public TruthCalculator showColumns(ColumnType... columnTypes) {
-        this.columnTypes = Arrays.asList(columnTypes);
+    public TruthCalculator copySetting(TruthCalculator sample) {
+        showSubColumns(sample.subColumnsLevel);
+        setTrueAtoms(sample.trueAtoms);
+        setFalseAtoms(sample.falseAtoms);
         return this;
-    }
-
-    /**
-     * Use the default column types, which consists of
-     * {@link ColumnType#ATOMS} and {@link ColumnType#ROOT}
-     *
-     * @return This truth calculator for method chaining
-     */
-    public TruthCalculator showColumnsDefault() {
-        return showColumns(ATOMS, ROOT);
     }
 
     /**
@@ -202,26 +201,27 @@ public class TruthCalculator {
      * Compute the truth values of the {@link TruthTable}
      *
      * @return The truth table
+     * @throws UnsupportedOperationException if this calculator is an empty calculator used to copy
+     * TruthCalculator settings (such that the object is constructed with no parameter arguments
+     * {@code new TruthCalculator()})
      */
     public TruthTable compute() {
+        if (rowSize == -1)
+            throw new UnsupportedOperationException("Cannot compute truth values! This is an empty TruthCalculator!");
         if (!computedAtoms)
             fillAtomTruths();
         if (!computedFormulas)
             computeFormulaTruths();
 
-        if (columnTypes == null)
-            showColumnsDefault();
-
         List<Column> exports = new ArrayList<>();
         boolean showsSubColumns = subColumnsLevel > 0;
 
-        if (columnTypes.contains(ATOMS)) {
-            for (Atom atom : nodeTree.getAtoms()) {
-                exports.add(new Column(ATOMS, atom, atom.getTruths()));
-            }
+        for (Atom atom : nodeTree.getAtoms()) {
+            exports.add(new Column(atom, atom.getTruths()));
         }
 
-        if (columnTypes.contains(FORMULAS)) {
+        // Formulas sub column, no longer supported
+        /*if (columnTypes.contains(FORMULAS)) {
             nodeTree.climb().forEach(node -> {
                 if (node instanceof Formula
                         && !((Formula) node).isRoot()) {
@@ -235,33 +235,32 @@ public class TruthCalculator {
                     exports.add(buildSubColumns(formula, 0));
                 }
             });
-        }
+        }*/
 
-        root:
-        if (columnTypes.contains(ROOT)) {
-            Node root = nodeTree.getRoot();
-            TruthApt ta = root.getTruthApt();
+        Node root = nodeTree.getRoot();
+        TruthApt ta = root.getTruthApt();
 
-            if (!root.isFormula()) {
-                exports.add(new Column(ROOT, ((LocalAtom) root).getAtom(), ta.getTruths()));
-                break root;
-            }
+        if (!root.isFormula()) {
+            exports.add(new Column(((LocalAtom) root).getAtom(), ta.getTruths()));
+        } else {
 
             // handle root formula
             if (!showsSubColumns) {
 
-                exports.add(new Column(ROOT, (Formula) root, ta.getTruths()));
+                exports.add(new Column((Formula) root, ta.getTruths()));
 
             } else {
 
                 Column temp = buildSubColumns((Formula) root, 0);
-                exports.add(new Column(ROOT, temp.getFormula(), temp.getValues(), temp.getSubColumnLeft(), temp.getSubColumnRight()));
+                exports.add(new Column(temp.getFormula(), temp.getValues(), temp.getSubColumnLeft(), temp.getSubColumnRight()));
 
             }
         }
 
         return new TruthTable(nodeTree, exports, subColumnsLevel);
     }
+
+    /* Build Columns */
 
     private Column buildSubColumns(Formula formula, int lvlCount) {
         //if (lvlCount > subColumnsLevel) return null;
@@ -270,11 +269,11 @@ public class TruthCalculator {
         Column left = subcol(leftN, lvlCount+1);
 
         if (formula.getConnective().isUnary()){
-            return new Column(FORMULAS, formula,formula.getTruths(), null, left);
+            return new Column(formula,formula.getTruths(), null, left);
         } else {
             Node rightN = formula.getChildren()[1];
             Column right = subcol(rightN, lvlCount+1);
-            return new Column(FORMULAS, formula,formula.getTruths(), left, right);
+            return new Column(formula,formula.getTruths(), left, right);
         }
     }
 
@@ -282,13 +281,14 @@ public class TruthCalculator {
         if (lvlCount > subColumnsLevel) return null;
         Column column;
         if (node instanceof LocalAtom)
-            column = new Column(ATOMS, ((LocalAtom) node).getAtom(), node.getTruthApt().getTruths());
+            column = new Column(((LocalAtom) node).getAtom(), node.getTruthApt().getTruths());
         else {
             column = buildSubColumns((Formula) node, lvlCount);
         }
         return column;
     }
 
+    /* Compute Truths */
     private void computeFormulaTruths() {
         int levels = nodeTree.getLevels();
 
@@ -364,6 +364,8 @@ public class TruthCalculator {
         }
         this.computedAtoms = true;
     }
+
+    /* TF Atoms Utility */
 
     private boolean isTAtom(String atom) {
         for (String ta : trueAtoms) {

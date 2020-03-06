@@ -3,7 +3,6 @@ import lojic.nodes.Node;
 import lojic.nodes.connectives.UnaryConnective;
 import lojic.parser.LojicParser;
 import lojic.table.Column;
-import lojic.table.ColumnType;
 import lojic.table.TruthCalculator;
 import lojic.table.TruthTable;
 import lojic.tree.NodeTree;
@@ -68,11 +67,6 @@ public class FeaturesShowcase {
 
         // Method chaining to configure the table's settings
         calc.showAllSubColumns()  // see TruthCalculator#showSubColumns(int) for more documentation
-                .showColumns(
-                        ColumnType.ATOMS,
-                        ColumnType.FORMULAS,
-                        ColumnType.ROOT
-                )  // show atoms, formulas and root columns
                 .tfAtomsDisable();  // Disable the recognition of True/False atoms
 
         // Create a truth table

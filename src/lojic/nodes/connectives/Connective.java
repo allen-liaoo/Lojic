@@ -107,6 +107,8 @@ public abstract class Connective {
      * For Unary connectives:
      * 1. This returns an array with a size of {@code 2}
      * 2. The array looks like this:
+     * 3. The column of {@code Atom/Formula} contains truth values which can be found at
+     *    {@link UnaryConnective#POSSIBLE_INPUT_VALUES}
      * <pre>
      * +--------------+------------+
      * | Atom/Formula | Connective |
@@ -120,6 +122,8 @@ public abstract class Connective {
      * For Binary Connectives:
      * 1. This returns an array with a size of {@code 4}
      * 2. The array looks like this:
+     * 3. The column of {@code Atom/Formula} contains combinations of truth values which can be found at
+     *    {@link BinaryConnective#POSSIBLE_INPUT_VALUES}
      * <pre>
      * +--------------+--------------+------------+
      * | Atom/Formula | Atom/Formula | Connective |
