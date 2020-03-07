@@ -2,7 +2,6 @@ package lojic.table;
 
 import lojic.nodes.Node;
 import lojic.nodes.connectives.Connective;
-import lojic.tree.NodeTree;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,47 +13,35 @@ import java.util.stream.Collectors;
  * This consists of {@link Column}s of {@link lojic.nodes.truthapts.TruthApt} and boolean arrays of truth values
  * which corresponds to each TruthApt object
  *
- * @see TruthCalculator#compute() for creating instances of truth tables
+ * @see TTableBuilder#build() for creating instances of truth tables
  */
 public class TruthTable {
 
-    private final NodeTree nodeTree;
-    private final List<Column> columns;
+    private final Node node;
+    private final List<Column> columns; // Internally stored columns
     private final int subColumnsLevel;
-
-    private final int rowSize;
-    private final int columnSize;
 
     /**
      * Constructor of TruthTable
      * This constructor is for the Lojic library's internal use only, users should ignore this
-     * @see TruthCalculator#compute() for creating instances of truth tables
+     * @see TTableBuilder#build() for creating instances of truth tables
      *
-     * @param nodeTree The node tree which the calculator calculated from
-     * @param columns The columns of this table
+     * @param node The node which the table is generated from
      * @param subColumnsLevel The level of sub-columns that this table has
      */
-    TruthTable(NodeTree nodeTree, List<Column> columns, int subColumnsLevel) {
-        this.nodeTree = nodeTree;
+    TruthTable(Node node, List<Column> columns, int subColumnsLevel) {
+        this.node = node;
         this.columns = columns;
         this.subColumnsLevel = subColumnsLevel;
-        this.columnSize = columns.size();
-
-        // define row size
-        if (columns.isEmpty()) {
-            this.rowSize = 0;
-        } else {
-            this.rowSize = columns.get(0).getValues().length;
-        }
     }
 
     /**
-     * Get the {@link NodeTree} which this table is generated upon
+     * Get the {@link Node} which this table is generated upon
      *
-     * @return The node tree
+     * @return The node
      */
-    public NodeTree getNodeTree() {
-        return nodeTree;
+    public Node getNode() {
+        return node;
     }
 
     /**
@@ -62,7 +49,7 @@ public class TruthTable {
      *
      * @return The list of columns
      */
-    public List<Column> getFullTable() {
+    public List<Column> getColumns() {
         return columns;
     }
 
@@ -108,8 +95,8 @@ public class TruthTable {
      *      ({@code index < 0 || index >= size()})
      */
     public boolean[] getRow(int index) {
-        boolean[] row = new boolean[columnSize];
-        for (int i = 0; i < columnSize; i++) {
+        boolean[] row = new boolean[getColumnSize()];
+        for (int i = 0; i < getColumnSize(); i++) {
             row[i] = columns.get(i).getValues()[index];
         }
         return row;
@@ -136,7 +123,8 @@ public class TruthTable {
      * @return The number of rows
      */
     public int getRowSize() {
-        return rowSize;
+        return columns.isEmpty() ?
+                -1 : columns.get(0).getValues().length;
     }
 
     /**
@@ -145,13 +133,13 @@ public class TruthTable {
      * @return The number of columns
      */
     public int getColumnSize() {
-        return columnSize;
+        return columns.size();
     }
 
     /**
      * Get the integer value if levels of sub-columns on this table
      * This returns {@code 0} if this table has no sub-columns
-     * @see TruthCalculator#showSubColumns(int) for more information on sub-columns
+     * @see TTableBuilder#setSubColumnsLevel(int) for more information on sub-columns
      *
      * @return the integer level of sub-columns
      */
@@ -165,7 +153,7 @@ public class TruthTable {
      * @return true if this table show sub-columns
      */
     public boolean showsSubColumns() {
-        return subColumnsLevel > 0;
+        return subColumnsLevel > 0 || subColumnsLevel == -1;
     }
 
     /**
@@ -245,16 +233,16 @@ public class TruthTable {
      * </pre>
      * Sub-columns are columns of the truth values (of atoms or formulas) to the
      * right and left of the main formula
-     * @see TruthCalculator#showSubColumns(int) for more infornation on truth columns
+     * @see TTableBuilder#setSubColumnsLevel(int) for more infornation on truth columns
      *
      * @return The string representation of the table
      */
     public String print() {
         StringBuilder builder = new StringBuilder();
-        int[] widths = new int[columnSize];
+        int[] widths = new int[getColumnSize()];
 
         // Print first row
-        for (int i = 0; i < columnSize; i++) {
+        for (int i = 0; i < getColumnSize(); i++) {
             builder.append('|').append(' ');
 
             Column column = columns.get(i);
@@ -276,8 +264,8 @@ public class TruthTable {
                 .append(horizLine);
 
         // Print the rest of the truth tables (T/Fs)
-        for (int j = 0; j < rowSize; j++) {
-            for (int k = 0; k < columnSize; k++) {
+        for (int j = 0; j < getRowSize(); j++) {
+            for (int k = 0; k < getColumnSize(); k++) {
                 builder.append('|').append(' ');
 
                 Column column = columns.get(k);
@@ -301,6 +289,8 @@ public class TruthTable {
 
         return builder.toString();
     }
+
+    /* Printing methods */
 
     private void printFormula(StringBuilder builder, Column column, int index) {
         if (column.getFormula() == null) {

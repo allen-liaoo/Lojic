@@ -1,9 +1,5 @@
 package lojic.nodes.truthapts;
 
-import lojic.tree.NodeTree;
-
-import java.util.Arrays;
-
 /**
  * @author AlienIdeology
  *
@@ -29,6 +25,7 @@ public class Atom implements TruthApt {
         this.string = string;
     }
 
+    // TODO: getString()
     @Override
     public String toString() {
         return string;
@@ -51,25 +48,11 @@ public class Atom implements TruthApt {
 
     /**
      * Copy the data of this atom and return the result
-     * This method is for the Lojic library's internal use only, users should ignore this
-     * @see lojic.tree.NodeTree#copyOf(NodeTree) for copying nodetrees
      *
      * @return A copy of this atom
      */
     public Atom copy() {
-        Atom atom = new Atom(String.valueOf(string));
-        atom.setTruths(Arrays.copyOf(truths, truths.length));
-        return atom;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return string.equals(obj.toString());
-    }
-
-    @Override
-    public int hashCode() {
-        return string.hashCode();
+        return new Atom(String.valueOf(string));
     }
 
 }

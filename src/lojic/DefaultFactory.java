@@ -3,14 +3,14 @@ package lojic;
 import lojic.nodes.connectives.BinaryConnective;
 import lojic.nodes.connectives.Connective;
 import lojic.nodes.connectives.UnaryConnective;
-import lojic.table.TruthCalculator;
+import lojic.table.TTableBuilder;
 
 /**
  * @author AlienIdeology
  *
  * Contains static fields of:
  * 1. Default, recognized connectives, their precedence, and their associativity (right associative by default)
- * 2. Default true/false atoms (See {@link TruthCalculator#tfAtomsDefault()}
+ * 2. Default true/false atoms (See {@link TTableBuilder#useDefaultTFAtoms()}
  */
 // FEATURE: No symbols stripping - Remove official symbols
 public class DefaultFactory {
@@ -85,7 +85,7 @@ public class DefaultFactory {
 
     public static final String[] CLOSE_PAREN = new String[]{")", ")", "}", "]"};
 
-    /* True/False Atoms */
+    /* TruthTable */
 
     public static final String[] TRUE_ATOMS = new String[]{"T", "⊤", "1"};
 
@@ -126,5 +126,20 @@ public class DefaultFactory {
         }
         return null;
     }
+
+    public boolean isDefaultTAtom(String atom) {
+        for (String ta : TRUE_ATOMS) {
+            if (ta.equals(atom)) return true;
+        }
+        return false;
+    }
+
+    public boolean isDefaultFAtom(String atom) {
+        for (String fa : FALSE_ATOMS) {
+            if (fa.equals(atom)) return true;
+        }
+        return false;
+    }
+
 
 }

@@ -1,5 +1,5 @@
 # Lojic
-Lojic is a java library that parses logical expressions and generate
+Lojic is a java library that parses logical expressions in Propositional Logic and generate
 abstract syntax trees and truth tables.
 
 ### Format
@@ -11,13 +11,20 @@ abstract syntax trees and truth tables.
    - Precedence - See [Wikipedia.org/Logical_connective#Order__of_precedence](https://en.wikipedia.org/wiki/Logical_connective#Order_of_precedence)
    - Associativity - See [Wikipedia.org/Operator_associativity](https://en.wikipedia.org/wiki/Operator_associativity)
  - Atom - Variables that denotes propositions
+   - True atom - An atom with a unique name that always has the value of `true`
+   - False atom - An atom with a unique name that always has the value of `false`
 
 The name of atoms (propositions or operands) must be alphabetic and/or
 numeric. There cannot be whitespaces or special characters. There are no
 length limits.
 
-The lexer automatically converts all logical connectives to their
+### Important Java Objects
+ - LojicParser - Used to parse each logical expressions. Its internal lexer automatically converts all logical connectives to their
 official symbols and all parenthesis to the standard type `()`.
+ - Node - A well-formed formula or atom, containing its children formulas or atoms. It is structured like an abstract  syntax tree.
+ - TruthTable - A list of Columns of atoms and formulas
+   - Column - Contains a node and its truth-values. 
+   - TTableBuilder - Used to configure truth table's settings (such as showning sub-columns, recognition of true/false atoms).
 
 
 ### Example
@@ -25,9 +32,9 @@ official symbols and all parenthesis to the standard type `()`.
 public class Example {
     
     public static void main(String[] args) {
-        NodeTree tree = LojicParser.parseDefault("P->Q"); // throws SyntaxException if the syntax is incorrect
+        Node node = LojicParser.parseDefault("P->Q"); // throws SyntaxException if the syntax is incorrect
         
-        TruthTable table = tree.createCalculator().compute();
+        TruthTable table = node.buildTruthTable();
         String result = table.print();
     }
     
@@ -57,26 +64,35 @@ You can also configure the parser for it to recognize more or less
 connectives than the default. Start by creating an instance of
 LojicParser:
 ```java
-public class MoreExample {
+public class FormulaParsing {
     
     public static void main(String[] args) {
         LojicParser parser = new LojicParser();
-        NodeTree tree = parser
-                            .useMinimalConnectives() // Method chaining
-                            .append("P->") // caches a string
-                            .append("(Q->R)")
-                            .parse(); // an alternative way of parsing an expression
-                                      // whenever one parses the string, the parser's cache resets
+        Node tree = parser
+                        .useMinimalConnectives() // Method chaining
+                        .append("P->") // caches a string
+                        .append("(Q->R)")
+                        .parse(); // an alternative way of parsing an expression
+                                  // whenever one parses the string, the parser's cache resets
         
-        TruthTable table = tree.createCalculator().compute();
-        List<Column> columns = table.getFullTable(); 
-        // alternatively, you can get a list of columns for the table rather than a string output
+        TruthTable table = tree.buildTruthTable();
+        List<Column> columns = table.getColumns(); 
+        // you can get a list of columns for the table rather than a string output
     }
     
 }
 ```
-For more example, checkout [these examples](https://github.com/AlienIdeology/Lojic/tree/master/example/src/)  
-(It is a proof of NAND operator's functional completeness by truth tables)
+You can also create an argument and check its validity.
+```java
+public class ArgumentParsing {
+    
+    public static void main(String[] args) {
+        Argument argument = Argument.fromSequent("P->Q, ~Q ⊢ ~P");
+        argument.isValid(); // returns true
+    }
+}
+```
+For more examples, checkout [these examples](https://github.com/AlienIdeology/Lojic/tree/master/example/src/)  
 
 ### Logical Connectives
 Name|Object Name|Official Symbol|Other Symbols|Precedence|Associativity
@@ -100,7 +116,8 @@ The opening parenthesis does not have to be the same type as the closing
 parenthesis. For example, `(A&B]->C` is identical to `(A&B)->C`.
 
 ### Truth Values
-Atoms with these names will automatically be filled with the corresponding truth value.
+Atoms with these names will automatically be filled with the corresponding truth value.  
+The java class TTableBuilder is responsible for building truth tables that recognize these True/False atoms
 
 True|False
 ----|-----
@@ -108,9 +125,32 @@ T|F
 ⊤|⊥
 1|0
 
+### Sequent
+In a String sequent, premises must be divided by commas `,`. The conclusion must be separated from 
+the premises by a symbol of logical consequence. If the conclusion is true independent of any premises
+(it is a logical theorem), then the sequent must start with a symbol of logical consequence.  
+All recognized symbols of logical consequence is as follows:
+
+Type|Symbols
+-------|----
+Syntactic Consequence|⊢, &#124;-
+Semantic Consequence|⊨, &#124;=
+\* Even though the symbols denote different concepts of logical consequence, they are not treated differently in this library. 
+
 ### Todo List
-- [x] Lexer and Parser (LojicLexer and LojicParser)
-- [x] Abstract Syntax Tree (NodeTree)
-- [x] TruthTable
-- [ ] Javadocs
-- [x] More Example
+- [x] Propositional Logic
+  - [x] Lexer and Parser
+  - [x] Abstract Syntax Tree
+  - [x] TruthTable
+  - [x] Javadocs
+  - [x] Semantic Validity checker
+  - [ ] Syntactic Validity checker (Inference Rules)
+- [ ] Quantificational Logic
+  - [ ] Lexer and Parser
+  - [ ] Abstract Syntax Tree
+  - [ ] Javadocs
+  - [ ] Subject variables
+  - [ ] Predicates
+  - [ ] Quantifiers
+  - [ ] Validity?
+- [ ] Restructuring (extract generic classes, two packages for PL and QL)

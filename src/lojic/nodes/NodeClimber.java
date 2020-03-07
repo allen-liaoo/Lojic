@@ -1,6 +1,5 @@
-package lojic.tree;
+package lojic.nodes;
 
-import lojic.nodes.Node;
 import lojic.nodes.truthapts.Formula;
 
 import java.util.ArrayList;
@@ -13,10 +12,10 @@ import java.util.function.Predicate;
 /**
  * @author AlienIdeology
  *
- * A NodeTree iterator that utilizes {@link FunctionalInterface}
- * The climber stores a cache list of the nodes in the tree, which can be filtered and outputted.
+ * A Node iterator that utilizes {@link FunctionalInterface}
+ * The climber stores a cache list of the nodes, which can be filtered and outputted.
  */
-public class TreeClimber {
+public class NodeClimber {
 
     private final Node root;
     private final List<Node> list;
@@ -27,7 +26,7 @@ public class TreeClimber {
      *
      * @param root The root node
      */
-    TreeClimber(Node root) {
+    public NodeClimber(Node root) {
         this.root = root;
         this.list = new ArrayList<>();
         forEach(list::add);
@@ -53,7 +52,7 @@ public class TreeClimber {
      * @return This climber for method chaining
      * @throws NullPointerException if the parameter is null
      */
-    public TreeClimber filter(Predicate<Node> filter) {
+    public NodeClimber filter(Predicate<Node> filter) {
         Objects.requireNonNull(filter, "Cannot filter a NodeTree with a null Predicate!");
         forEach(n -> {
             if (!filter.test(n)) {
@@ -71,7 +70,7 @@ public class TreeClimber {
      * @return This climber for method chaining
      * @throws NullPointerException if the parameter is null
      */
-    public TreeClimber filter(BiPredicate<List<Node>, Node> filter) {
+    public NodeClimber filter(BiPredicate<List<Node>, Node> filter) {
         Objects.requireNonNull(filter, "Cannot filter a NodeTree with a null BiPredicate!");
         forEach(n -> {
             if (!filter.test(cacheList, n)) cacheList.remove(n);
@@ -84,7 +83,7 @@ public class TreeClimber {
      *
      * @return This climber for method chaining
      */
-    public TreeClimber reset() {
+    public NodeClimber reset() {
         this.cacheList = new ArrayList<>(list);
         return this;
     }

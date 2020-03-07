@@ -1,8 +1,9 @@
 package lojic.argument;
 
+import lojic.nodes.Node;
 import lojic.parser.LojicParser;
 import lojic.parser.SyntaxException;
-import lojic.table.TruthCalculator;
+import lojic.table.TTableBuilder;
 import lojic.table.TruthTable;
 
 import java.util.*;
@@ -45,14 +46,56 @@ public class Argument {
             "|="
     };
 
-    private LojicParser parser;
-    private TruthCalculator calculator;
+    private final LojicParser parser;
+    private TTableBuilder tableBuilder;
+
     private List<String> premises;
     //private List<TruthTable> proofs; // lines of proof
     private String conclusion;
 
     /**
-     * Create an instance of Argument from a string sequent
+     * Constructor for Argument
+     * This sets the {@link LojicParser} to a default LojicParser
+     * (used to parse each lines of proof),
+     * and {@link TTableBuilder} to a default, empty TTableBuilder
+     */
+    public Argument() {
+        this(new LojicParser());
+    }
+
+    /**
+     * Constructor for Argument
+     * This sets the {@link LojicParser} to the specified parser
+     * (used to parse each lines of proof),
+     * and {@link TTableBuilder} to a default, empty TTableBuilder
+     *
+     * @param parser The specified LogicParser
+     * @throws NullPointerException if the parser is null
+     */
+    public Argument(LojicParser parser) {
+        Objects.requireNonNull(parser, "The LojicParser for the argument cannot be null!");
+        this.parser = parser;
+        this.tableBuilder = new TTableBuilder()
+                .useDefaultTFAtoms()
+                .disableSubColumns();
+        this.premises = new ArrayList<>();
+    }
+
+    /**
+     * Set the {@link TTableBuilder} which this Argument uses to construct truth tables
+     *
+     * @param tableBuilder The table setting
+     * @return This argument for method chaining
+     * @throws NullPointerException if the setting is null
+     */
+    public Argument setTableBuilder(TTableBuilder tableBuilder) {
+        Objects.requireNonNull(parser, "The TTableSetting for the argument cannot be null!");
+        this.tableBuilder = tableBuilder;
+        return this;
+    }
+
+    /**
+     * Add premises and a conclusion based on a string sequent
      *
      * A sequent is a general kind of assertion in the following form:
      * {@code A1, ... , An ⊢ B}
@@ -74,7 +117,7 @@ public class Argument {
      * @throws IllegalArgumentException for each exception encountered when adding premises
      *                              See {@link #addPremises(String...)} for why such errors occur
      */
-    public static Argument fromSequent(String sequent) {
+    public Argument fromSequent(String sequent) {
         Argument arg = new Argument();
         // Build regex for matching logical consequences
         StringBuilder regex = new StringBuilder();
@@ -130,44 +173,6 @@ public class Argument {
     }
 
     /**
-     * Constructor for Argument
-     * This sets the {@link LojicParser} to a default LojicParser,
-     * and {@link TruthCalculator} to a default, empty TruthCalculator
-     */
-    public Argument() {
-        this.premises = new ArrayList<>();
-        parser = new LojicParser();
-        calculator = new TruthCalculator();
-    }
-
-    /**
-     * Set the {@link LojicParser} which this Argument uses to parse each lines
-     *
-     * @param parser The lojic parser
-     * @return This argument for method chaining
-     */
-    public Argument setParser(LojicParser parser) {
-        Objects.requireNonNull(parser, "The LojicParser for the argument cannot be null!");
-        this.parser = parser;
-        return this;
-    }
-
-    /**
-     * Set the {@link TruthCalculator} which this Argument uses to copy its setting from
-     * @see TruthCalculator#TruthCalculator() for constructing empty calculators
-     * @see TruthCalculator#copySetting(TruthCalculator) for how calculator settings are copied
-     *
-     * @param calculator The calculator, could be empty or not
-     * @return This argument for method chaining
-     * @throws NullPointerException if the calculator is null
-     */
-    public Argument setCalculatorSetting(TruthCalculator calculator) {
-        Objects.requireNonNull(parser, "The TruthCalculator for the argument cannot be null!");
-        this.calculator = calculator;
-        return this;
-    }
-
-    /**
      * Add premises to this Argument
      * Premises are lines which the conclusion's truth depends upon
      *
@@ -182,7 +187,7 @@ public class Argument {
             throw new NullPointerException("Cannot add a null or empty premise to the argument!");
 
         premises = Arrays.stream(premises)
-                .map(prem -> parser.strip(prem)) // strip each premises
+                .map(parser::strip) // strip each premises
                 .toArray(String[]::new);
 
         if (Arrays.stream(premises).anyMatch(this.premises::contains) ||
@@ -206,7 +211,7 @@ public class Argument {
             throw new NullPointerException("Cannot remove a null or empty premise to the argument!");
 
         this.premises.removeAll(Arrays.stream(premises)
-                .map(prem -> parser.strip(prem)) // strip each premises
+                .map(parser::strip) // strip each premises
                 .collect(Collectors.toList()));
         return this;
     }
@@ -229,45 +234,6 @@ public class Argument {
     }
 
     /**
-     * Get a {@link TruthTable} from a string key
-     * The table could be from any line of proof
-     *
-     * @param key The string key
-     * @return The truth table, or null if no line of proof identical to the key
-     * @throws SyntaxException if the parser encountered any lines of proof with illegal syntax
-     */
-     public TruthTable getTruthTable(String key) {
-         final String strip = parser.strip(key);
-         String res = premises.stream().filter(p -> p.equals(strip)).findAny()
-                .orElse(conclusion.equals(strip) ? conclusion : null);
-
-         if (res != null)
-            return parser.parse(res)
-                    .createCalculator()
-                    .copySetting(calculator)
-                    .compute();
-
-         return null;
-    }
-
-    /**
-     * Get a {@link TruthTable} from a line number
-     * The table could be from any line of proof
-     *
-     * @param number The line number
-     * @return The truth table
-     * @throws IndexOutOfBoundsException if the line number provided is out of bounds
-     *                              ({@code # < 0} or {@code # > the conclusion's line number})
-     * @throws SyntaxException if the parser encountered any lines of proof with illegal syntax
-     */
-    public TruthTable getTruthTable(int number) {
-        return parser.parse(getLine(number))
-                .createCalculator()
-                .copySetting(calculator)
-                .compute();
-    }
-
-    /**
      * Get a line by its line number
      * which starts at 1
      *
@@ -286,6 +252,35 @@ public class Argument {
             res = conclusion;
         }
         return res;
+    }
+
+    /**
+     * Get the {@link Node} object of a line
+     *
+     * @param number The line number
+     * @return The node object
+     */
+    public Node getNode(int number) {
+        Node node = parser.parse(getLine(number));
+        node.getTableBuilder()
+            .copySetting(tableBuilder);
+        return node;
+    }
+
+    /**
+     * Get a {@link TruthTable} from a line number
+     * The table could be from any line of proof
+     *
+     * @param number The line number
+     * @return The truth table
+     * @throws IndexOutOfBoundsException if the line number provided is out of bounds
+     *                              ({@code # < 0} or {@code # > the conclusion's line number})
+     * @throws SyntaxException if the parser encountered any lines of proof with illegal syntax
+     */
+    public TruthTable getTruthTable(int number) {
+        return getNode(number)
+                .getTableBuilder()
+                .build();
     }
 
     /**
@@ -323,8 +318,12 @@ public class Argument {
      *
      * @return True if the root is never false given that the premises are true
      * @throws SyntaxException if the parser encountered any lines of proof with illegal syntax
+     * @throws UnsupportedOperationException if the conclusion is not set yet
      */
     public boolean isValid() {
+        if (conclusion == null)
+            throw new UnsupportedOperationException("Cannot compute the validity of an argument when it lacks a conclusion!");
+
         // Corresponding Conditional
         // Premises : {A, B...}, Conclusion: Z
         // If the argument is valid, then (A & B & C...) -> Z must be true
@@ -357,9 +356,9 @@ public class Argument {
          try {
 
              return parser.parse(corrCon.toString())
-                     .createCalculator()
-                     .copySetting(calculator)
-                     .compute()
+                     .getTableBuilder()
+                     .copySetting(tableBuilder)
+                     .build()
                      .rootIsTautology();
 
          } catch (SyntaxException se) {
@@ -406,7 +405,7 @@ public class Argument {
     public String toString() {
         return "Argument{" +
                 "parser=" + parser +
-                ", calculator=" + calculator +
+                ", calculator=" + tableBuilder +
                 ", premises=" + premises +
                 ", conclusion='" + conclusion + '\'' +
                 '}';

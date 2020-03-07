@@ -32,8 +32,7 @@ public class NANDFuncCompleteness {
         ¬P ≡ (P ↑ P)
         */
         TruthTable negTTable = parser.parse("P↑P")
-                .createCalculator()
-                .compute();
+                .buildTruthTable();
 
         System.out.println(
                 negTTable.print()
@@ -75,8 +74,7 @@ public class NANDFuncCompleteness {
          */
 
         TruthTable andTTable = parser.parse("(P↑Q) ↑ (P↑Q)")
-                .createCalculator()
-                .compute();
+                .buildTruthTable();
 
         System.out.println(
                 andTTable.print()
@@ -137,8 +135,7 @@ public class NANDFuncCompleteness {
         TruthTable orTTable = parser.parse("(P↑P)↑(Q↑Q)")
                 // Or, if you're bored, use
                 // "(((P↑P)↑(Q↑Q))↑((P↑P)↑(Q↑Q)))↑(((P↑P)↑(Q↑Q))↑((P↑P)↑(Q↑Q)))"
-                .createCalculator()
-                .compute();
+                .buildTruthTable();
 
         System.out.println(
                 orTTable.print()
@@ -192,8 +189,7 @@ public class NANDFuncCompleteness {
 
         TruthTable ifTTable = parser.parse("P↑(Q↑Q)")
                 // or this: ((P↑(Q↑Q))↑(P↑(Q↑Q)))↑((P↑(Q↑Q))↑(P↑(Q↑Q)))
-                .createCalculator()
-                .compute();
+                .buildTruthTable();
 
         System.out.println(
                 ifTTable.print()

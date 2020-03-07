@@ -4,9 +4,10 @@ package lojic.nodes.truthapts;
  * @author AlienIdeology
  *
  * Nodes with {@code boolean } truth values,
- * which would be set by a {@link lojic.table.TruthCalculator}
+ * which would be set by a {@link lojic.table.TTableBuilder}
  * and shown on a {@link lojic.table.TruthTable}
  */
+// TODO: Deprecated
 public interface TruthApt {
 
     /**

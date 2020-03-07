@@ -6,9 +6,7 @@ import lojic.nodes.connectives.BinaryConnective;
 import lojic.nodes.connectives.Connective;
 import lojic.nodes.connectives.UnaryConnective;
 import lojic.nodes.truthapts.Atom;
-import lojic.nodes.truthapts.Formula;
 import lojic.nodes.truthapts.LocalAtom;
-import lojic.tree.NodeTree;
 
 import java.util.*;
 
@@ -20,8 +18,8 @@ import java.util.*;
  */
 public class LojicParser {
 
-    private final List<Connective> connectives;
-    private String cache;
+    private List<Connective> connectives;
+    private StringBuilder cache;
     private List<Atom> cacheAtoms;
 
     /**
@@ -30,7 +28,8 @@ public class LojicParser {
     public LojicParser() {
         connectives = new ArrayList<>();
         cacheAtoms = new ArrayList<>();
-        reset();
+        cache = new StringBuilder();
+        useDefaultConnectives();
     }
 
     /* Static Utilities */
@@ -103,11 +102,11 @@ public class LojicParser {
      * Note: this is a static method
      *
      * @param formula The logical expression
-     * @return A syntax tree that represents the expression
+     * @return A syntax node tree that represents the expression
      * @throws IllegalArgumentException If the string formula is null or empty
      * @throws SyntaxException If the string has a wrong syntax
      */
-    public static NodeTree parseDefault(String formula) {
+    public static Node parseDefault(String formula) {
         return new LojicParser().parse(formula);
     }
 
@@ -115,20 +114,19 @@ public class LojicParser {
      * Parse a logical expression and clear cache
      *
      * @param formula The logical expression
-     * @return A syntax tree that represents the expression
+     * @return A syntax node tree that represents the expression
      * @throws IllegalArgumentException If the string formula is null or empty
      * @throws SyntaxException If the string has a wrong syntax
      */
-    public NodeTree parse(String formula) {
+    public Node parse(String formula) {
         if (formula == null || formula.isEmpty()) throw new IllegalArgumentException("Parser does not accept empty or null string");
 
-        cache = strip(formula);
-        Node root = parseString(null, cache, 0, 0);
+        cache.append(strip(formula));
+        Node root = parseString(null, cache.toString(), 0, 0);
 
-        NodeTree tree =  new NodeTree(root, cacheAtoms.toArray(new Atom[0]));
-        cacheAtoms = new ArrayList<>();
-        cache = "";
-        return tree;
+        cacheAtoms.clear();
+        cache.setLength(0);
+        return root;
     }
 
     /**
@@ -139,110 +137,33 @@ public class LojicParser {
      * @return This parser for method chaining
      */
     public LojicParser append(String formula) {
-        cache += formula;
+        cache.append(formula);
         return this;
     }
 
     /**
      * Parse the cached logical expression
      *
-     * @return A syntax tree that represents the expression
+     * @return A syntax node tree that represents the expression
      * @throws IllegalArgumentException If the string formula is null or empty
      * @throws SyntaxException If the string has a wrong syntax
      */
-    public NodeTree parse() {
-        return parse(cache);
-    }
-
-    /* Non-static Utilities */
-
-    /**
-     * Check if a string is a formula by checking if it contains connectives
-     * as defined by the settings of this parser
-     *
-     * @param string The string
-     * @return true if the string is a formula, false if it is not,
-     *          or if the string is null or empty
-     */
-    public boolean isFormula(String string) {
-        if (string == null || string.isEmpty()) return false;
-        for (Connective con : connectives) {
-            if (string.contains(con.getOfficialSymbol())) return true;
-        }
-        return false;
-    }
-
-    /**
-     * Check if a string is a connective, as defined by the settings of this parser
-     *
-     * @param string The string
-     * @return true if the string is a connective, false if it is not,
-     *          or if the string is null or empty
-     */
-    // FEATURE: No symbols stripping - Change if condition
-    public boolean isConnective(String string) {
-        return getConnective(string) != null;
-    }
-
-    /**
-     * Check if a string is a binary connective, as defined by the settings of this parser
-     *
-     * @param string The string
-     * @return true if the string is a binary connective, false if it is not,
-     *          or if the string is null or empty
-     */
-    // FEATURE: No symbols stripping - Change if condition
-    public boolean isBinaryConnective(String string) {
-        return getConnective(string) instanceof BinaryConnective;
-    }
-
-    /**
-     * Check if a string is a unary connective, as defined by the settings of this parser
-     *
-     * @param string The string
-     * @return true if the string is a unary connective, false if it is not,
-     *          or if the string is null or empty
-     */
-    // FEATURE: No symbols stripping - Change if condition
-    public boolean isUnaryConnective(String string) {
-        return getConnective(string) instanceof UnaryConnective;
-    }
-
-    /**
-     * Get a connective object by its string
-     *
-     * @param connective The string
-     * @return the connective object, or null if the parser does not recognize this string as a connective
-     */
-    // FEATURE: No symbols stripping - Change if condition
-    public Connective getConnective(String connective) {
-        if (connective == null || connective.isEmpty()) return null;
-        for (Connective con : connectives) {
-            if (con.getOfficialSymbol().equals(connective)) return con;
-        }
-        return null;
-    }
-
-    /**
-     * Strips a string of all unofficial connective symbols and white spaces
-     *
-     * @param input The string to be stripped
-     * @return The result string
-     */
-    // FEATURE: No symbols stripping - Remove for loops
-    public String strip(String input) {
-        input = input.replaceAll("\\s", ""); // Get rid of all white spaces
-
-        for (Connective con : connectives) {
-            for (String s : con.getSymbols()) {
-                if (input.contains(s))
-                    input = input.replace(s, con.getOfficialSymbol());
-            }
-        }
-        return input;
+    public Node parse() {
+        return parse(cache.toString());
     }
 
     /* Parser Settings */
+
+    /**
+     * Copy the setting of another logic parser and override the settings of this parser
+     *
+     * @param parser The other parser
+     * @return This parser for method chaining
+     */
+    public LojicParser copySetting(LojicParser parser) {
+        this.setConnectives(parser.getConnectives().toArray(new Connective[0]));
+        return this;
+    }
 
     /**
      * Resets the parser, restore its settings (to default connectives) and clear its cache
@@ -251,31 +172,23 @@ public class LojicParser {
      */
     public LojicParser reset() {
         connectives.clear();
-        cache = "";
+        cache.setLength(0);
         cacheAtoms.clear();
-        for (Connective con : DefaultFactory.DEFAULT_CONNECTIVES) {
-            // default right associative
-            con.setAssociativity(true);
-            connectives.add(con);
-        }
+        useDefaultConnectives();
         return this;
     }
 
     /**
-     * Set the associativity of connectives at a precedence level.
-     * All connectives with the same precedence level must have the same associativity (left or right).
+     * Set the recognized connectives to exclusively the array
+     * of connectives passed in the parameter
      *
-     * @param precedence The precedence level/
-     * @param isRightAssociative true if the connectives should be right associative,
-     *                           false if the connectives should be left associative
+     * @param connectives The array of connectives
      * @return This parser for method chaining
      */
-    public LojicParser setAssociativity(int precedence, boolean isRightAssociative) {
-        for (Connective con : connectives) {
-            if (con.getPrecedence() == precedence) {
-                con.setAssociativity(isRightAssociative);
-            }
-        }
+    public LojicParser setConnectives(Connective... connectives) {
+        if (!this.connectives.isEmpty()) this.connectives.clear();
+
+        this.connectives.addAll(Arrays.asList(connectives));
         return this;
     }
 
@@ -295,7 +208,7 @@ public class LojicParser {
      *          to an existing connective
      * @throws NullPointerException If a connective is null
      */
-    public LojicParser setConnectives(Connective... connectives) {
+    public LojicParser addConnectives(Connective... connectives) {
         HashMap<Integer, Connective> toBeReplaced = new HashMap<>();
         List<Connective> toBeAdded = new ArrayList<>();
         for (Connective con : connectives) {
@@ -387,6 +300,21 @@ public class LojicParser {
     }
 
     /**
+     * Set the connectives this parser recognized to the default connectives
+     * @see DefaultFactory for more information on default connectives
+     *
+     * @return This parser for method chaining
+     */
+    public LojicParser useDefaultConnectives() {
+        for (Connective con : DefaultFactory.DEFAULT_CONNECTIVES) {
+            // default right associative
+            con.setAssociativity(true);
+            connectives.add(con);
+        }
+        return this;
+    }
+
+    /**
      * Removes unnecessary default connectives
      * Unmoved connectives:
      * 1. {@link DefaultFactory#NEG}
@@ -415,9 +343,126 @@ public class LojicParser {
         return this;
     }
 
+    /**
+     * Set the associativity of connectives at a precedence level.
+     * All connectives with the same precedence level must have the same associativity (left or right).
+     *
+     * @param precedence The precedence level/
+     * @param isRightAssociative true if the connectives should be right associative,
+     *                           false if the connectives should be left associative
+     * @return This parser for method chaining
+     */
+    public LojicParser setAssociativity(int precedence, boolean isRightAssociative) {
+        for (Connective con : connectives) {
+            if (con.getPrecedence() == precedence) {
+                con.setAssociativity(isRightAssociative);
+            }
+        }
+        return this;
+    }
+
+    /* Non-static Utilities */
+
+    /**
+     * Check if a string is a formula by checking if it contains connectives
+     * as defined by the settings of this parser
+     *
+     * @param string The string
+     * @return true if the string is a formula, false if it is not,
+     *          or if the string is null or empty
+     */
+    public boolean isFormula(String string) {
+        if (string == null || string.isEmpty()) return false;
+        for (Connective con : connectives) {
+            if (string.contains(con.getOfficialSymbol())) return true;
+        }
+        return false;
+    }
+
+    /**
+     * Check if a string is a connective, as defined by the settings of this parser
+     *
+     * @param string The string
+     * @return true if the string is a connective, false if it is not,
+     *          or if the string is null or empty
+     */
+    // FEATURE: No symbols stripping - Change if condition
+    public boolean isConnective(String string) {
+        return getConnective(string) != null;
+    }
+
+    /**
+     * Check if a string is a binary connective, as defined by the settings of this parser
+     *
+     * @param string The string
+     * @return true if the string is a binary connective, false if it is not,
+     *          or if the string is null or empty
+     */
+    // FEATURE: No symbols stripping - Change if condition
+    public boolean isBinaryConnective(String string) {
+        return getConnective(string) instanceof BinaryConnective;
+    }
+
+    /**
+     * Check if a string is a unary connective, as defined by the settings of this parser
+     *
+     * @param string The string
+     * @return true if the string is a unary connective, false if it is not,
+     *          or if the string is null or empty
+     */
+    // FEATURE: No symbols stripping - Change if condition
+    public boolean isUnaryConnective(String string) {
+        return getConnective(string) instanceof UnaryConnective;
+    }
+
+    /**
+     * Get a connective object by its string
+     *
+     * @param connective The string
+     * @return the connective object, or null if the parser does not recognize this string as a connective
+     */
+    // FEATURE: No symbols stripping - Change if condition
+    public Connective getConnective(String connective) {
+        if (connective == null || connective.isEmpty()) return null;
+        for (Connective con : connectives) {
+            if (con.getOfficialSymbol().equals(connective)) return con;
+        }
+        return null;
+    }
+
+    /**
+     * Strips a string of all unofficial connective symbols and white spaces
+     *
+     * @param input The string to be stripped
+     * @return The result string
+     */
+    // FEATURE: No symbols stripping - Remove for loops
+    public String strip(String input) {
+        input = input.replaceAll("\\s", ""); // Get rid of all white spaces
+
+        for (Connective con : connectives) {
+            for (String s : con.getSymbols()) {
+                if (input.contains(s))
+                    input = input.replace(s, con.getOfficialSymbol());
+            }
+        }
+        return input;
+    }
+
+    /* Getters */
+
+    /**
+     * Get a list of connectives recognized by this parser
+     *
+     * @return The connectives
+     */
+    public List<Connective> getConnectives() {
+        return connectives;
+    }
+
     // Recursive method used to parse any unparsed formula to nodes
     private Node parseString(Node parent, String formula, int location, int level) {
-        LojicLexer tokenizer = new LojicLexer(this, cache, formula);
+        LojicLexer tokenizer = new LojicLexer(this, formula, formula);
         List<Token> tokens = tokenizer.lex(location);
         // DEBUG Print formulas
         /*System.out.println(tokens);
@@ -437,11 +482,13 @@ public class LojicParser {
         ) {
             Token tok = tokens.get(0);
             if (tok.isType(TokenType.ATOM)) {
-                Atom atom = new Atom(tok.toString());
-                if (!cacheAtoms.contains(atom)) {
+                Atom atom = cacheAtoms.stream()
+                        .filter(a -> a.toString().equals(tok.toString()))
+                        .findAny().orElse(null);
+
+                if (atom == null) {
+                    atom = new Atom(tok.toString());
                     cacheAtoms.add(atom);
-                } else {
-                    atom = cacheAtoms.get(cacheAtoms.indexOf(atom));
                 }
 
                 return new LocalAtom(level, parent, atom);
@@ -485,10 +532,10 @@ public class LojicParser {
         }
 
         // TODO: Thoroughly debugs parenthesizing node strings
-        StringBuilder formula = new StringBuilder();
-        Formula thisNode = new Formula(level, "", parent);
         Connective mainConnective = getConnective(tokens.get(lowIndex).toString());
-        thisNode.setConnective(mainConnective);
+        IFormula thisNode = new IFormula(level, "", mainConnective, parent);
+
+        StringBuilder formula = new StringBuilder();
         formula.append("(");
 
         // Main connective is unary

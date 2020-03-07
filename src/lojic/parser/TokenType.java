@@ -10,7 +10,7 @@ import static lojic.DefaultFactory.OPEN_PAREN;
  *
  * This class is for the Lojic library's internal use only, users should ignore this
  */
-public enum TokenType {
+enum TokenType {
 
     // Raw type that only LogicLexer.next() returns
     PARENTHESIS_OPEN (OPEN_PAREN[0],

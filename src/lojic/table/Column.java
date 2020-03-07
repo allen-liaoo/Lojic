@@ -16,8 +16,8 @@ public class Column {
     private final Formula formula;
     private Atom atom;
     private final boolean[] values;
-    private final Column subColumnLeft;
-    private final Column subColumnRight;
+    private Column subColumnLeft;
+    private Column subColumnRight;
 
     Column(Formula formula, boolean[] values) {
         this(formula, values, null, null);
@@ -114,7 +114,7 @@ public class Column {
 
     /**
      * Check if this column has any sub-columns
-     * @see TruthCalculator#showSubColumns(int) for more information on sub-columns
+     * @see TTableBuilder#setSubColumnsLevel(int) for more information on sub-columns
      *
      * @return True if this column contain sub-columns
      */
@@ -125,7 +125,7 @@ public class Column {
     /**
      * Check if this column has any sub-columns on its left
      * A formula with an unary main connective has no left sub-column
-     * @see TruthCalculator#showSubColumns(int) for more information on sub-columns
+     * @see TTableBuilder#setSubColumnsLevel(int) for more information on sub-columns
      *
      * @return True if this column contain sub-columns on its left
      */
@@ -135,7 +135,7 @@ public class Column {
 
     /**
      * Check if this column has any sub-columns on its right
-     * @see TruthCalculator#showSubColumns(int) for more information on sub-columns
+     * @see TTableBuilder#setSubColumnsLevel(int) for more information on sub-columns
      *
      * @return True if this column contain sub-columns on its right
      */
@@ -144,7 +144,7 @@ public class Column {
     }
 
     /**
-     * Given that this column denotes a formula, and the {@link TruthCalculator}'s setting
+     * Given that this column denotes a formula, and the {@link TTableBuilder}'s setting
      * allowed for the generation of this column's sub-columns,
      * get the column to the left of this formula's BINARY connective.
      *
@@ -159,7 +159,7 @@ public class Column {
     }
 
     /**
-     * Given that this column denotes a formula, and the {@link TruthCalculator}'s setting
+     * Given that this column denotes a formula, and the {@link TTableBuilder}'s setting
      * allowed for the generation of this column's sub-columns,
      * get the column to the right of this formula's (binary or unary) connective.
      *
@@ -172,12 +172,21 @@ public class Column {
         return subColumnRight;
     }
 
+    void setSubColumnLeft(Column subColumnLeft) {
+        this.subColumnLeft = subColumnLeft;
+    }
+
+    void setSubColumnRight(Column subColumnRight) {
+        this.subColumnRight = subColumnRight;
+    }
+
     @Override
     public String toString() {
         return "Column{" +
-                ", formula/atom=" + (formula == null ? atom : formula) +
+                "formula/atom=" + (formula == null ? atom : formula) +
                 ", subColumnLeft=" + (subColumnLeft != null ? "PRESENT" : "NULL") +
                 ", subColumnRight=" + (subColumnRight != null ? "PRESENT" : "NULL") +
                 '}';
     }
+
 }

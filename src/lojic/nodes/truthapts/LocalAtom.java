@@ -40,7 +40,10 @@ public class LocalAtom extends Node {
 
     @Override
     public Node copy() {
-        return new LocalAtom(level,  parent.copy(),  this.atom.copy());
+        LocalAtom atom = new LocalAtom(level,  parent.copy(),  this.atom.copy());
+        atom.climber = this.climber;
+        atom.tableSetting = this.tableSetting;
+        return atom;
     }
 
 }

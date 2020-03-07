@@ -1,21 +1,20 @@
 import lojic.DefaultFactory;
 import lojic.nodes.Node;
+import lojic.nodes.NodeClimber;
 import lojic.nodes.connectives.UnaryConnective;
 import lojic.parser.LojicParser;
 import lojic.table.Column;
-import lojic.table.TruthCalculator;
+import lojic.table.TTableBuilder;
 import lojic.table.TruthTable;
-import lojic.tree.NodeTree;
-import lojic.tree.TreeClimber;
 
 import java.util.List;
 
 /**
  * @author AlienIdeology
  *
- * This is a showcase of most features supported by the Lojic library
+ * This is a showcase of {@link LojicParser}, {@link Node}, {@link TTableBuilder} and {@link TruthTable}
  */
-public class FeaturesShowcase {
+public class TruthTableShowcase {
 
     public static void main(String[] args) {
 
@@ -40,11 +39,11 @@ public class FeaturesShowcase {
                     )
         );
 
-        NodeTree tree = parser.removeConnectives(DefaultFactory.XOR)
+        Node formula = parser.removeConnectives(DefaultFactory.XOR)
                 // This removes the connective XOR (⊕). Parser will no longer recognize that connective
                 .parse("(P->(Q->P))");// Method chaining!
 
-        String treeResult = tree.print();
+        String treeResult = formula.print();
         System.out.println(treeResult);
         /*
         treeResult =
@@ -58,20 +57,20 @@ public class FeaturesShowcase {
          */
 
         // Get a TreeClimber object for a NodeTree, used to iterate over NodeTree with lambda expressions
-        TreeClimber climber = tree.climb();
+        NodeClimber climber = formula.climb();
         List<Node> filteredNodes =  climber.filter(Node::isFormula) // Get a list of formula nodes from a node tree
                 .toList();
 
-        // Create a TruthCalculator to fill in a TruthTable
-        TruthCalculator calc = tree.createCalculator();
+        // Get the TTableBuilder to fill in a TruthTable
+        TTableBuilder builder = formula.getTableBuilder();
 
         // Method chaining to configure the table's settings
-        calc.showAllSubColumns()  // see TruthCalculator#showSubColumns(int) for more documentation
-                .tfAtomsDisable();  // Disable the recognition of True/False atoms
+        builder.setSubColumnsLevel(TTableBuilder.COLUMN_ALL_LEVELS)  // shows all sub-columns, no matter the levels
+                .disableTFAtoms();  // Disable the recognition of True/False atoms
 
         // Create a truth table
         // compute() can be called multiple times with different calculator settings to change the table output
-        TruthTable table = calc.compute();
+        TruthTable table = builder.build();
 
         String tableResult = table.print();
         System.out.println(tableResult);
@@ -93,7 +92,7 @@ public class FeaturesShowcase {
          */
 
         // You can also...
-        List<Column> fullTable = table.getFullTable(); // Get a list of columns
+        List<Column> fullTable = table.getColumns(); // Get a list of columns
         Column pAtom = table.getColumn(0);  // Get the first column "P"
         boolean[] row = table.getRow(0);  // Get the first truth values row ()
         boolean cell = table.getCell(0, 1);  // Get the cell with index (0, 1) -
