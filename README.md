@@ -25,6 +25,7 @@ official symbols and all parenthesis to the standard type `()`.
  - TruthTable - A list of Columns of atoms and formulas
    - Column - Contains a node and its truth-values. 
    - TTableBuilder - Used to configure truth table's settings (such as showning sub-columns, recognition of true/false atoms).
+ - Argument - A list of premises and a conclusion, supports (semantic) validity checking.
 
 
 ### Example
@@ -135,7 +136,8 @@ Type|Symbols
 -------|----
 Syntactic Consequence|⊢, &#124;-
 Semantic Consequence|⊨, &#124;=
-\* Even though the symbols denote different concepts of logical consequence, they are not treated differently in this library. 
+
+\* Even though the symbols denote different concepts of logical consequence, they are not treated differently in this instance. 
 
 ### Todo List
 - [x] Propositional Logic

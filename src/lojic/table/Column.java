@@ -1,8 +1,7 @@
 package lojic.table;
 
-import lojic.nodes.truthapts.Atom;
-import lojic.nodes.truthapts.Formula;
-import lojic.nodes.truthapts.TruthApt;
+import lojic.nodes.Atom;
+import lojic.nodes.Formula;
 
 /**
  * @author AlienIdeology
@@ -65,15 +64,6 @@ public class Column {
     }
 
     /**
-     * Get the {@link TruthApt} object of this column, which is never null
-     *
-     * @return The truth-apt object
-     */
-    public TruthApt getTruthApt() {
-        return formula != null ? formula : atom;
-    }
-
-    /**
      * Check if this column represents an atom
      * A column can either represent an atom or the root formula
      *
@@ -89,7 +79,11 @@ public class Column {
      * @return True if this column is always true
      */
     public boolean isTautology() {
-        return getTruthApt().isTautology();
+        boolean isTautology = true;
+        for (boolean val : values) {
+            if (!val) isTautology = false;
+        }
+        return isTautology;
     }
 
     /**
@@ -98,7 +92,11 @@ public class Column {
      * @return True if this column is always false
      */
     public boolean isContradiction() {
-        return getTruthApt().isContradiction();
+        boolean isContradiction = true;
+        for (boolean val : values) {
+            if (val) isContradiction = false;
+        }
+        return isContradiction;
     }
 
     /**

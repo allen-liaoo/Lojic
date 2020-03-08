@@ -1,12 +1,12 @@
 package lojic.parser;
 
 import lojic.DefaultFactory;
+import lojic.nodes.Atom;
+import lojic.nodes.LocalAtom;
 import lojic.nodes.Node;
 import lojic.nodes.connectives.BinaryConnective;
 import lojic.nodes.connectives.Connective;
 import lojic.nodes.connectives.UnaryConnective;
-import lojic.nodes.truthapts.Atom;
-import lojic.nodes.truthapts.LocalAtom;
 
 import java.util.*;
 
@@ -19,7 +19,7 @@ import java.util.*;
 public class LojicParser {
 
     private List<Connective> connectives;
-    private StringBuilder cache;
+    private String cache;
     private List<Atom> cacheAtoms;
 
     /**
@@ -28,7 +28,7 @@ public class LojicParser {
     public LojicParser() {
         connectives = new ArrayList<>();
         cacheAtoms = new ArrayList<>();
-        cache = new StringBuilder();
+        cache = "";
         useDefaultConnectives();
     }
 
@@ -121,11 +121,10 @@ public class LojicParser {
     public Node parse(String formula) {
         if (formula == null || formula.isEmpty()) throw new IllegalArgumentException("Parser does not accept empty or null string");
 
-        cache.append(strip(formula));
-        Node root = parseString(null, cache.toString(), 0, 0);
+        cache = strip(formula);
+        Node root = parseString(null, formula, 0, 0);
 
         cacheAtoms.clear();
-        cache.setLength(0);
         return root;
     }
 
@@ -137,7 +136,7 @@ public class LojicParser {
      * @return This parser for method chaining
      */
     public LojicParser append(String formula) {
-        cache.append(formula);
+        cache += formula;
         return this;
     }
 
@@ -149,7 +148,7 @@ public class LojicParser {
      * @throws SyntaxException If the string has a wrong syntax
      */
     public Node parse() {
-        return parse(cache.toString());
+        return  parse(cache);
     }
 
     /* Parser Settings */
@@ -172,7 +171,7 @@ public class LojicParser {
      */
     public LojicParser reset() {
         connectives.clear();
-        cache.setLength(0);
+        cache = "";
         cacheAtoms.clear();
         useDefaultConnectives();
         return this;
@@ -213,18 +212,19 @@ public class LojicParser {
         List<Connective> toBeAdded = new ArrayList<>();
         for (Connective con : connectives) {
             Objects.requireNonNull(con, "Cannot add/replace a null connective!");
+            boolean found = false;
             for (Connective con1 : this.connectives) {
                 // Check for existing connectives
                 // Equal official symbols
                 if (con.getOfficialSymbol().equals(con1.getOfficialSymbol())) {
                     toBeReplaced.put(this.connectives.indexOf(con1), con);
-                    continue;
+                    found = true;
                 }
 
                 // Equal truth tables
                 if (Arrays.equals(con.getPossibleTruths(), con1.getPossibleTruths())) {
                     toBeReplaced.put(this.connectives.indexOf(con1), con);
-                    continue;
+                    found = true;
                 }
 
                 // Contains same symbols
@@ -232,9 +232,9 @@ public class LojicParser {
                         Arrays.asList(con.getSymbols()))) {
                     throw new IllegalArgumentException("Cannot add a connective with \"Other Symbols\" that already exists!");
                 }
-
-                toBeAdded.add(con);
             }
+            if (!found)
+                toBeAdded.add(con);
         }
 
         toBeReplaced.forEach(this.connectives::set);
@@ -245,6 +245,7 @@ public class LojicParser {
     /**
      * Replaces an already-included connective with a new connective
      * This method finds the connective with the specified official symbol, then replace that connective
+     * If no connective matches the symbol, this method does not perform any actions
      *
      * @param offSymbol The official symbol of the original connective
      * @param connective The new connective
@@ -253,8 +254,11 @@ public class LojicParser {
      * @throws NullPointerException If the connective is null
      */
     public LojicParser replaceConnective(String offSymbol, Connective connective) {
-        if (offSymbol == null || offSymbol.isEmpty()) throw new IllegalArgumentException("Cannot replace a connective with a null official symbol!");
-        Objects.requireNonNull(connective, "Cannot replace null connective! Use LojicParser#removeConnectives(Connective...) instead.");
+        if (offSymbol == null || offSymbol.isEmpty())
+            throw new IllegalArgumentException("Cannot replace a connective with a null official symbol!");
+
+        Objects.requireNonNull(connective, "Cannot replace null connective! Use " +
+                "LojicParser#removeConnectives(Connective...) instead.");
 
         HashMap<Integer, Connective> toBeReplaced = new HashMap<>();
         for (Connective con : this.connectives) {
@@ -462,7 +466,7 @@ public class LojicParser {
 
     // Recursive method used to parse any unparsed formula to nodes
     private Node parseString(Node parent, String formula, int location, int level) {
-        LojicLexer tokenizer = new LojicLexer(this, formula, formula);
+        LojicLexer tokenizer = new LojicLexer(this, cache, formula);
         List<Token> tokens = tokenizer.lex(location);
         // DEBUG Print formulas
         /*System.out.println(tokens);

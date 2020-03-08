@@ -1,6 +1,8 @@
 package lojic.argument;
 
 import lojic.nodes.Node;
+import lojic.nodes.connectives.BinaryConnective;
+import lojic.nodes.connectives.Connective;
 import lojic.parser.LojicParser;
 import lojic.parser.SyntaxException;
 import lojic.table.TTableBuilder;
@@ -50,7 +52,7 @@ public class Argument {
     private TTableBuilder tableBuilder;
 
     private List<String> premises;
-    //private List<TruthTable> proofs; // lines of proof
+    //private List<Line> proofs; // lines of proof
     private String conclusion;
 
     /**
@@ -75,9 +77,7 @@ public class Argument {
     public Argument(LojicParser parser) {
         Objects.requireNonNull(parser, "The LojicParser for the argument cannot be null!");
         this.parser = parser;
-        this.tableBuilder = new TTableBuilder()
-                .useDefaultTFAtoms()
-                .disableSubColumns();
+        this.tableBuilder = new TTableBuilder();
         this.premises = new ArrayList<>();
     }
 
@@ -118,7 +118,6 @@ public class Argument {
      *                              See {@link #addPremises(String...)} for why such errors occur
      */
     public Argument fromSequent(String sequent) {
-        Argument arg = new Argument();
         // Build regex for matching logical consequences
         StringBuilder regex = new StringBuilder();
         for (String lc : LOGICAL_CONSEQUENCE) {
@@ -157,19 +156,19 @@ public class Argument {
             sequent = sequent.substring(0, matcher.start());
         }
 
-        if (!sequent.isEmpty() && !arg.isBlank(sequent)) {
+        if (!sequent.isEmpty() && !isBlank(sequent)) {
             String[] prems = sequent.split(PREMISE_SEPARATOR);
 
             for (String p : prems) {
-                if (p.isEmpty() || arg.isBlank(p))
+                if (p.isEmpty() || isBlank(p))
                     throw new SyntaxException("A valid sequent must have 1 less comma \",\" than the number of premises!");
             }
 
-            arg.addPremises(prems);
+            addPremises(prems);
         }
 
-        arg.setConclusion(conclusion);
-        return arg;
+        setConclusion(conclusion);
+        return this;
     }
 
     /**
@@ -289,7 +288,7 @@ public class Argument {
      * @return The integer number of lines
      */
     public int lineCount() {
-        return premises.size() - 1 //premises
+        return premises.size() //premises
                 + 1; // conclusion
     }
 
@@ -331,6 +330,43 @@ public class Argument {
         int linecount = 0;
         HashMap<Integer, Integer> tracker = new HashMap<>(); // tracks index of each lines of proof in the corrCon and the lint number
 
+        /*
+            If the parser does recognize AND and IF connective, then use those connectives.
+
+            IF the parser does not recognizing characters like & amd ->
+            we create unique instances of connectives that has the same truth function
+            but with rare characters to avoid repeated official characters
+         */
+
+        // AND
+        boolean setAnd = false;
+        boolean[] andV = new boolean[]{true, false, false, false};
+        Connective and = parser.getConnectives().stream()
+                .filter(con -> Arrays.equals(con.getPossibleTruths(), andV))
+                .findAny().orElse(null);
+
+        if (and == null) {
+                // assign rare characters
+               and = new BinaryConnective((left, right) -> left && right,
+                       "ˋ", 40);
+            parser.addConnectives(and);
+            setAnd = true;
+        }
+
+        // IF
+        boolean setImpl = false;
+        boolean[] implV = new boolean[]{true, false, true, true};
+        Connective impl = parser.getConnectives().stream()
+                .filter(con -> Arrays.equals(con.getPossibleTruths(), implV))
+                .findAny().orElse(null);
+
+        if (impl == null) {
+                impl = new BinaryConnective((left, right) -> !left || right,
+                    "ˊ", 20);
+            parser.addConnectives(impl);
+            setImpl = true;
+        }
+
         // Premises
         if (!premises.isEmpty()) {
             corrCon.append("(");
@@ -339,10 +375,10 @@ public class Argument {
                 linecount++;
                 tracker.put(corrCon.length() + 2, linecount);
                 corrCon.append("(").append(prem).append(")");
-                if (!prem.equals(lastP)) corrCon.append("&");
+                if (!prem.equals(lastP)) corrCon.append(and.getOfficialSymbol());
             }
             corrCon.append(")")
-                    .append("→");
+                    .append(impl.getOfficialSymbol());
         }
 
         linecount++;
@@ -355,8 +391,15 @@ public class Argument {
 
          try {
 
-             return parser.parse(corrCon.toString())
-                     .getTableBuilder()
+             Node node = parser.parse(parser.strip(corrCon.toString()));
+
+             if (setAnd)
+                 parser.removeConnectives(and);
+
+             if (setImpl)
+                 parser.removeConnectives(impl);
+
+             return node.getTableBuilder()
                      .copySetting(tableBuilder)
                      .build()
                      .rootIsTautology();
@@ -371,9 +414,11 @@ public class Argument {
                  }
              }
 
+             System.out.println(lNumber);
+
              try {
                  parser.parse(getLine(lNumber));
-             } catch (SyntaxException se2) { // catches syntaxexception by parsing the specific line alone
+             } catch (SyntaxException se2) { // catches syntax exception by parsing the specific line alone
                  throw new SyntaxException("Syntax Error on the #" + lNumber + " line of proof\n" + se2.getMessage(), se2);
              }
          }

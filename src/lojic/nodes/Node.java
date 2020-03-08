@@ -1,10 +1,6 @@
 package lojic.nodes;
 
 import lojic.nodes.connectives.Connective;
-import lojic.nodes.truthapts.Atom;
-import lojic.nodes.truthapts.Formula;
-import lojic.nodes.truthapts.LocalAtom;
-import lojic.nodes.truthapts.TruthApt;
 import lojic.table.TTableBuilder;
 import lojic.table.TruthTable;
 
@@ -28,7 +24,7 @@ public abstract class Node {
     protected final Node parent;
 
     protected NodeClimber climber;
-    protected TTableBuilder tableSetting;
+    protected TTableBuilder tableBuilder;
 
     /**
      * Constructor of a node
@@ -43,10 +39,47 @@ public abstract class Node {
         this.level = level;
         this.string = string;
         this.parent = parent;
+        this.tableBuilder = new TTableBuilder(this);
     }
 
     /**
-     * Get the number of levels in the Node
+     * Compute and build a {@link TruthTable} that represents this node
+     * with the existing settings of the {@link TTableBuilder}.
+     *
+     * If one has not changed the {@link TTableBuilder} of this Node, then
+     * this builds a truth table with the default settings: Default True/False atoms and no sub-columns
+     * @see TTableBuilder for more information on further confirguration
+     *
+     * @return The truth table
+     */
+    public TruthTable buildTruthTable() {
+        return tableBuilder.build();
+    }
+
+    /**
+     * Compute and return a {@link TTableBuilder} that represents this node
+     * with no sub-columns
+     * @see TTableBuilder for more information on further confirguration
+     *
+     * @return The truth table builder
+     */
+    public TTableBuilder getTableBuilder() {
+        return tableBuilder;
+    }
+
+    /**
+     * Set the table builder and its settings for every node under this node
+     *
+     * @param builder The table builder
+     */
+    public void setUniversalBuilder(TTableBuilder builder) {
+        climb().forEach(n ->
+                getTableBuilder().copySetting(builder)
+        );
+    }
+
+    /**
+     * Get the number of levels below this Node
      * The node itself is always at level 0
      * The value increases by 1 for every sub-atom or formula
      *
@@ -55,8 +88,9 @@ public abstract class Node {
     public int getLevels() {
         final int[] levels = {0};
         climb().forEach(node -> {
-            if (node.getLevel() > levels[0])
-                levels[0] = node.getLevel();
+            int lvl = node.getLevel() - level;
+            if (lvl > levels[0])
+                levels[0] = lvl;
         });
         return levels[0];
     }
@@ -78,17 +112,6 @@ public abstract class Node {
      */
     public String getString() {
         return string;
-    }
-
-    /**
-     * Return the {@link TruthApt} object which this Node represents (in the case of a {@link Formula})
-     * or contains (in the case of a {@link LocalAtom})
-     *
-     * @return The {@link TruthApt} object
-     */
-    public TruthApt getTruthApt() {
-        return (this instanceof LocalAtom) ?
-                ((LocalAtom) this).getAtom() : (Formula) this;
     }
 
     /**
@@ -144,12 +167,26 @@ public abstract class Node {
     }
 
     /**
-     * Get the {@link TTableBuilder} of this Node
+     * Check if this node is always {@code true}
+     * Note that this method generates a {@link TruthTable} with whatever
+     * {@link TTableBuilder} settings that already exists in this Node.
+     * To configure
      *
-     * @return The table setting
+     * @return True if this node is always true
      */
-    public TTableBuilder getTableSetting() {
-        return tableSetting;
+    public boolean isTautology() {
+        return getTableBuilder().build().rootIsTautology();
+    }
+
+    /**
+     * Check if this node is always {@code false}
+     * Note that this method generates a {@link TruthTable} with whatever
+     * {@link TTableBuilder} settings that already exists in this Node.
+     *
+     * @return True if this node is always false
+     */
+    public boolean isContradiction() {
+        return getTableBuilder().build().rootIsContradiction();
     }
 
     /**
@@ -195,42 +232,6 @@ public abstract class Node {
         } else {
             return stringEquals(node);
         }
-    }
-
-    /**
-     * Compute and build a {@link TruthTable} that represents this node
-     * with the default settings (default True/False atoms) and no sub-columns
-     * @see TTableBuilder for more information on further confirguration
-     *
-     * @return The truth table
-     */
-    public TruthTable buildTruthTable() {
-        return getTableBuilder()
-                .useDefaultTFAtoms()
-                .disableSubColumns()
-                .build();
-    }
-
-    /**
-     * Compute and return a {@link TTableBuilder} that represents this node
-     * with no sub-columns
-     * @see TTableBuilder for more information on further confirguration
-     *
-     * @return The truth table builder
-     */
-    public TTableBuilder getTableBuilder() {
-        return new TTableBuilder(this);
-    }
-
-    /**
-     * Set the table builder and its settings for every node under this node
-     *
-     * @param builder The table builder
-     */
-    public void setUniversalBuilder(TTableBuilder builder) {
-        climb().forEach(n ->
-                getTableBuilder().copySetting(builder)
-        );
     }
 
     /**

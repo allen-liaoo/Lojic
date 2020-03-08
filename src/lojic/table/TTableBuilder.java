@@ -1,11 +1,11 @@
 package lojic.table;
 
 import lojic.DefaultFactory;
+import lojic.nodes.Atom;
+import lojic.nodes.Formula;
+import lojic.nodes.LocalAtom;
 import lojic.nodes.Node;
 import lojic.nodes.connectives.Connective;
-import lojic.nodes.truthapts.Atom;
-import lojic.nodes.truthapts.Formula;
-import lojic.nodes.truthapts.LocalAtom;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,17 +45,17 @@ public class TTableBuilder {
      * @param node The node which this builder is building the table from
      */
     public TTableBuilder(Node node) {
+        useDefaultTFAtoms();
+        disableSubColumns();
+
         if (node == null) {
             this.node = null;
             this.columns = null;
             this.rowSize = -1;
-            return;
+        } else {
+            this.node = node;
+            this.columns = new ArrayList<>();
         }
-
-        this.node = node;
-        this.columns = new ArrayList<>();
-        this.subColumnsLevel = 0;
-        useDefaultTFAtoms();
     }
 
     /**

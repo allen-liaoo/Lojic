@@ -1,4 +1,4 @@
-package lojic.nodes.truthapts;
+package lojic.nodes;
 
 /**
  * @author AlienIdeology
@@ -9,10 +9,9 @@ package lojic.nodes.truthapts;
  * proposition.
  * @see LocalAtom for a localized version
  */
-public class Atom implements TruthApt {
+public class Atom {
 
     private final String string;
-    private boolean[] truths = null;
 
     /**
      * Constructor of an atom
@@ -29,21 +28,6 @@ public class Atom implements TruthApt {
     @Override
     public String toString() {
         return string;
-    }
-
-    @Override
-    public boolean[] getTruths() {
-        return truths;
-    }
-
-    @Override
-    public boolean isSet() {
-        return truths != null;
-    }
-
-    @Override
-    public void setTruths(boolean[] truths) {
-        this.truths = truths;
     }
 
     /**

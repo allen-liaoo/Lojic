@@ -1,5 +1,7 @@
 package lojic.table;
 
+import lojic.nodes.Atom;
+import lojic.nodes.Formula;
 import lojic.nodes.Node;
 import lojic.nodes.connectives.Connective;
 
@@ -10,8 +12,8 @@ import java.util.stream.Collectors;
  * @author AlienIdeology
  *
  * A truth table that shows the truth values of each atoms and formulas, and the logical relation between each them.
- * This consists of {@link Column}s of {@link lojic.nodes.truthapts.TruthApt} and boolean arrays of truth values
- * which corresponds to each TruthApt object
+ * This consists of {@link Column}s of {@link Atom} and {@link Formula}
+ * and boolean arrays of truth values which corresponds to each TruthApt object
  *
  * @see TTableBuilder#build() for creating instances of truth tables
  */

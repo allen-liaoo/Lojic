@@ -1,6 +1,4 @@
-package lojic.nodes.truthapts;
-
-import lojic.nodes.Node;
+package lojic.nodes;
 
 /**
  * @author AlienIdeology
@@ -42,7 +40,7 @@ public class LocalAtom extends Node {
     public Node copy() {
         LocalAtom atom = new LocalAtom(level,  parent.copy(),  this.atom.copy());
         atom.climber = this.climber;
-        atom.tableSetting = this.tableSetting;
+        atom.tableBuilder = this.tableBuilder;
         return atom;
     }
 

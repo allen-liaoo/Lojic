@@ -1,6 +1,5 @@
-package lojic.nodes.truthapts;
+package lojic.nodes;
 
-import lojic.nodes.Node;
 import lojic.nodes.connectives.Connective;
 
 import java.util.ArrayList;
@@ -12,11 +11,10 @@ import java.util.List;
  * A truth-apt set of nodes with a connective relation
  * This denotes a non-atomic proposition
  */
-public class Formula extends Node implements TruthApt {
+public class Formula extends Node {
 
     private final Connective connective;
     protected Node[] children;
-    private boolean[] truths = null;
 
     /**
      * Constructor of a formula
@@ -60,21 +58,6 @@ public class Formula extends Node implements TruthApt {
     }
 
     @Override
-    public boolean[] getTruths() {
-        return truths;
-    }
-
-    @Override
-    public boolean isSet() {
-        return truths != null;
-    }
-
-    @Override
-    public void setTruths(boolean[] truths) {
-        this.truths = truths;
-    }
-
-    @Override
     public Node copy() {
         List<Node> childs = new ArrayList<>();
         for(Node child : children) {
@@ -86,7 +69,7 @@ public class Formula extends Node implements TruthApt {
         Formula formula = new Formula(level, String.valueOf(string), connective, parent.copy());
         formula.children = children;
         formula.climber = this.climber;
-        formula.tableSetting = this.tableSetting;
+        formula.tableBuilder = this.tableBuilder;
         return formula;
     }
 

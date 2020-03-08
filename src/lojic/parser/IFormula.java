@@ -1,9 +1,9 @@
 package lojic.parser;
 
+import lojic.nodes.Formula;
 import lojic.nodes.Node;
 import lojic.nodes.NodeClimber;
 import lojic.nodes.connectives.Connective;
-import lojic.nodes.truthapts.Formula;
 
 /**
  * Internal class for building formulas
@@ -11,7 +11,7 @@ import lojic.nodes.truthapts.Formula;
  */
 class IFormula extends Formula  {
 
-    public IFormula(int level, String string, Connective connective, Node parent) {
+    IFormula(int level, String string, Connective connective, Node parent) {
         super(level, string, connective, parent);
     }
 

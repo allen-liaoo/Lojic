@@ -1,7 +1,5 @@
 package lojic.nodes;
 
-import lojic.nodes.truthapts.Formula;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
