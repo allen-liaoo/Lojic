@@ -122,9 +122,10 @@ public class LojicParser {
         if (formula == null || formula.isEmpty()) throw new IllegalArgumentException("Parser does not accept empty or null string");
 
         cache = strip(formula);
-        Node root = parseString(null, formula, 0, 0);
+        Node root = parseString(null, cache, 0, 0);
 
         cacheAtoms.clear();
+        cache = "";
         return root;
     }
 

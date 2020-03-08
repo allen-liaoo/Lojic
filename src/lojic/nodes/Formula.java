@@ -57,19 +57,22 @@ public class Formula extends Node {
         return super.getParent() == null;
     }
 
-    @Override
-    public Node copy() {
+    Node copy(Node parentCopy) {
+        Formula formula = new Formula(
+                level,
+                String.valueOf(string),
+                connective,
+                parentCopy
+        );
+
         List<Node> childs = new ArrayList<>();
         for(Node child : children) {
-            childs.add(child.copy());
+            childs.add(child.copy(formula));
         }
 
         Node[] children = childs.toArray(new Node[0]);
 
-        Formula formula = new Formula(level, String.valueOf(string), connective, parent.copy());
         formula.children = children;
-        formula.climber = this.climber;
-        formula.tableBuilder = this.tableBuilder;
         return formula;
     }
 

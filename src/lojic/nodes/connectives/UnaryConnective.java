@@ -12,7 +12,7 @@ import java.util.function.Predicate;
  *
  * @see DefaultFactory#NEG for the only default unary connective
  */
-public class UnaryConnective extends Connective {
+public final class UnaryConnective extends Connective {
 
     /**
      * This is the possible values to which the atom or formula on this unary connective's right can have

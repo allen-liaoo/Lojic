@@ -14,7 +14,7 @@ import java.util.function.BiPredicate;
  *
  * @see DefaultFactory for a list of the default binary connectives
  */
-public class BinaryConnective extends Connective {
+public final class BinaryConnective extends Connective {
 
     /**
      * This is the possible combinations of values to which the atom or formula on this binary connective's right and left can have
