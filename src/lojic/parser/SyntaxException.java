@@ -7,6 +7,24 @@ package lojic.parser;
  */
 public class SyntaxException extends RuntimeException {
 
+    /**
+     * Get the string representation of a {@link SyntaxException}'s
+     * error indicator, which puts a ^ under the location on a string which the
+     * syntax exception occurred
+     *
+     * @param formula The string formula
+     * @param index The location of the error
+     * @return The indicator string
+     */
+    public static String generateIndicator(String formula, int index) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < index; i++) {
+            builder.append(" ");
+        }
+
+        return formula + "\n" + builder.toString() + "^";
+    }
+
     private final String indicator;
     private final int index;
 
@@ -33,12 +51,12 @@ public class SyntaxException extends RuntimeException {
      *
      * @param index The index (0~n) of the string
      * @param message The custom message
-     * @param indicator The formula with underlying indicator
+     * @param baseString The formula with underlying indicator
      */
-    public SyntaxException(int index, String message, String indicator) {
-        super("Index " + index + " - " + message + "\n" + indicator);
+    public SyntaxException(int index, String message, String baseString) {
+        super("Index " + index + " - " + message + "\n" + generateIndicator(baseString, index));
         this.index = index;
-        this.indicator = indicator;
+        this.indicator = generateIndicator(baseString, index);
     }
 
     /**
@@ -46,12 +64,12 @@ public class SyntaxException extends RuntimeException {
      *
      * @param index The index (0~n) of the string
      * @param character The character
-     * @param indicator The formula with underlying indicator
+     * @param baseString The formula with underlying indicator
      */
-    public SyntaxException(int index, CharSequence character, String indicator) {
-        super("Index " + index + " - Unexpected character " + "\"" + character + "\"\n" + indicator);
+    public SyntaxException(int index, CharSequence character, String baseString) {
+        super("Index " + index + " - Unexpected character " + "\"" + character + "\"\n" + generateIndicator(baseString, index));
         this.index = index;
-        this.indicator = indicator;
+        this.indicator = generateIndicator(baseString, index);
     }
 
     /**

@@ -1,7 +1,5 @@
 package lojic.parser;
 
-import lojic.LojicUtil;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -197,7 +195,7 @@ class LojicLexer {
                 StringBuilder cache = new StringBuilder(next.toString());
                 errorNext(loc+1, TokenType.BINARY_CONNECTIVE);
 
-                while (count !=0) {
+                while (count != 0) {
                     String nxt = nextChar();
                     // Cases like "(" or "((" or "((P->Q)"
                     if (nxt == null) { // !hasNext()
@@ -207,7 +205,7 @@ class LojicLexer {
                         // "((P->Q)"
                         } else {
                             throw new SyntaxException(loc+1, "Missing closing parenthesis",
-                                    LojicUtil.generateIndicator(baseString, loc+1));
+                                    baseString);
                         }
                     }
 
@@ -230,16 +228,14 @@ class LojicLexer {
                 loc -= (cache.length() -2);
 
                 // Empty Formula ()
-                if(result.isEmpty()) throw new SyntaxException(loc-1, "Empty formula or atom within parenthesis",
-                        LojicUtil.generateIndicator(baseString, loc-1));
+                if(result.isEmpty()) throw new SyntaxException(loc-1, "Empty formula or atom within parenthesis", baseString);
 
                 // Return formula of atom
                 return LojicParser.isAtomic(result) ? new Token (this, result, TokenType.ATOM, loc) :
                         new Token(this, result, TokenType.FORMULA, loc);
             }
 
-            case PARENTHESIS_CLOSE: throw new SyntaxException(loc, next,
-                    LojicUtil.generateIndicator(toString(), loc));
+            case PARENTHESIS_CLOSE: throw new SyntaxException(loc, next, baseString);
 
             case ATOM: {
                 errorNext(loc+1, TokenType.UNARY_CONNECTIVE, TokenType.PARENTHESIS_OPEN);
@@ -254,8 +250,7 @@ class LojicLexer {
                 break;
             }
             case UNKNOWN:
-                throw new SyntaxException(loc, "Unrecognized character \"" + next + "\"",
-                        LojicUtil.generateIndicator(baseString, loc));
+                throw new SyntaxException(loc, "Unrecognized character \"" + next + "\"", baseString);
         }
 
         next.setLocation(loc);
@@ -359,16 +354,13 @@ class LojicLexer {
                 }
             }
 
-            if (error) throw new SyntaxException(location, (CharSequence) next,
-                    LojicUtil.generateIndicator(baseString, location));
+            if (error) throw new SyntaxException(location, (CharSequence) next, baseString);
         }
     }
 
     // Check if there is a next token. If not, throw SyntaxException
     private void errorNoNext(int location) throws SyntaxException {
-        if (!hasNext()) throw new SyntaxException(location,
-                "Missing atom or formula at the end of the expression",
-                LojicUtil.generateIndicator(baseString, location));
+        if (!hasNext()) throw new SyntaxException(location, "Missing atom or formula at the end of the expression", baseString);
     }
 
     private boolean hasNext() {

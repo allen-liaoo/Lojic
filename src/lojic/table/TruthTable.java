@@ -11,9 +11,9 @@ import java.util.stream.Collectors;
 /**
  * @author AlienIdeology
  *
- * A truth table that shows the truth values of each atoms and formulas, and the logical relation between each them.
- * This consists of {@link Column}s of {@link Atom} and {@link Formula}
- * and boolean arrays of truth values which corresponds to each TruthApt object
+ * A truth table that shows the truth values of each atoms and formulas, and the logical relation between each of them.
+ * This consists of {@link Column}s of {@link Atom} or {@link Formula}
+ * and boolean arrays of truth values which corresponds to each object
  *
  * @see TTableBuilder#build() for creating instances of truth tables
  */

@@ -1,5 +1,11 @@
 package lojic;
 
+import lojic.argument.InferenceException;
+import lojic.argument.Line;
+import lojic.argument.inference_rule.AssumptionIR;
+import lojic.argument.inference_rule.DischargeIR;
+import lojic.argument.inference_rule.InferenceRule;
+import lojic.argument.inference_rule.PremiseIR;
 import lojic.nodes.connectives.BinaryConnective;
 import lojic.nodes.connectives.Connective;
 import lojic.nodes.connectives.UnaryConnective;
@@ -91,55 +97,41 @@ public class DefaultFactory {
 
     public static final String[] FALSE_ATOMS = new String[]{"F", "⊥", "0"};
 
-    /* Utility Methods for Default Fields */
+    /* Inference Rules */
 
-    public static boolean isDefaultConnective(String token) {
-        for (Connective con : DEFAULT_CONNECTIVES) {
-            if (token.equals(con.getOfficialSymbol())) return true;
+    public static final PremiseIR IR_PREMISE = new PremiseIR();
+
+    public static final AssumptionIR IR_ASSUMPTION = new AssumptionIR();
+
+    // Normal IRs
+
+    public static final InferenceRule IR_AND_INTRO = new InferenceRule(AND.getOfficialSymbol() + "I") {
+        @Override
+        protected void validity(Line line) throws InferenceException {
+            // TODO: AND Introduction
         }
-        return false;
-    }
+    };
 
-    public static boolean isDefaultBinaryConnective(String string) {
-        for (Connective con : DEFAULT_CONNECTIVES) {
-            if (con.isBinary()) {
-                if (string.equals(con.getOfficialSymbol())) {
-                    return true;
-                }
-            }
+    public static final InferenceRule IR_MODUS_POLLENS = new InferenceRule("MT") {
+        @Override
+        protected void validity(Line line) throws InferenceException {
+            // TODO: MP
         }
-        return false;
-    }
+    };
 
-    public static boolean isDefaultUnaryConnective(String string) {
-        for (Connective con : DEFAULT_CONNECTIVES) {
-            if (con.isUnary()) {
-                if (string.equals(con.getOfficialSymbol())) return true;
-            }
+    // Discharge IRs
+    public static final DischargeIR IR_IF_INTRO = new DischargeIR(IF.getOfficialSymbol() + "I", 1) {
+        @Override
+        protected void validity(Line line) throws InferenceException {
+            // TODO: IF Introduction
         }
-        return false;
-    }
+    };
 
-    public static Connective getDefaultConnective(String connective) {
-        for (Connective con : DEFAULT_CONNECTIVES) {
-            if (con.getOfficialSymbol().equals(connective)) return con;
+    public static final DischargeIR IR_OR_ELIM = new DischargeIR(OR.getOfficialSymbol() + "E", 2) {
+        @Override
+        protected void validity(Line line) throws InferenceException {
+            // TODO: OR Elimination
         }
-        return null;
-    }
-
-    public boolean isDefaultTAtom(String atom) {
-        for (String ta : TRUE_ATOMS) {
-            if (ta.equals(atom)) return true;
-        }
-        return false;
-    }
-
-    public boolean isDefaultFAtom(String atom) {
-        for (String fa : FALSE_ATOMS) {
-            if (fa.equals(atom)) return true;
-        }
-        return false;
-    }
-
+    };
 
 }
